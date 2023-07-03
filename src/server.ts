@@ -1,24 +1,39 @@
 import express, {json, Express} from "express"
 import cors from "cors"
-import { register } from "./controllers/register";
-
-const app:Express = express(); // express app init
-
-app.use(json()) //BODY parsing from express
-app.use(cors()) // Allow "unsafe" connections
-
-app.get('/', (req, res) => {
-    res.json("<h1>JEstem</h1>")
-})
-
-//endpoints
-
-app.post('websocketConnection')// przykłądowa inicjalizacja websocketa
+import { RegisterController } from "./controllers/RegisterController";
 
 
-app.post("/register", (req,res) => register(req, res))
+class ArtificiumBackend {
+    readonly app:Express
+    constructor() {
+        this.app = express()
+        this.app.use(json())
+        this.app.use(cors());
+        this.setupRoutes();
+    }
+    // private - można używać tylko z wnętrza trej klasy!!
+    private setupRoutes() {
+        this.app.post('register', (req, res) => RegisterController.register(req,res))
+    }
+}
 
-app.post('/login')
+const artificium = (new ArtificiumBackend()).app;
+artificium.listen(3001, () => console.log("APP Running port 3001"))
+// app.use(json()) //BODY parsing from express
+// app.use(cors()) // Allow "unsafe" connections
+
+// app.get('/', (req, res) => {
+//     res.json("<h1>JEstem</h1>")
+// })
+
+// //endpoints
+
+// app.post('websocketConnection')// przykłądowa inicjalizacja websocketa
+
+// app.post("/register", (req,res) => RegisterController.register(req,res))
+// app.post("/register", (req,res) => register(req, res))
+
+// app.post('/login')
 
 
-app.listen(3001, () => console.log("APP Running port 3001"))
+// app.listen(3001, () => console.log("APP Running port 3001"))
