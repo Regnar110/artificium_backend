@@ -28,17 +28,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importStar(require("express"));
 const cors_1 = __importDefault(require("cors"));
+const dotenv_1 = __importDefault(require("dotenv"));
 const RegisterController_1 = require("./controllers/RegisterController");
+const app = (0, express_1.default)();
 class ArtificiumBackend {
     constructor() {
         this.app = (0, express_1.default)();
         this.app.use((0, express_1.json)());
         this.app.use((0, cors_1.default)());
         this.setupRoutes();
+        dotenv_1.default.config();
     }
     // private - można używać tylko z wnętrza trej klasy!!
     setupRoutes() {
-        this.app.post('register', (req, res) => RegisterController_1.RegisterController.register(req, res));
+        this.app.post('/register', RegisterController_1.RegisterController.register);
     }
 }
 const artificium = (new ArtificiumBackend()).app;
@@ -51,6 +54,6 @@ artificium.listen(3001, () => console.log("APP Running port 3001"));
 // //endpoints
 // app.post('websocketConnection')// przykłądowa inicjalizacja websocketa
 // app.post("/register", (req,res) => RegisterController.register(req,res))
-// app.post("/register", (req,res) => register(req, res))
+// // app.post("/register", (req,res) => register(req, res))
 // app.post('/login')
-// app.listen(3001, () => console.log("APP Running port 3001"))
+// app.listen(3001, () => console.log("APP Running port 3001s"))
