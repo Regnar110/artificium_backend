@@ -22,6 +22,15 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -30,30 +39,24 @@ const express_1 = __importStar(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const RegisterController_1 = require("./controllers/RegisterController");
-const app = (0, express_1.default)();
+const ConnectMongo_1 = __importDefault(require("./utils/Mongo/ConnectMongo"));
 class ArtificiumBackend {
     constructor() {
         this.app = (0, express_1.default)();
         this.app.use((0, express_1.json)());
         this.app.use((0, cors_1.default)());
+        this.mongoClient = ConnectMongo_1.default.getInstance(); // inicjalizacja instancji klienta mongoDB bez możliwości stworzenia kolejnych
         this.setupRoutes();
         dotenv_1.default.config();
     }
     // private - można używać tylko z wnętrza trej klasy!!
     setupRoutes() {
-        this.app.post('/register', RegisterController_1.RegisterController.register);
+        return __awaiter(this, void 0, void 0, function* () {
+            const client = this.mongoClient;
+            const artificium_db = client.db("Artificium");
+            this.app.post('/register', (req, res) => RegisterController_1.RegisterController.register(req, res, artificium_db));
+        });
     }
 }
 const artificium = (new ArtificiumBackend()).app;
 artificium.listen(3001, () => console.log("APP Running port 3001"));
-// app.use(json()) //BODY parsing from express
-// app.use(cors()) // Allow "unsafe" connections
-// app.get('/', (req, res) => {
-//     res.json("<h1>JEstem</h1>")
-// })
-// //endpoints
-// app.post('websocketConnection')// przykłądowa inicjalizacja websocketa
-// app.post("/register", (req,res) => RegisterController.register(req,res))
-// // app.post("/register", (req,res) => register(req, res))
-// app.post('/login')
-// app.listen(3001, () => console.log("APP Running port 3001s"))

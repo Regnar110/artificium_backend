@@ -18,18 +18,24 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RegisterController = void 0;
 const RegisterValidation_1 = require("../utils/Decorators/RegisterValidation");
-const AccessMongo_1 = require("../utils/Decorators/AccessMongo");
+const ResponseGenerator_1 = require("../utils/ResponseGenerator/ResponseGenerator");
 class RegisterController {
-    static register(req, res) {
+    static register(req, res, artificium_db) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { client, artificium_users } = this.register;
-            const result = yield artificium_users.insertOne(req.body);
-            res.json("daa");
+            try {
+                const artificium_users = artificium_db.collection("Users");
+                const result = yield artificium_users.insertOne(req.body);
+                const x = (0, ResponseGenerator_1.ResponseGenerator)("SUCCESS")(200, "Registration successful!", result);
+                res.json(x);
+            }
+            catch (error) {
+                const errorObject = (0, ResponseGenerator_1.ResponseGenerator)("ERROR")(500, "RegisterController: registration method error", "Registration Error");
+                res.status(500).json(errorObject);
+            }
         });
     }
 }
 __decorate([
-    (0, AccessMongo_1.AccessMongo)("Artificium", "Users"),
     RegisterValidation_1.RegisterValidation
 ], RegisterController, "register", null);
 exports.RegisterController = RegisterController;

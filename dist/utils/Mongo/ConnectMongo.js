@@ -7,20 +7,19 @@ const mongodb_1 = require("mongodb");
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const uri = process.env.ATLAS_URI;
-let client;
-let clientPromise;
 if (!uri) {
     throw new Error('Add Mongo URI to .env.local');
 }
-if (process.env.NODE_ENV === 'development') {
-    if (!global._mongoClientPromise) {
-        client = new mongodb_1.MongoClient(uri);
-        global._mongoClientPromise = client.connect();
+class MongoDBClient {
+    constructor() {
+        // Prywatny konstruktor, aby uniemożliwić tworzenie innych instancji
     }
-    clientPromise = global._mongoClientPromise;
+    static getInstance() {
+        if (!MongoDBClient.instance) {
+            MongoDBClient.instance = new mongodb_1.MongoClient(uri);
+            MongoDBClient.instance.connect();
+        }
+        return MongoDBClient.instance;
+    }
 }
-else {
-    client = new mongodb_1.MongoClient(uri);
-    clientPromise = client.connect();
-}
-exports.default = clientPromise;
+exports.default = MongoDBClient;
