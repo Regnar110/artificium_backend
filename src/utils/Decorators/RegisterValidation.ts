@@ -6,10 +6,10 @@ export const RegisterValidation = (target: any, name: string, descriptor: Proper
     const originalMethod = descriptor.value;
     descriptor.value = async (...args: any[]) => {
       try {
-          const { nickname, register_password, mail } = args[0].body;
+          const { nickname, register_password, email } = args[0].body;
           const securedPass = await SecurePass(register_password);
           const userObject = {
-            email: mail,
+            email,
             nickname,
             password: securedPass,
             avatar_id: "123",
@@ -19,7 +19,7 @@ export const RegisterValidation = (target: any, name: string, descriptor: Proper
           args[0].body=userObject
           return originalMethod.apply(target, args);
       } catch (error) {
-          const errorObject = ResponseGenerator<ErrorResponseType>("ERROR")!(500, "RegisterValidation Decorator: Decorator function error", "Registration Error")
+          const errorObject = ResponseGenerator("ERROR")!<ErrorResponseType>(500, "RegisterValidation Decorator: Decorator function error", "Registration Error")
           args[0].body = errorObject
           return originalMethod.apply(target, args) 
       }

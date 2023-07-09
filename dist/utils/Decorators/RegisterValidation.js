@@ -17,10 +17,10 @@ const RegisterValidation = (target, name, descriptor) => {
     const originalMethod = descriptor.value;
     descriptor.value = (...args) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            const { nickname, register_password, mail } = args[0].body;
+            const { nickname, register_password, email } = args[0].body;
             const securedPass = yield (0, SecurePass_1.SecurePass)(register_password);
             const userObject = {
-                email: mail,
+                email,
                 nickname,
                 password: securedPass,
                 avatar_id: "123",

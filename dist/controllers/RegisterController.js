@@ -19,14 +19,46 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.RegisterController = void 0;
 const RegisterValidation_1 = require("../utils/Decorators/RegisterValidation");
 const ResponseGenerator_1 = require("../utils/ResponseGenerator/ResponseGenerator");
+const UserExistenceValidation = (target, name, descriptor) => {
+    console.log(target);
+    console.log(name);
+    console.log(descriptor);
+    const originalMethod = descriptor.value;
+    descriptor.value = (...args) => __awaiter(void 0, void 0, void 0, function* () {
+        const artificium_db = args[2];
+        const artificium_users = artificium_db.collection("Users");
+        try {
+            const isUserExist = yield artificium_users.countDocuments({
+                email: args[0].body.email
+            }, { limit: 1 });
+            console.log(isUserExist);
+            if (isUserExist === 0) {
+                return originalMethod.apply(target, args);
+            }
+            else {
+                throw new Error;
+            }
+        }
+        catch (error) {
+            const errorObject = (0, ResponseGenerator_1.ResponseGenerator)("ERROR")(500, "UserExistenceValidation Decorator: Decorator function error - user probably already exist in database", "User with this email already exist");
+            args[0].body = errorObject;
+            return originalMethod.apply(target, args);
+        }
+    });
+};
 class RegisterController {
     static register(req, res, artificium_db) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const artificium_users = artificium_db.collection("Users");
-                const result = yield artificium_users.insertOne(req.body);
-                const x = (0, ResponseGenerator_1.ResponseGenerator)("SUCCESS")(200, "Registration successful!", result);
-                res.json(x);
+                if (!req.body.status) {
+                    const artificium_users = artificium_db.collection("Users");
+                    const result = yield artificium_users.insertOne(req.body);
+                    const x = (0, ResponseGenerator_1.ResponseGenerator)("SUCCESS")(200, "Registration successful!", result);
+                    res.json(x);
+                }
+                else {
+                    res.json(req.body);
+                }
             }
             catch (error) {
                 const errorObject = (0, ResponseGenerator_1.ResponseGenerator)("ERROR")(500, "RegisterController: registration method error", "Registration Error");
@@ -36,6 +68,7 @@ class RegisterController {
     }
 }
 __decorate([
+    UserExistenceValidation,
     RegisterValidation_1.RegisterValidation
 ], RegisterController, "register", null);
 exports.RegisterController = RegisterController;
