@@ -68,7 +68,6 @@ class RegisterController {
     }
 }
 __decorate([
-    UserExistenceValidation,
     RegisterValidation_1.RegisterValidation
 ], RegisterController, "register", null);
 exports.RegisterController = RegisterController;

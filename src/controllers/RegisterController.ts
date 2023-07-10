@@ -34,7 +34,6 @@ const UserExistenceValidation = (target: any, name: string, descriptor: Property
 
 export class RegisterController {
 
-    @UserExistenceValidation
     @RegisterValidation
     static async  register(req:any, res:any, artificium_db:Db) {
         try {
