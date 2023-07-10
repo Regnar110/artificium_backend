@@ -42,7 +42,7 @@ const RegisterValidation = (target, name, descriptor) => {
             }
         }
         catch (error) {
-            const errorObject = (0, ResponseGenerator_1.ResponseGenerator)("ERROR")(500, "RegisterValidation Decorator: Decorator function error", "Registration Error");
+            const errorObject = (0, ResponseGenerator_1.ResponseGenerator)("ERROR")(510, "RegisterValidation Decorator: Decorator function error", "Registration Error");
             args[0].body = errorObject;
             return originalMethod.apply(target, args);
         }

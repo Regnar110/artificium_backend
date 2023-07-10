@@ -30,7 +30,7 @@ export const RegisterValidation = (target: any, name: string, descriptor: Proper
             return originalMethod.apply(target, args)
           }
       } catch (error) {
-          const errorObject = ResponseGenerator("ERROR")!<ErrorResponseType>(500, "RegisterValidation Decorator: Decorator function error", "Registration Error")
+          const errorObject = ResponseGenerator("ERROR")!<ErrorResponseType>(510, "RegisterValidation Decorator: Decorator function error", "Registration Error")
           args[0].body = errorObject
           return originalMethod.apply(target, args) 
       }

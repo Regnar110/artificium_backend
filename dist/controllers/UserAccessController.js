@@ -1,5 +1,4 @@
 "use strict";
-//USER Register Handler
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -16,10 +15,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.RegisterController = void 0;
+exports.UserAccessController = void 0;
 const RegisterValidation_1 = require("../utils/Decorators/RegisterValidation");
 const ResponseGenerator_1 = require("../utils/ResponseGenerator/ResponseGenerator");
-class RegisterController {
+class UserAccessController {
     static register(req, res, artificium_db) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -34,13 +33,17 @@ class RegisterController {
                 }
             }
             catch (error) {
-                const errorObject = (0, ResponseGenerator_1.ResponseGenerator)("ERROR")(500, "RegisterController: registration method error", "Registration Error");
+                const errorObject = (0, ResponseGenerator_1.ResponseGenerator)("ERROR")(510, "RegisterController: registration method error", "Registration Error");
                 res.status(500).json(errorObject);
             }
+        });
+    }
+    static login(req, res, artificium_db) {
+        return __awaiter(this, void 0, void 0, function* () {
         });
     }
 }
 __decorate([
     RegisterValidation_1.RegisterValidation
-], RegisterController, "register", null);
-exports.RegisterController = RegisterController;
+], UserAccessController, "register", null);
+exports.UserAccessController = UserAccessController;

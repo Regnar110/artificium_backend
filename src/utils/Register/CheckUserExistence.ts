@@ -23,7 +23,7 @@ export const checkUserExistence = async (email:string, nickname:string, collecti
             return errorObject
         }
     } catch (error) {
-        const errorObject = ResponseGenerator("ERROR")!<ErrorResponseType>(500, "UserExistenceValidation Decorator: Decorator function error:CheckUserExistence Function", "Registration Error")
+        const errorObject = ResponseGenerator("ERROR")!<ErrorResponseType>(510, "UserExistenceValidation Decorator: Decorator function error:CheckUserExistence Function", "Registration Error")
         return errorObject    
     }
 }

@@ -36,7 +36,7 @@ const checkUserExistence = (email, nickname, collection) => __awaiter(void 0, vo
         }
     }
     catch (error) {
-        const errorObject = (0, ResponseGenerator_1.ResponseGenerator)("ERROR")(500, "UserExistenceValidation Decorator: Decorator function error:CheckUserExistence Function", "Registration Error");
+        const errorObject = (0, ResponseGenerator_1.ResponseGenerator)("ERROR")(510, "UserExistenceValidation Decorator: Decorator function error:CheckUserExistence Function", "Registration Error");
         return errorObject;
     }
 });

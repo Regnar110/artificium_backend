@@ -22,15 +22,6 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -38,7 +29,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importStar(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const dotenv_1 = __importDefault(require("dotenv"));
-const RegisterController_1 = require("./controllers/RegisterController");
+const UserAccessController_1 = require("./controllers/UserAccessController");
 const ConnectMongo_1 = __importDefault(require("./utils/Mongo/ConnectMongo"));
 class ArtificiumBackend {
     constructor() {
@@ -51,12 +42,19 @@ class ArtificiumBackend {
     }
     // private - można używać tylko z wnętrza trej klasy!!
     setupRoutes() {
-        return __awaiter(this, void 0, void 0, function* () {
-            const client = this.mongoClient;
-            const artificium_db = client.db("Artificium");
-            this.app.post('/register', (req, res) => RegisterController_1.RegisterController.register(req, res, artificium_db));
-        });
+        const client = this.mongoClient;
+        const artificium_db = client.db("Artificium");
+        this.app.post('/register', (req, res) => UserAccessController_1.UserAccessController.register(req, res, artificium_db));
+        this.app.post('/login', (req, res) => UserAccessController_1.UserAccessController.login(req, res, artificium_db));
     }
 }
 const artificium = (new ArtificiumBackend()).app;
 artificium.listen(3001, () => console.log("APP Running port 3001"));
+//TO DO
+// 1. Należy zaimplementować logikę dla endpoint /login.
+// 2. UserExistenceCheck - ta funkcja musi być dostosowana do wykorzystania jej w /register jak i /login zgodnie z DRY
+// 3. Po wprowadzeniu powyższego przełożyć wysyłane response na intefejs użytkownika - poinformowanie go o tym jak orzebiegł proces jego rejestracji lub logowania.
+//HTTP STATUSES
+// 200 REQUEST SUCCES
+// 500 Functionality Failed
+// 510 BLOCK FAILED - Something bigger went wrong
