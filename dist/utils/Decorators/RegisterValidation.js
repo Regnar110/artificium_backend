@@ -36,7 +36,6 @@ const RegisterValidation = (target, name, descriptor) => {
                 return originalMethod.apply(target, args);
             }
             else if (userExist.status) {
-                // const errorObject = ResponseGenerator("ERROR")!<ErrorResponseType>(500, "RegisterValidation Decorator: Decorator function error - user already exist", "User with selected email and nickname set already exist. Try another nickname or email.")
                 args[0].body = userExist; // in this case userExist is errorObject which describes what happend in userExist check function
                 return originalMethod.apply(target, args);
             }
