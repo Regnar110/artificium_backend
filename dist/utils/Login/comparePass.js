@@ -15,8 +15,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.comparePass = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const comparePass = (client_pass, db_pass) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log("jestem w bcrypt");
-    console.log(client_pass, db_pass);
     const isPasswordMatch = yield bcrypt_1.default.compare(client_pass, db_pass);
     return isPasswordMatch;
 });

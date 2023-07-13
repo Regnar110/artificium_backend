@@ -4,6 +4,8 @@ import dotenv from 'dotenv'
 import { UserAccessController } from "./controllers/UserAccessController";
 import { MongoClient } from "mongodb";
 import MongoDBClient from "./utils/Mongo/ConnectMongo";
+import session from 'express-session'
+import passport from 'passport'
 
 
 class ArtificiumBackend {
@@ -12,6 +14,13 @@ class ArtificiumBackend {
     constructor() {
         this.app = express()
         this.app.use(json())
+        this.app.use(passport.initialize())
+        this.app.use(passport.session())
+        this.app.use(session({
+            resave:false,
+            saveUninitialized:true,
+            secret:"SECRET"
+        }))
         this.app.use(cors());
         this.mongoClient = MongoDBClient.getInstance() // inicjalizacja instancji klienta mongoDB bez możliwości stworzenia kolejnych
         this.setupRoutes();

@@ -31,10 +31,19 @@ const cors_1 = __importDefault(require("cors"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const UserAccessController_1 = require("./controllers/UserAccessController");
 const ConnectMongo_1 = __importDefault(require("./utils/Mongo/ConnectMongo"));
+const express_session_1 = __importDefault(require("express-session"));
+const passport_1 = __importDefault(require("passport"));
 class ArtificiumBackend {
     constructor() {
         this.app = (0, express_1.default)();
         this.app.use((0, express_1.json)());
+        this.app.use(passport_1.default.initialize());
+        this.app.use(passport_1.default.session());
+        this.app.use((0, express_session_1.default)({
+            resave: false,
+            saveUninitialized: true,
+            secret: "SECRET"
+        }));
         this.app.use((0, cors_1.default)());
         this.mongoClient = ConnectMongo_1.default.getInstance(); // inicjalizacja instancji klienta mongoDB bez możliwości stworzenia kolejnych
         this.setupRoutes();
