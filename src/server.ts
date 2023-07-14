@@ -24,6 +24,7 @@ class ArtificiumBackend {
         const artificium_db = client.db("Artificium")
         this.app.post('/register', (req,res) => UserAccessController.register(req,res, artificium_db))
         this.app.post('/login', (req, res) => UserAccessController.login(req,res,artificium_db))
+        this.app.post('/googleIdentityLogin', (req,res) => UserAccessController.googleIdentityLogin(req,res,artificium_db))
     }
 }
 

@@ -4,8 +4,6 @@ import { RegisterValidation } from "../utils/Decorators/RegisterValidation"
 import { ResponseGenerator } from "../utils/ResponseGenerator/ResponseGenerator"
 import { LoginValidation } from "../utils/Decorators/LoginValidation"
 import dotenv from 'dotenv';
-import passport, { PassportStatic } from 'passport';
-import { Strategy as GoogleStrategy, Strategy, VerifyCallback } from "passport-google-oauth2";
 export class UserAccessController {
 
     @RegisterValidation
@@ -41,10 +39,7 @@ export class UserAccessController {
         }
     }
 
-    static async googleIdentityLogin(req:any,res:any, artificium_db:Db, passport:PassportStatic) {
-      passport.authenticate("google", { scope: ["email", "profile"] })
-    }
-    static googleAuth = (req:any, res:any, passport:PassportStatic) => {
-       
+    static async googleIdentityLogin(req:any,res:any, artificium_db:Db) {
+      console.log(req.body)
     }
 }
