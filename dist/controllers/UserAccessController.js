@@ -56,12 +56,14 @@ class UserAccessController {
             }
         });
     }
-    static googleIdentityLogin(req, res, artificium_db) {
+    static googleIdentityLogin(req, res, artificium_db, passport) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("Google auth login");
+            passport.authenticate("google", { scope: ["email", "profile"] });
         });
     }
 }
+UserAccessController.googleAuth = (req, res, passport) => {
+};
 __decorate([
     RegisterValidation_1.RegisterValidation
 ], UserAccessController, "register", null);
