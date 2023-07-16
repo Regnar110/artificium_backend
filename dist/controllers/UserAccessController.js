@@ -59,6 +59,7 @@ class UserAccessController {
     static googleIdentityLogin(req, res, artificium_db) {
         return __awaiter(this, void 0, void 0, function* () {
             console.log(req.body);
+            res.json("Authenticated");
         });
     }
 }

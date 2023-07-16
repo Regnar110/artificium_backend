@@ -41,5 +41,6 @@ export class UserAccessController {
 
     static async googleIdentityLogin(req:any,res:any, artificium_db:Db) {
       console.log(req.body)
+      res.json("Authenticated")
     }
 }
