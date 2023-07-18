@@ -5,12 +5,14 @@ import { checkUserExistence } from "../Register/CheckUserExistence";
 import { Db } from "mongodb";
 
 export const RegisterValidation = (target: any, name: string, descriptor: PropertyDescriptor) => {
+  
     const originalMethod = descriptor.value;
     descriptor.value = async (...args: any[]) => {
       try {
           const artificium_db = args[2] as Db;
           const artificium_users = artificium_db.collection("Users")
-          const { nickname, register_password, email } = args[0].body;
+          console.log(args[0].body)
+          const { nickname, register_password, email, provider } = args[0].body;
           const securedPass = await SecurePass(register_password);
           const userExist = await checkUserExistence(email, nickname, artificium_users)
           if(userExist === false) {
@@ -18,6 +20,7 @@ export const RegisterValidation = (target: any, name: string, descriptor: Proper
               email,
               nickname,
               password: securedPass,
+              provider,
               avatar_id: "123",
               user_friends_ids: [],
               user_groups_ids: [],
