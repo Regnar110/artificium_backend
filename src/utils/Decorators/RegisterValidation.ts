@@ -2,7 +2,7 @@
 import { SecurePass } from "../Register/SecurePass";
 import { ResponseGenerator } from "../ResponseGenerator/ResponseGenerator";
 import { checkUserExistence } from "../Register/CheckUserExistence";
-import { Db } from "mongodb";
+import { Collection, Db } from "mongodb";
 
 export const RegisterValidation = (target: any, name: string, descriptor: PropertyDescriptor) => {
   
@@ -10,7 +10,7 @@ export const RegisterValidation = (target: any, name: string, descriptor: Proper
     descriptor.value = async (...args: any[]) => {
       try {
           const artificium_db = args[2] as Db;
-          const artificium_users = artificium_db.collection("Users")
+          const artificium_users:Collection<Document> = artificium_db.collection("Users")
           console.log(args[0].body)
           const { nickname, register_password, email, provider } = args[0].body;
           const securedPass = await SecurePass(register_password);

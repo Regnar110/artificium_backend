@@ -57,5 +57,6 @@ artificium.listen(3001, () => console.log("APP Running port 3001"));
 // 3. Po wprowadzeniu powyższego przełożyć wysyłane response na intefejs użytkownika - poinformowanie go o tym jak orzebiegł proces jego rejestracji lub logowania.
 //HTTP STATUSES
 // 200 REQUEST SUCCES
+// 404 - data in db not found
 // 500 Functionality Failed
 // 510 BLOCK FAILED - Something bigger went wrong

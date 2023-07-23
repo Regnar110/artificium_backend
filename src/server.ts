@@ -40,5 +40,6 @@ artificium.listen(3001, () => console.log("APP Running port 3001"))
 //HTTP STATUSES
 
 // 200 REQUEST SUCCES
+// 404 - data in db not found
 // 500 Functionality Failed
 // 510 BLOCK FAILED - Something bigger went wrong
