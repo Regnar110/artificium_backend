@@ -1,20 +1,35 @@
 import express, {json, Express} from "express"
+import { Server } from "socket.io";
+import http from 'http';
 import cors from "cors"
 import dotenv from 'dotenv'
 import { UserAccessController } from "./controllers/UserAccessController";
 import { MongoClient } from "mongodb";
 import MongoDBClient from "./utils/Mongo/ConnectMongo";
+import { DefaultEventsMap } from "socket.io/dist/typed-events";
 
 class ArtificiumBackend {
     readonly app:Express
+    readonly io: Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>
+    readonly server:http.Server
     readonly mongoClient: MongoClient
     constructor() {
-        dotenv.config()
-        this.app = express()
-        this.app.use(json())
+        dotenv.config();
+        this.app = express();
+        this.app.use(json());
         this.app.use(cors());
-        this.mongoClient = MongoDBClient.getInstance() // inicjalizacja instancji klienta mongoDB bez możliwości stworzenia kolejnych
+        this.server = http.createServer(this.app);
+        this.io = new Server(this.server, {
+            cors: {
+                origin:["http://localhost:3000"],
+                methods:["GET", "POST"]
+            },
+            addTrailingSlash:false,
+            transports: ['polling', 'websocket'],
+          });; // Utwórz instancję serwera Socket.IO na bazie istniejącego serwera HTTP
+        this.mongoClient = MongoDBClient.getInstance(); // inicjalizacja instancji klienta mongoDB bez możliwości stworzenia kolejnych
         this.setupRoutes();
+        this.setupSocketConnnection();
         
     }   
     
@@ -26,9 +41,17 @@ class ArtificiumBackend {
         this.app.post('/login', (req, res) => UserAccessController.login(req,res,artificium_db))
         this.app.post('/googleIdentityLogin', (req,res) => UserAccessController.googleIdentityLogin(req,res,artificium_db))
     }
+
+    private setupSocketConnnection() {
+        console.log("init")
+        this.io.on('connection', (socket) => {
+            console.log(socket)
+            console.log('a user connected')
+        })
+    }
 }
 
-const artificium = (new ArtificiumBackend()).app;
+const artificium = (new ArtificiumBackend()).server;
 artificium.listen(3001, () => console.log("APP Running port 3001"))
 
 //TO DO

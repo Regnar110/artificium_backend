@@ -11,7 +11,6 @@ export const RegisterValidation = (target: any, name: string, descriptor: Proper
       try {
           const artificium_db = args[2] as Db;
           const artificium_users:Collection<Document> = artificium_db.collection("Users")
-          console.log(args[0].body)
           const { nickname, register_password, email, provider } = args[0].body;
           const securedPass = await SecurePass(register_password);
           const userExist = await checkUserExistence(email, nickname, artificium_users)

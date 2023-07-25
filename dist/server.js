@@ -27,6 +27,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importStar(require("express"));
+const socket_io_1 = require("socket.io");
+const http_1 = __importDefault(require("http"));
 const cors_1 = __importDefault(require("cors"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const UserAccessController_1 = require("./controllers/UserAccessController");
@@ -37,8 +39,19 @@ class ArtificiumBackend {
         this.app = (0, express_1.default)();
         this.app.use((0, express_1.json)());
         this.app.use((0, cors_1.default)());
+        this.server = http_1.default.createServer(this.app);
+        this.io = new socket_io_1.Server(this.server, {
+            cors: {
+                origin: ["http://localhost:3000"],
+                methods: ["GET", "POST"]
+            },
+            addTrailingSlash: false,
+            transports: ['polling', 'websocket'],
+        });
+        ; // Utwórz instancję serwera Socket.IO na bazie istniejącego serwera HTTP
         this.mongoClient = ConnectMongo_1.default.getInstance(); // inicjalizacja instancji klienta mongoDB bez możliwości stworzenia kolejnych
         this.setupRoutes();
+        this.setupSocketConnnection();
     }
     // private - można używać tylko z wnętrza trej klasy!!
     setupRoutes() {
@@ -48,8 +61,15 @@ class ArtificiumBackend {
         this.app.post('/login', (req, res) => UserAccessController_1.UserAccessController.login(req, res, artificium_db));
         this.app.post('/googleIdentityLogin', (req, res) => UserAccessController_1.UserAccessController.googleIdentityLogin(req, res, artificium_db));
     }
+    setupSocketConnnection() {
+        console.log("init");
+        this.io.on('connection', (socket) => {
+            console.log(socket);
+            console.log('a user connected');
+        });
+    }
 }
-const artificium = (new ArtificiumBackend()).app;
+const artificium = (new ArtificiumBackend()).server;
 artificium.listen(3001, () => console.log("APP Running port 3001"));
 //TO DO
 // 1. Należy zaimplementować logikę dla endpoint /login.

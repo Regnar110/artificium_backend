@@ -40,7 +40,7 @@ class UserAccessController {
             }
         });
     }
-    static login(req, res, artificium_db) {
+    static login(req, res, _artificium_db) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 if (!req.body.status) {
@@ -59,7 +59,6 @@ class UserAccessController {
     }
     static googleIdentityLogin(req, res, artificium_db) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log(req.body);
             try {
                 if (!req.body.status) {
                     if (req.body._id) {

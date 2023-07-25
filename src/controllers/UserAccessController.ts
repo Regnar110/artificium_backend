@@ -25,7 +25,7 @@ export class UserAccessController {
     }
 
     @LoginValidation
-    static async login(req:any, res:any, artificium_db:Db) {
+    static async login(req:any, res:any, _artificium_db:Db) {
         try {
             if(!req.body.status) {
                 const succesObject = ResponseGenerator("SUCCESS")!<SuccesResponseType>(200, "Login Succcesful!", req.body)
@@ -41,7 +41,6 @@ export class UserAccessController {
     }
     @ProviderLoginValidation
     static async googleIdentityLogin(req:any,res:any, artificium_db:Db) {
-        console.log(req.body)
         try {
             if(!req.body.status) {
                 if(req.body._id) {

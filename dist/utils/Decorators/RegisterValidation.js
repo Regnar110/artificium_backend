@@ -20,7 +20,6 @@ const RegisterValidation = (target, name, descriptor) => {
         try {
             const artificium_db = args[2];
             const artificium_users = artificium_db.collection("Users");
-            console.log(args[0].body);
             const { nickname, register_password, email, provider } = args[0].body;
             const securedPass = yield (0, SecurePass_1.SecurePass)(register_password);
             const userExist = yield (0, CheckUserExistence_1.checkUserExistence)(email, nickname, artificium_users);
