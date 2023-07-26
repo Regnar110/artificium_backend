@@ -60,12 +60,17 @@ class ArtificiumBackend {
         this.app.post('/register', (req, res) => UserAccessController_1.UserAccessController.register(req, res, artificium_db));
         this.app.post('/login', (req, res) => UserAccessController_1.UserAccessController.login(req, res, artificium_db));
         this.app.post('/googleIdentityLogin', (req, res) => UserAccessController_1.UserAccessController.googleIdentityLogin(req, res, artificium_db));
+        this.app.post('disconnect', (req, res) => {
+            console.log(req.body);
+        });
     }
     setupSocketConnnection() {
-        console.log("init");
         this.io.on('connection', (socket) => {
-            console.log(socket);
-            console.log('a user connected');
+            console.log(socket.disconnected);
+        });
+        this.io.on("disconnecting", (socket) => console.log("user disconnected"));
+        this.io.on("chat", (data) => {
+            console.log("wiadomość");
         });
     }
 }
