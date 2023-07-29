@@ -33,6 +33,7 @@ const cors_1 = __importDefault(require("cors"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const UserAccessController_1 = require("./controllers/UserAccessController");
 const ConnectMongo_1 = __importDefault(require("./utils/Mongo/ConnectMongo"));
+const UserDashBoardActions_1 = require("./controllers/UserDashBoardActions");
 class ArtificiumBackend {
     constructor() {
         dotenv_1.default.config();
@@ -57,20 +58,23 @@ class ArtificiumBackend {
     setupRoutes() {
         const client = this.mongoClient;
         const artificium_db = client.db("Artificium");
+        // USER ACTIONS ROUTES
         this.app.post('/register', (req, res) => UserAccessController_1.UserAccessController.register(req, res, artificium_db));
         this.app.post('/login', (req, res) => UserAccessController_1.UserAccessController.login(req, res, artificium_db));
         this.app.post('/googleIdentityLogin', (req, res) => UserAccessController_1.UserAccessController.googleIdentityLogin(req, res, artificium_db));
-        this.app.post('disconnect', (req, res) => {
-            console.log(req.body);
-        });
+        // GROUPS ACTIONS ROUTES
+        this.app.post('/createGroup', (req, res) => UserDashBoardActions_1.UserDashBoardActions.createGroup(req, res, artificium_db));
     }
     setupSocketConnnection() {
         this.io.on('connection', (socket) => {
-            console.log(socket.disconnected);
-        });
-        this.io.on("disconnecting", (socket) => console.log("user disconnected"));
-        this.io.on("chat", (data) => {
-            console.log("wiadomość");
+            console.log("user connected");
+            socket.on("disconnect", () => {
+                console.log("user disconected");
+            });
+            socket.on("chat", (...args) => {
+                console.log(args);
+                socket.emit("chat_response", ...args);
+            });
         });
     }
 }

@@ -7,6 +7,7 @@ import { UserAccessController } from "./controllers/UserAccessController";
 import { MongoClient } from "mongodb";
 import MongoDBClient from "./utils/Mongo/ConnectMongo";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
+import { UserDashBoardActions } from "./controllers/UserDashBoardActions";
 
 class ArtificiumBackend {
     readonly app:Express
@@ -37,21 +38,25 @@ class ArtificiumBackend {
     private setupRoutes() {
         const client = this.mongoClient 
         const artificium_db = client.db("Artificium")
+        // USER ACTIONS ROUTES
         this.app.post('/register', (req,res) => UserAccessController.register(req,res, artificium_db))
         this.app.post('/login', (req, res) => UserAccessController.login(req,res,artificium_db))
         this.app.post('/googleIdentityLogin', (req,res) => UserAccessController.googleIdentityLogin(req,res,artificium_db))
-        this.app.post('disconnect', (req, res) =>{
-            console.log(req.body)
-        }) 
+
+        // GROUPS ACTIONS ROUTES
+        this.app.post('/createGroup', (req,res) => UserDashBoardActions.createGroup(req,res,artificium_db))
     }
 
-    private setupSocketConnnection() {
+    private setupSocketConnnection() { // Chat będzie rozwijany w następnej kolejności. Na ten czas implementowana będzie logika odpowiedzialna za grupy i za wskazywanie użytkowników online.
         this.io.on('connection', (socket) => {
-            console.log(socket.disconnected)
-        })
-        this.io.on("disconnecting", (socket) => console.log("user disconnected"))
-        this.io.on("chat", (data) => {
-            console.log("wiadomość")
+            console.log("user connected")
+            socket.on("disconnect", () => {
+                console.log("user disconected")
+            })
+            socket.on("chat", (...args) => {
+                console.log(args)
+                socket.emit("chat_response", ...args)
+            })
         })
 
     }
