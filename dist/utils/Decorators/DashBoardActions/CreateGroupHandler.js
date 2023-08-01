@@ -18,7 +18,7 @@ const CreateGroupHandler = (target, name, descriptor) => {
         try {
             const groupsCollection = artificium_db.collection("Groups");
             const isGroupNameExist = yield groupsCollection.countDocuments({
-                group_name: req.body.group_name
+                group_name: req.body.group_name // Lowercase Comparsion - TO DO!
             }, { limit: 1 });
             if (isGroupNameExist === 1) {
                 const errorObject = (0, ResponseGenerator_1.ResponseGenerator)("ERROR")(510, "CreateGroupHandler Decorator: Decorator function error", "Group with this name already exist.");

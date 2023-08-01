@@ -20,5 +20,16 @@ export class UserDashBoardActions {
         }
 
     }
+    static async getUserGroups() {
+        //Endpoint for fetching groups for selected user( if he is an admin or just a user)
+    } 
+
+    static async removeGroup() {
+        // removeGroup - only for admin of the group. Group is deleted and connection to it is restricted
+    }
+
+    static async inviteToGroup() {
+        // invite user to group. Each user can do this
+    }
 }
 

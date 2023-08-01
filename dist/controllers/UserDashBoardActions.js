@@ -37,6 +37,21 @@ class UserDashBoardActions {
             }
         });
     }
+    static getUserGroups() {
+        return __awaiter(this, void 0, void 0, function* () {
+            //Endpoint for fetching groups for selected user( if he is an admin or just a user)
+        });
+    }
+    static removeGroup() {
+        return __awaiter(this, void 0, void 0, function* () {
+            // removeGroup - only for admin of the group. Group is deleted and connection to it is restricted
+        });
+    }
+    static inviteToGroup() {
+        return __awaiter(this, void 0, void 0, function* () {
+            // invite user to group. Each user can do this
+        });
+    }
 }
 __decorate([
     CreateGroupHandler_1.CreateGroupHandler
