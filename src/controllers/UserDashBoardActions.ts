@@ -2,11 +2,11 @@ import { Db } from "mongodb";
 import dotenv from 'dotenv';
 import { CreateGroupHandler } from "../utils/Decorators/DashBoardActions/CreateGroupHandler";
 import { ResponseGenerator } from "../utils/ResponseGenerator/ResponseGenerator";
+import { boundUserToGroup } from "../utils/GroupActionUtils/BoundUserToGroup";
 export class UserDashBoardActions {
 
     @CreateGroupHandler
     static async createGroup(req:any, res:any, artificium_db:Db) {
-        console.log(req.body)
         try {
             if(!req.body.status) {
                 const succesObject = ResponseGenerator("SUCCESS")!<SuccesResponseType>(200, "Group created successfuly!", req.body)
@@ -20,6 +20,7 @@ export class UserDashBoardActions {
         }
 
     }
+
     static async getUserGroups() {
         //Endpoint for fetching groups for selected user( if he is an admin or just a user)
     } 

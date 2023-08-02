@@ -1,5 +1,6 @@
-import { Db } from "mongodb"
+import { Db, ObjectId } from "mongodb"
 import { ResponseGenerator } from "../../ResponseGenerator/ResponseGenerator"
+import { boundUserToGroup } from "../../GroupActionUtils/BoundUserToGroup"
 
 export const CreateGroupHandler = (target:any, name:string, descriptor:PropertyDescriptor) => {
     const originalMethod = descriptor.value
@@ -22,7 +23,13 @@ export const CreateGroupHandler = (target:any, name:string, descriptor:PropertyD
                     group_invite_slugId:""
                 }
                 const insertResult = await groupsCollection.insertOne(newGroupTemplate)
-                args[0].body = insertResult
+                console.log(insertResult)
+                const boundResult = await boundUserToGroup(artificium_db, insertResult.insertedId as ObjectId, req.body.group_admin as string)
+                // TUTAJ DODAĆ OBSŁUGĘ BŁĘDÓW dla BOUND RESULT
+                args[0].body = {
+                    ...insertResult,
+                    bound:boundResult
+                }
                 return originalMethod.apply(target, args)
             }
         } catch (error) {

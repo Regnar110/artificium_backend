@@ -21,7 +21,6 @@ const ResponseGenerator_1 = require("../utils/ResponseGenerator/ResponseGenerato
 class UserDashBoardActions {
     static createGroup(req, res, artificium_db) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log(req.body);
             try {
                 if (!req.body.status) {
                     const succesObject = (0, ResponseGenerator_1.ResponseGenerator)("SUCCESS")(200, "Group created successfuly!", req.body);
