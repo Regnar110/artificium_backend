@@ -46,7 +46,7 @@ const CreateGroupHandler = (target, name, descriptor) => {
                 else if (boundResult === 510) {
                     // błąd konkretnej funkcjonalnośći bounUserToGroup - np. użytkniwnik już jest przywiązany do grupy do której próbujemy go dodać
                     groupsCollection.deleteOne({ _id: insertResult.insertedId }); // jeżeli status 510(błąd) usuń dokonany wpis w mongo db
-                    const boundError = (0, ResponseGenerator_1.ResponseGenerator)("ERROR")(boundResult, "BoundUserToGroup: Utility function error", "BoundUserToGroup functionality error.");
+                    const boundError = (0, ResponseGenerator_1.ResponseGenerator)("ERROR")(boundResult, "BoundUserToGroup: Utility function error", "The group creation process could not be completed.");
                     args[0].body = boundError;
                     return originalMethod.apply(target, args);
                 }

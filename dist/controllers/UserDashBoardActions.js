@@ -21,6 +21,7 @@ const ResponseGenerator_1 = require("../utils/ResponseGenerator/ResponseGenerato
 class UserDashBoardActions {
     static createGroup(req, res, artificium_db) {
         return __awaiter(this, void 0, void 0, function* () {
+            // Po dotarciu do tej ścieżki uruchamiany jest proces tworzenia grupy wraz z wiązaniem użytkownika, który tworzy tą grupę do tej właśnie grupy.
             try {
                 if (!req.body.status) {
                     const succesObject = (0, ResponseGenerator_1.ResponseGenerator)("SUCCESS")(200, "Group created successfuly!", req.body);
@@ -36,9 +37,12 @@ class UserDashBoardActions {
             }
         });
     }
-    static getUserGroups() {
+    static getUserGroups(req, res, artificium_db) {
         return __awaiter(this, void 0, void 0, function* () {
-            //Endpoint for fetching groups for selected user( if he is an admin or just a user)
+            // ścieżka zwracająca aktywne grupy danego użytkownika.
+            console.log("git");
+            const groups = artificium_db.collection("Groups").find({ group_users: { $in: [req.body.user_id] } });
+            console.log(groups);
         });
     }
     static removeGroup() {

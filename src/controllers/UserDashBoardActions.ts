@@ -7,6 +7,7 @@ export class UserDashBoardActions {
 
     @CreateGroupHandler
     static async createGroup(req:any, res:any, artificium_db:Db) {
+        // Po dotarciu do tej ścieżki uruchamiany jest proces tworzenia grupy wraz z wiązaniem użytkownika, który tworzy tą grupę do tej właśnie grupy.
         try {
             if(!req.body.status) {
                 const succesObject = ResponseGenerator("SUCCESS")!<SuccesResponseType>(200, "Group created successfuly!", req.body)
@@ -21,9 +22,13 @@ export class UserDashBoardActions {
 
     }
 
-    static async getUserGroups() {
-        //Endpoint for fetching groups for selected user( if he is an admin or just a user)
-    } 
+    static async getUserGroups(req:any, res:any, artificium_db:Db) {
+        // ścieżka zwracająca aktywne grupy danego użytkownika.
+        console.log("git")
+        const groups = artificium_db.collection("Groups").find({group_users: {$in: [req.body.user_id]}})
+        console.log(groups)
+    }
+
 
     static async removeGroup() {
         // removeGroup - only for admin of the group. Group is deleted and connection to it is restricted
