@@ -25,24 +25,31 @@ const boundUserToGroup = (artificium_db, groupId, boundedUserId) => __awaiter(vo
         else {
             const groupsCollection = artificium_db.collection("Groups");
             const isUserAlreadyBoundedToGroup = yield groupsCollection.find({ _id: groupId, group_users: { $in: [boundedUserId] } }).toArray();
+            // sprawdzamy czy użytkownik należy już do grupy do której próbujemy go dodać.
             if (isUserAlreadyBoundedToGroup.length > 0) {
-                // użytkownik już jest połączony z tą grupą jako jej uczestnik
-                return "ALREADY_BOUNDED";
+                // użytkownik już jest połączony z tą grupą jako jej uczestnik - sprawdzenie na wypadek próby ponownego dołączenia do grupy gdy jest się już jej uczestnikiem
+                return 510;
             }
             else {
                 const userUpdateResult = yield artificium_db.collection("Users").updateOne(user_filter, userUpdate);
+                // dodajemy do tablicy user_groups konkretnego użytkownika id grupy do której dołącza.
                 const groupUserArrUpdateResult = yield groupsCollection.updateOne(group_filter, groupUpdate);
+                // dodajemy do dokumentu grupy id użytkownika w tablicę przechowującą id uczestników grupy.    
                 if (userUpdateResult.modifiedCount === 0 || groupUserArrUpdateResult.modifiedCount === 0) {
-                    return "MODIFY_ERROR";
+                    // Błąd po stronie mongo. Nie udało się aktualizować kolekcji.
+                    return 510;
                 }
                 else {
-                    return "SUCCESS";
+                    // Wszystkie operacje przebiegły pomyślnie
+                    return 200;
                 }
             }
         }
     }
     catch (error) {
-        return "OVERALL_ERROR";
+        // Bład bloku try catch
+        // jeden z propsów jest undefined lub w dalszej części coś poszło nie tak
+        return 500;
     }
 });
 exports.boundUserToGroup = boundUserToGroup;
