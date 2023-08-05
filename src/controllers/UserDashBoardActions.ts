@@ -24,9 +24,13 @@ export class UserDashBoardActions {
 
     static async getUserGroups(req:any, res:any, artificium_db:Db) {
         // ścieżka zwracająca aktywne grupy danego użytkownika.
-        console.log("git")
-        const groups = artificium_db.collection("Groups").find({group_users: {$in: [req.body.user_id]}})
-        console.log(groups)
+        try {
+            const groups = await artificium_db.collection("Groups").find({group_users: {$in: [req.body.user_id]}}).toArray()
+            res.status(200).json(groups)
+        } catch (error) {
+            const errorObject = ResponseGenerator("ERROR")!<ErrorResponseType>(500, "GetUserGroups Route: GetUserGroups Route overall error", "GetUserGroups route error")
+            res.status(500).json(errorObject)
+        }
     }
 
 

@@ -40,9 +40,14 @@ class UserDashBoardActions {
     static getUserGroups(req, res, artificium_db) {
         return __awaiter(this, void 0, void 0, function* () {
             // ścieżka zwracająca aktywne grupy danego użytkownika.
-            console.log("git");
-            const groups = artificium_db.collection("Groups").find({ group_users: { $in: [req.body.user_id] } });
-            console.log(groups);
+            try {
+                const groups = yield artificium_db.collection("Groups").find({ group_users: { $in: [req.body.user_id] } }).toArray();
+                res.status(200).json(groups);
+            }
+            catch (error) {
+                const errorObject = (0, ResponseGenerator_1.ResponseGenerator)("ERROR")(500, "GetUserGroups Route: GetUserGroups Route overall error", "GetUserGroups route error");
+                res.status(500).json(errorObject);
+            }
         });
     }
     static removeGroup() {
