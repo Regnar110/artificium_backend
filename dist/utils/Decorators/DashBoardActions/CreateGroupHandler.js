@@ -34,7 +34,6 @@ const CreateGroupHandler = (target, name, descriptor) => {
             else { // jeżeli taka grupa nie istnieje
                 const newGroupTemplate = Object.assign(Object.assign({}, req.body), { group_users: [], group_invite_slugId: "" });
                 const insertResult = yield groupsCollection.insertOne(newGroupTemplate);
-                console.log(insertResult);
                 const boundResult = yield (0, BoundUserToGroup_1.boundUserToGroup)(artificium_db, insertResult.insertedId, req.body.group_admin);
                 if (boundResult === 500) {
                     // błąd bloku try catch bounduserToGroup
@@ -52,7 +51,10 @@ const CreateGroupHandler = (target, name, descriptor) => {
                 }
                 else {
                     // udało stworzyć sie grupę oraz udało się powiązać do niej użytkownika.
-                    args[0].body = insertResult;
+                    args[0].body = {
+                        insertResult,
+                        inserted_group: newGroupTemplate
+                    };
                     return originalMethod.apply(target, args);
                 }
             }

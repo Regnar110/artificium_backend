@@ -29,7 +29,6 @@ export const CreateGroupHandler = (target:any, name:string, descriptor:PropertyD
                     group_invite_slugId:""
                 }
                 const insertResult = await groupsCollection.insertOne(newGroupTemplate)
-                console.log(insertResult)
                 const boundResult = await boundUserToGroup(artificium_db, insertResult.insertedId as ObjectId, req.body.group_admin as string)
                 if(boundResult === 500 ) {
                     // błąd bloku try catch bounduserToGroup
@@ -45,7 +44,10 @@ export const CreateGroupHandler = (target:any, name:string, descriptor:PropertyD
                     return originalMethod.apply(target, args)
                 } else {
                     // udało stworzyć sie grupę oraz udało się powiązać do niej użytkownika.
-                   args[0].body = insertResult
+                   args[0].body = {
+                    insertResult,
+                    inserted_group: newGroupTemplate
+                   }
                    return originalMethod.apply(target, args)
                 }
             }
