@@ -16,6 +16,7 @@ export const RegisterValidation = (target: any, name: string, descriptor: Proper
           const userExist = await checkUserExistence(email, nickname, artificium_users)
           if(userExist === false) {
             const userObject = {
+              isOnline:false,
               email,
               nickname,
               password: securedPass,

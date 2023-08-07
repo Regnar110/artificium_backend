@@ -41,7 +41,7 @@ const ProviderLoginValidation = (target, name, descriptor) => {
             }
             else {
                 //Email nie istnieje. Rejestracja użytkownika i jego zwrot
-                const newUserObject = Object.assign(Object.assign({}, args[0].body), { avatar_id: "1", user_friends_ids: [], user_groups_ids: [] });
+                const newUserObject = Object.assign(Object.assign({ isOnline: true }, args[0].body), { avatar_id: "1", user_friends_ids: [], user_groups_ids: [] });
                 args[0].body = newUserObject;
                 return originalMethod.apply(target, args);
             }

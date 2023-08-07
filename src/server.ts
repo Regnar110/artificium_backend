@@ -51,13 +51,14 @@ class ArtificiumBackend {
     private setupSocketConnnection() { // Chat będzie rozwijany w następnej kolejności. Na ten czas implementowana będzie logika odpowiedzialna za grupy i za wskazywanie użytkowników online.
         this.io.on('connection', (socket) => {
             console.log("user connected")
+            console.log(socket.client.request._query.connected_user_id as string)
             socket.on("disconnect", () => {
                 console.log("user disconected")
             })
-            socket.on("chat", (...args) => {
-                console.log(args)
-                socket.emit("chat_response", ...args)
-            })
+            setInterval(() => {
+                socket.emit("chat", "Serwer wita się z klientem!")                
+            },10000)
+
         })
 
     }

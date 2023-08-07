@@ -25,6 +25,7 @@ const RegisterValidation = (target, name, descriptor) => {
             const userExist = yield (0, CheckUserExistence_1.checkUserExistence)(email, nickname, artificium_users);
             if (userExist === false) {
                 const userObject = {
+                    isOnline: false,
                     email,
                     nickname,
                     password: securedPass,
