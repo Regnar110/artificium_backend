@@ -16,6 +16,15 @@ export const LoginValidation = (target:any, name:string, descriptor:PropertyDesc
                 delete userDocument.password
                 const isPasswordMatch = await comparePass(login_password, documentPassword)
                 if(isPasswordMatch === true) {
+                    // logowanie udane
+                    const updateUserActivityStatus = await artificium_users.updateOne({
+                        email:email
+                    }, {
+                        $set: {
+                            isOnline: true
+                        }
+                    })
+                    console.log(updateUserActivityStatus)
                     args[0].body = userDocument
                     return originalMethod.apply(target, args)
                 } else {

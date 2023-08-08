@@ -16,6 +16,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserAccessController = void 0;
+//USER Register Handler
+const mongodb_1 = require("mongodb");
 const RegisterValidation_1 = require("../utils/Decorators/RegisterValidation");
 const ResponseGenerator_1 = require("../utils/ResponseGenerator/ResponseGenerator");
 const LoginValidation_1 = require("../utils/Decorators/LoginValidation");
@@ -82,6 +84,36 @@ class UserAccessController {
             }
             catch (error) {
                 const errorObject = (0, ResponseGenerator_1.ResponseGenerator)("ERROR")(510, "UserAccesController: googleIdentityLogin method error", "googleIdentityLogin Error");
+                res.status(500).json(errorObject);
+            }
+        });
+    }
+    static userLogout(req, res, artificium_db) {
+        return __awaiter(this, void 0, void 0, function* () {
+            // zmieniamy status pola isOnline dokumentu uzytkownika na false - czym dajemy znać że użytkownik jest offline
+            try {
+                const { authUserId } = req.body;
+                console.log(authUserId);
+                const artificium_users = artificium_db.collection("Users");
+                const logoutResult = yield artificium_users.updateOne({
+                    _id: new mongodb_1.ObjectId(authUserId)
+                }, {
+                    $set: {
+                        isOnline: false
+                    }
+                });
+                console.log(logoutResult);
+                if (logoutResult.modifiedCount === 1) {
+                    const succesObject = (0, ResponseGenerator_1.ResponseGenerator)("SUCCESS")(200, "Logout Succcesful!", logoutResult);
+                    res.status(200).json(succesObject);
+                }
+                else {
+                    const errorObject = (0, ResponseGenerator_1.ResponseGenerator)("ERROR")(510, "UserAccesController:  userLogout updateOne method error", "modifiedCount is not 1. User status not changed");
+                    res.status(510).json(errorObject);
+                }
+            }
+            catch (error) {
+                const errorObject = (0, ResponseGenerator_1.ResponseGenerator)("ERROR")(500, "UserAccesController:  userLogout route error", "userLogout route overall error");
                 res.status(500).json(errorObject);
             }
         });

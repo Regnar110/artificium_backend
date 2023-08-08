@@ -62,6 +62,7 @@ class ArtificiumBackend {
         this.app.post('/register', (req, res) => UserAccessController_1.UserAccessController.register(req, res, artificium_db));
         this.app.post('/login', (req, res) => UserAccessController_1.UserAccessController.login(req, res, artificium_db));
         this.app.post('/googleIdentityLogin', (req, res) => UserAccessController_1.UserAccessController.googleIdentityLogin(req, res, artificium_db));
+        this.app.post('/userLogout', (req, res) => UserAccessController_1.UserAccessController.userLogout(req, res, artificium_db));
         // GROUPS ACTIONS ROUTES
         this.app.post('/createGroup', (req, res) => UserDashBoardActions_1.UserDashBoardActions.createGroup(req, res, artificium_db));
         this.app.post('/getUserGroups', (req, res) => UserDashBoardActions_1.UserDashBoardActions.getUserGroups(req, res, artificium_db));

@@ -35,6 +35,14 @@ const ProviderLoginValidation = (target, name, descriptor) => {
                 }
                 else {
                     // Użytkownik istnieje, provider zgodny. Logowanie kontynuowane
+                    const updateUserActivityStatus = yield artificium_users.updateOne({
+                        email: email
+                    }, {
+                        $set: {
+                            isOnline: true
+                        }
+                    });
+                    console.log(updateUserActivityStatus);
                     args[0].body = userDocument;
                     return originalMethod.apply(target, args);
                 }

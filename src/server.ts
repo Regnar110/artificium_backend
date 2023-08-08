@@ -42,6 +42,7 @@ class ArtificiumBackend {
         this.app.post('/register', (req,res) => UserAccessController.register(req,res, artificium_db))
         this.app.post('/login', (req, res) => UserAccessController.login(req,res,artificium_db))
         this.app.post('/googleIdentityLogin', (req,res) => UserAccessController.googleIdentityLogin(req,res,artificium_db))
+        this.app.post('/userLogout', (req,res) => UserAccessController.userLogout(req, res, artificium_db))
 
         // GROUPS ACTIONS ROUTES
         this.app.post('/createGroup', (req,res) => UserDashBoardActions.createGroup(req,res,artificium_db))

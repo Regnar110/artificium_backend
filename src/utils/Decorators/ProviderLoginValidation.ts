@@ -26,6 +26,14 @@ export const ProviderLoginValidation = (target:any, name:string, descriptor:Prop
                     return originalMethod.apply(target, args)
                 } else {
                     // Użytkownik istnieje, provider zgodny. Logowanie kontynuowane
+                    const updateUserActivityStatus = await artificium_users.updateOne({
+                        email:email
+                    }, {
+                        $set: {
+                            isOnline: true
+                        }
+                    })
+                    console.log(updateUserActivityStatus)
                     args[0].body = userDocument
                     return originalMethod.apply(target, args)
                 }                

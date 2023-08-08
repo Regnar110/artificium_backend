@@ -25,6 +25,15 @@ const LoginValidation = (target, name, descriptor) => {
                 delete userDocument.password;
                 const isPasswordMatch = yield (0, comparePass_1.comparePass)(login_password, documentPassword);
                 if (isPasswordMatch === true) {
+                    // logowanie udane
+                    const updateUserActivityStatus = yield artificium_users.updateOne({
+                        email: email
+                    }, {
+                        $set: {
+                            isOnline: true
+                        }
+                    });
+                    console.log(updateUserActivityStatus);
                     args[0].body = userDocument;
                     return originalMethod.apply(target, args);
                 }

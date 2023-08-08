@@ -1,5 +1,5 @@
 //USER Register Handler
-import { Db} from "mongodb"
+import { Db, ObjectId} from "mongodb"
 import { RegisterValidation } from "../utils/Decorators/RegisterValidation"
 import { ResponseGenerator } from "../utils/ResponseGenerator/ResponseGenerator"
 import { LoginValidation } from "../utils/Decorators/LoginValidation"
@@ -70,5 +70,32 @@ export class UserAccessController {
             res.status(500).json(errorObject)
         }
         
+    }
+
+    static async userLogout(req:any, res:any, artificium_db:Db) {
+        // zmieniamy status pola isOnline dokumentu uzytkownika na false - czym dajemy znać że użytkownik jest offline
+        try {
+            const { authUserId } = req.body
+            console.log(authUserId)
+            const artificium_users = artificium_db.collection("Users")
+            const logoutResult = await artificium_users.updateOne({
+                _id:new ObjectId(authUserId)
+            }, {
+                $set: {
+                    isOnline:false
+                }
+            })
+            console.log(logoutResult)
+            if(logoutResult.modifiedCount === 1) {
+                const succesObject = ResponseGenerator("SUCCESS")!<SuccesResponseType>(200, "Logout Succcesful!", logoutResult)
+                res.status(200).json(succesObject)
+            } else {
+                const errorObject = ResponseGenerator("ERROR")!<ErrorResponseType>(510, "UserAccesController:  userLogout updateOne method error", "modifiedCount is not 1. User status not changed") 
+                res.status(510).json(errorObject)
+            }            
+        } catch (error) {
+            const errorObject = ResponseGenerator("ERROR")!<ErrorResponseType>(500, "UserAccesController:  userLogout route error", "userLogout route overall error") 
+            res.status(500).json(errorObject)
+        }
     }
 }
