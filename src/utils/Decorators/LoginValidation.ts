@@ -24,7 +24,6 @@ export const LoginValidation = (target:any, name:string, descriptor:PropertyDesc
                             isOnline: true
                         }
                     })
-                    console.log(updateUserActivityStatus)
                     args[0].body = userDocument
                     return originalMethod.apply(target, args)
                 } else {

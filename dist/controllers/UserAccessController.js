@@ -92,11 +92,10 @@ class UserAccessController {
         return __awaiter(this, void 0, void 0, function* () {
             // zmieniamy status pola isOnline dokumentu uzytkownika na false - czym dajemy znać że użytkownik jest offline
             try {
-                const { authUserId } = req.body;
-                console.log(authUserId);
+                const { authUser } = req.body;
                 const artificium_users = artificium_db.collection("Users");
                 const logoutResult = yield artificium_users.updateOne({
-                    _id: new mongodb_1.ObjectId(authUserId)
+                    _id: new mongodb_1.ObjectId(authUser)
                 }, {
                     $set: {
                         isOnline: false

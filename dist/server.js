@@ -69,8 +69,17 @@ class ArtificiumBackend {
     }
     setupSocketConnnection() {
         this.io.on('connection', (socket) => {
-            console.log("user connected");
-            console.log(socket.client.request._query.connected_user_id);
+            if (socket.client.request._query.connected_user_id === 'undefined') {
+                // Jeżeli user _id będzie undefined zamykamy połaczenie.
+                console.log("REQUIRED query parameter is undefined. Disconecting");
+                socket.emit("connection_response", false);
+            }
+            else {
+                console.log("user connected");
+                // jeżeli socket pomyslnie się połączy wysyłamy do klienta true, jeżeli nie to false
+                socket.emit("connection_response", socket.connected ? false : false);
+                console.log(socket.client.request._query.connected_user_id);
+            }
             socket.on("disconnect", () => {
                 console.log("user disconected");
             });
