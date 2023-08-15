@@ -49,17 +49,19 @@ class ArtificiumBackend {
         this.app.post('/getUserGroups', (req,res) => UserDashBoardActions.getUserGroups(req,res, artificium_db))
     }
 
-    private setupSocketConnnection() { // Chat będzie rozwijany w następnej kolejności. Na ten czas implementowana będzie logika odpowiedzialna za grupy i za wskazywanie użytkowników online.
-        this.io.on('connection', (socket) => {
+    private setupSocketConnnection() {// Chat będzie rozwijany w następnej kolejności. Na ten czas implementowana będzie logika odpowiedzialna za grupy i za wskazywanie użytkowników online.
+        this.io.on('connection', (socket) => { 
+            
             if(socket.client.request._query.connected_user_id === 'undefined') {
                 // Jeżeli user _id będzie undefined zamykamy połaczenie.
                 console.log("REQUIRED query parameter is undefined. Disconecting")
                 socket.emit("connection_response", false) 
             } else {
-                console.log("user connected") 
+                console.log(this.io.engine.clientsCount)
+                console.log("user connected")   
                 // jeżeli socket pomyslnie się połączy wysyłamy do klienta true, jeżeli nie to false
-                socket.emit("connection_response", socket.connected ? false : false)
-                console.log(socket.client.request._query.connected_user_id as string)                
+                socket.emit("connection_response", socket.connected ? true : false)
+                // console.log(socket.client.request._query.connected_user_id as string)                
             }
             socket.on("disconnect", () => {
                 console.log("user disconected")
