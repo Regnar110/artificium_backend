@@ -3,6 +3,7 @@ import { ObjectId } from "mongodb";
 interface UserMongoDocument {
     _id:ObjectId,
     email:string,
+    isOnline:boolean,
     nickname:string;
     password?:string;
     provider:string

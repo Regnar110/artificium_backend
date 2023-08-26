@@ -33,6 +33,7 @@ const LoginValidation = (target, name, descriptor) => {
                             isOnline: true
                         }
                     });
+                    userDocument.isOnline = true;
                     args[0].body = userDocument;
                     return originalMethod.apply(target, args);
                 }

@@ -33,6 +33,7 @@ export const ProviderLoginValidation = (target:any, name:string, descriptor:Prop
                             isOnline: true
                         }
                     })
+                    userDocument.isOnline = true
                     args[0].body = userDocument
                     return originalMethod.apply(target, args)
                 }                
