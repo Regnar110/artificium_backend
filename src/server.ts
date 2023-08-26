@@ -58,10 +58,12 @@ class ArtificiumBackend {
             //     socket.emit("connection_response", false) 
             // } else {
                 console.log(this.io.engine.clientsCount)
-                console.log("user connected " + socket.id)   
+                console.log(`socket connection ID: ${socket.client.id}. Connected user id is: ${socket.handshake.query.userId as string}`) // ID KLIENTA !!!! SPÓJNE Z CLIENT-SIDE
                 // jeżeli socket pomyslnie się połączy wysyłamy do klienta true, jeżeli nie to false
-            socket.on("disconnect", () => {
+            socket.on("disconnect", (reason) => {
                 console.log("user disconected")
+                console.log(reason)
+                
             })
             setInterval(() => {
                 socket.emit("chat", "Serwer wita się z klientem!")                

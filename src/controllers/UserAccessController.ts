@@ -41,7 +41,7 @@ export class UserAccessController {
     }
     @ProviderLoginValidation
     static async googleIdentityLogin(req:any,res:any, artificium_db:Db) {
-
+        console.log("googleidentitylogin")
         try {
             if(!req.body.status) {
                 if(req.body._id) {

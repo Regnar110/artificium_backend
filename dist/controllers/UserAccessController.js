@@ -61,6 +61,7 @@ class UserAccessController {
     }
     static googleIdentityLogin(req, res, artificium_db) {
         return __awaiter(this, void 0, void 0, function* () {
+            console.log("googleidentitylogin");
             try {
                 if (!req.body.status) {
                     if (req.body._id) {
