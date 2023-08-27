@@ -1,4 +1,4 @@
-import { Db } from "mongodb";
+import { Db, ObjectId } from "mongodb";
 import dotenv from 'dotenv';
 import { CreateGroupHandler } from "../utils/Decorators/DashBoardActions/CreateGroupHandler";
 import { ResponseGenerator } from "../utils/ResponseGenerator/ResponseGenerator";
@@ -40,6 +40,20 @@ export class UserDashBoardActions {
 
     static async inviteToGroup() {
         // invite user to group. Each user can do this
+    }
+
+    static async getUserFriends(connectedUserId:string,  artificium_db:Db) { 
+        const users = artificium_db.collection("Users")
+        const friendsToFind = await users.findOne({_id: new ObjectId(connectedUserId)}, {projection: {user_friends_ids:1, _id:0}})
+        const objectedFriends = friendsToFind!.user_friends_ids.map((id:string) => new ObjectId(id))
+        const foundDocs = await users.find({_id: {$in: objectedFriends}}, {projection:{
+            password:0, 
+            provider:0,
+            user_friends_ids:0,
+            user_groups_ids:0
+        }}).toArray()
+        console.log(foundDocs)
+        return foundDocs
     }
 }
 

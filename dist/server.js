@@ -22,6 +22,15 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -68,22 +77,24 @@ class ArtificiumBackend {
         this.app.post('/getUserGroups', (req, res) => UserDashBoardActions_1.UserDashBoardActions.getUserGroups(req, res, artificium_db));
     }
     setupSocketConnnection() {
+        const client = this.mongoClient;
+        const artificium_db = client.db("Artificium");
         this.io.on('connect', (socket) => {
-            // if(socket.client.request._query.connected_user_id === 'undefined') {
-            //     // Jeżeli user _id będzie undefined zamykamy połaczenie.
-            //     console.log("REQUIRED query parameter is undefined. Disconecting")
-            //     socket.emit("connection_response", false) 
-            // } else {
-            console.log(this.io.engine.clientsCount);
+            console.log(`liczba połączonych użytkowników to: ${this.io.engine.clientsCount}`);
             console.log(`socket connection ID: ${socket.client.id}. Connected user id is: ${socket.handshake.query.userId}`); // ID KLIENTA !!!! SPÓJNE Z CLIENT-SIDE
             // jeżeli socket pomyslnie się połączy wysyłamy do klienta true, jeżeli nie to false
             socket.on("disconnect", (reason) => {
                 console.log("user disconected");
                 console.log(reason);
             });
-            setInterval(() => {
-                socket.emit("chat", "Serwer wita się z klientem!");
-            }, 10000);
+            setInterval(() => __awaiter(this, void 0, void 0, function* () {
+                try {
+                    const lookedFriends = yield UserDashBoardActions_1.UserDashBoardActions.getUserFriends(socket.handshake.query.userId, artificium_db);
+                    socket.emit("chat", lookedFriends);
+                }
+                catch (error) {
+                }
+            }), 10000);
         });
     }
 }

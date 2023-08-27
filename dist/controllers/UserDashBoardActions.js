@@ -16,6 +16,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserDashBoardActions = void 0;
+const mongodb_1 = require("mongodb");
 const CreateGroupHandler_1 = require("../utils/Decorators/DashBoardActions/CreateGroupHandler");
 const ResponseGenerator_1 = require("../utils/ResponseGenerator/ResponseGenerator");
 class UserDashBoardActions {
@@ -58,6 +59,21 @@ class UserDashBoardActions {
     static inviteToGroup() {
         return __awaiter(this, void 0, void 0, function* () {
             // invite user to group. Each user can do this
+        });
+    }
+    static getUserFriends(connectedUserId, artificium_db) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const users = artificium_db.collection("Users");
+            const friendsToFind = yield users.findOne({ _id: new mongodb_1.ObjectId(connectedUserId) }, { projection: { user_friends_ids: 1, _id: 0 } });
+            const objectedFriends = friendsToFind.user_friends_ids.map((id) => new mongodb_1.ObjectId(id));
+            const foundDocs = yield users.find({ _id: { $in: objectedFriends } }, { projection: {
+                    password: 0,
+                    provider: 0,
+                    user_friends_ids: 0,
+                    user_groups_ids: 0
+                } }).toArray();
+            console.log(foundDocs);
+            return foundDocs;
         });
     }
 }

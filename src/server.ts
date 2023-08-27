@@ -50,14 +50,10 @@ class ArtificiumBackend {
     }
 
     private setupSocketConnnection() {// Chat będzie rozwijany w następnej kolejności. Na ten czas implementowana będzie logika odpowiedzialna za grupy i za wskazywanie użytkowników online.
+        const client = this.mongoClient 
+        const artificium_db = client.db("Artificium")
         this.io.on('connect', (socket) => { 
-            
-            // if(socket.client.request._query.connected_user_id === 'undefined') {
-            //     // Jeżeli user _id będzie undefined zamykamy połaczenie.
-            //     console.log("REQUIRED query parameter is undefined. Disconecting")
-            //     socket.emit("connection_response", false) 
-            // } else {
-                console.log(this.io.engine.clientsCount)
+                console.log(`liczba połączonych użytkowników to: ${this.io.engine.clientsCount}`)
                 console.log(`socket connection ID: ${socket.client.id}. Connected user id is: ${socket.handshake.query.userId as string}`) // ID KLIENTA !!!! SPÓJNE Z CLIENT-SIDE
                 // jeżeli socket pomyslnie się połączy wysyłamy do klienta true, jeżeli nie to false
             socket.on("disconnect", (reason) => {
@@ -65,8 +61,13 @@ class ArtificiumBackend {
                 console.log(reason)
                 
             })
-            setInterval(() => {
-                socket.emit("chat", "Serwer wita się z klientem!")                
+            setInterval(async () => {
+                try {
+                    const lookedFriends = await UserDashBoardActions.getUserFriends(socket.handshake.query.userId as string, artificium_db)
+                    socket.emit("chat", lookedFriends)
+                } catch (error) {
+                    
+                }            
             },10000)
 
         })
