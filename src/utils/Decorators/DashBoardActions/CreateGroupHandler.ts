@@ -25,6 +25,7 @@ export const CreateGroupHandler = (target:any, name:string, descriptor:PropertyD
             } else { // jeżeli taka grupa nie istnieje
                 const newGroupTemplate = {
                     ...req.body,
+                    active_users:[],
                     group_users:[],
                     group_invite_slugId:""
                 }

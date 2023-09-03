@@ -52,8 +52,11 @@ export class UserDashBoardActions {
             user_friends_ids:0,
             user_groups_ids:0
         }}).toArray()
-        console.log(foundDocs)
         return foundDocs
+    }
+
+    static async getUserGroupFriends(connectedUserId:string, groupId:string, artificium_db:Db) {
+
     }
 }
 

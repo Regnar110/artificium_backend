@@ -87,10 +87,19 @@ class ArtificiumBackend {
                 console.log("user disconected");
                 console.log(reason);
             });
+            socket.on("CHANGE_ROOM", (...args) => {
+                socket.join(args[0]);
+                this.io.to(args[0]).emit(args[0], `JESTEM W GRUPIE ID: ${args[0]} - ODPOWIEDŹ Z BACKENDU`);
+                this.user_group_room = args[0];
+                // PO STronie klienta po wejściu w nową grupę, klient będzie emitował wiadomość dla servera że jest w tej grupie.
+            });
             setInterval(() => __awaiter(this, void 0, void 0, function* () {
                 try {
                     const lookedFriends = yield UserDashBoardActions_1.UserDashBoardActions.getUserFriends(socket.handshake.query.userId, artificium_db);
                     socket.emit("chat", lookedFriends);
+                    if (typeof this.user_group === "string") {
+                        console.log("GRUPA WYBRANA");
+                    }
                 }
                 catch (error) {
                 }
