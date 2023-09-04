@@ -32,7 +32,7 @@ class ArtificiumBackend {
             },
             addTrailingSlash:false,
             transports: ['polling', 'websocket'],
-          });; // Utwórz instancję serwera Socket.IO na bazie istniejącego serwera HTTP
+          }); // Utwórz instancję serwera Socket.IO na bazie istniejącego serwera HTTP
         this.mongoClient = MongoDBClient.getInstance(); // inicjalizacja instancji klienta mongoDB bez możliwości stworzenia kolejnych
         this.setupRoutes();
         this.setupSocketConnnection();
@@ -57,6 +57,9 @@ class ArtificiumBackend {
     private setupSocketConnnection() {// Chat będzie rozwijany w następnej kolejności. Na ten czas implementowana będzie logika odpowiedzialna za grupy i za wskazywanie użytkowników online.
         const client = this.mongoClient 
         const artificium_db = client.db("Artificium")
+
+        // POWINNIŚMY WYEKSPORTOWAĆ CAŁĄ LOGIKĘ SOCKETA DO OSOBNEJ KLASY. OBSŁUGA SOCKETA POWINNA BAZOWAĆ NA ŻĄDANIACH HTTPS CELEM UMOŻLIWIENIA OBSŁUGI EWENTUALNYCH BŁĘDÓW
+        // I ZWRACANIA UŻYTKOWNIKOWI ODPOWIEDZI Z SERWERA O STATUSACH JEGO ŻĄDAŃ.
         this.io.on('connect', (socket) => { 
                 console.log(`liczba połączonych użytkowników to: ${this.io.engine.clientsCount}`)
                 console.log(`socket connection ID: ${socket.client.id}. Connected user id is: ${socket.handshake.query.userId as string}`) // ID KLIENTA !!!! SPÓJNE Z CLIENT-SIDE
@@ -67,12 +70,19 @@ class ArtificiumBackend {
                 
             })
 
+            // DOŁĄCZANIE I OPUSZCZANIE GRUP
+            //----------------------------------
             //UŻYTKOWNIK DOŁĄCZA DO POKOJU GRUPY
             socket.on("JOIN_GROUP_ROOM", async (...args) => {
                 const [groupId, userId] = args
                 console.log(`UŻYTKOWNIK ${userId} DOŁĄCZYŁ DO POKOJU GRUPY: ${groupId}`)
-                await socket.join(args[0])
-                this.io.to(args[0]).emit(args[0], `JESTEM W GRUPIE ID: ${args[0]} - ODPOWIEDŹ Z BACKENDU`);
+
+                //CZekamy aż do grupy uda się dołączyć.
+                // TUTAJ MUSIMY OGARNĄĆ LOGIKĘ ZWIĄZANĄ Z DODANIEM DO KONKRTNEGO DOKUENTU GRUPY ID UŻYTKOWNIKA W POLU ACTIVE USERS
+                await socket.join(groupId)
+
+                // Emitujemy wiadomośc dla wszystkich uczestników grupy, że użytkownik o id userID dołączył do grupy.
+                this.io.to(groupId).emit("GROUP_USER_JOIN", userId);
                 this.user_group_room = args[0] as string
                 // PO STronie klienta po wejściu w nową grupę, klient będzie emitował wiadomość dla servera że jest w tej grupie.
             })
@@ -80,10 +90,13 @@ class ArtificiumBackend {
             // UZYTKOWNIK OPUSZCZA POKÓJ GRUPY
             socket.on("LEAVE_GROUP_ROOM", async (...args) => {
                 const [groupId, userId] = args
+                this.io.to(groupId).emit("GROUP_USER_LEAVE", userId)
                 await socket.leave(groupId)
                 console.log(`UŻYTKOWNIK ${userId} OPUSZCZA POKÓJ GRUPY: ${groupId}`)
             })
             
+
+            // LOGOWANIE I WYLOGOWYWANIE ZNAJOMYCH - BEZ PODZIAŁU NA GRUPY!
             setInterval(async () => { // EMITY Co 10 sekund do klienta
                 try {
                     const lookedFriends = await UserDashBoardActions.getUserFriends(socket.handshake.query.userId as string, artificium_db)
