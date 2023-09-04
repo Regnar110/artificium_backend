@@ -67,11 +67,21 @@ class ArtificiumBackend {
                 
             })
 
-            socket.on("CHANGE_ROOM", (...args) => {
-                socket.join(args[0])
+            //UŻYTKOWNIK DOŁĄCZA DO POKOJU GRUPY
+            socket.on("JOIN_GROUP_ROOM", async (...args) => {
+                const [groupId, userId] = args
+                console.log(`UŻYTKOWNIK ${userId} DOŁĄCZYŁ DO POKOJU GRUPY: ${groupId}`)
+                await socket.join(args[0])
                 this.io.to(args[0]).emit(args[0], `JESTEM W GRUPIE ID: ${args[0]} - ODPOWIEDŹ Z BACKENDU`);
                 this.user_group_room = args[0] as string
                 // PO STronie klienta po wejściu w nową grupę, klient będzie emitował wiadomość dla servera że jest w tej grupie.
+            })
+
+            // UZYTKOWNIK OPUSZCZA POKÓJ GRUPY
+            socket.on("LEAVE_GROUP_ROOM", async (...args) => {
+                const [groupId, userId] = args
+                await socket.leave(groupId)
+                console.log(`UŻYTKOWNIK ${userId} OPUSZCZA POKÓJ GRUPY: ${groupId}`)
             })
             
             setInterval(async () => { // EMITY Co 10 sekund do klienta
@@ -79,9 +89,9 @@ class ArtificiumBackend {
                     const lookedFriends = await UserDashBoardActions.getUserFriends(socket.handshake.query.userId as string, artificium_db)
                     socket.emit("chat", lookedFriends)
                     
-                    if(typeof this.user_group === "string") {
-                        console.log("GRUPA WYBRANA")
-                    }
+                    // if(typeof this.user_group === "string") {
+                    //     console.log("GRUPA WYBRANA")
+                    // }
                 } catch (error) {
                     
                 }            
