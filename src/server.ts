@@ -8,6 +8,7 @@ import { MongoClient } from "mongodb";
 import MongoDBClient from "./utils/Mongo/ConnectMongo";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
 import { UserDashBoardActions } from "./controllers/UserDashBoardActions";
+import { Socket } from "./controllers/Socket";
 
 class ArtificiumBackend {
     readonly app:Express
@@ -35,7 +36,10 @@ class ArtificiumBackend {
           }); // Utwórz instancję serwera Socket.IO na bazie istniejącego serwera HTTP
         this.mongoClient = MongoDBClient.getInstance(); // inicjalizacja instancji klienta mongoDB bez możliwości stworzenia kolejnych
         this.setupRoutes();
-        this.setupSocketConnnection();
+        // this.setupSocketConnnection();
+
+        // INSTANCJA SOCKET.IO
+        new Socket(this.server, this.io, this.mongoClient)
         
     }   
     
@@ -57,9 +61,6 @@ class ArtificiumBackend {
     private setupSocketConnnection() {// Chat będzie rozwijany w następnej kolejności. Na ten czas implementowana będzie logika odpowiedzialna za grupy i za wskazywanie użytkowników online.
         const client = this.mongoClient 
         const artificium_db = client.db("Artificium")
-
-        // POWINNIŚMY WYEKSPORTOWAĆ CAŁĄ LOGIKĘ SOCKETA DO OSOBNEJ KLASY. OBSŁUGA SOCKETA POWINNA BAZOWAĆ NA ŻĄDANIACH HTTPS CELEM UMOŻLIWIENIA OBSŁUGI EWENTUALNYCH BŁĘDÓW
-        // I ZWRACANIA UŻYTKOWNIKOWI ODPOWIEDZI Z SERWERA O STATUSACH JEGO ŻĄDAŃ.
         this.io.on('connect', (socket) => { 
                 console.log(`liczba połączonych użytkowników to: ${this.io.engine.clientsCount}`)
                 console.log(`socket connection ID: ${socket.client.id}. Connected user id is: ${socket.handshake.query.userId as string}`) // ID KLIENTA !!!! SPÓJNE Z CLIENT-SIDE

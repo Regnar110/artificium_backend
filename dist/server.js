@@ -43,6 +43,7 @@ const dotenv_1 = __importDefault(require("dotenv"));
 const UserAccessController_1 = require("./controllers/UserAccessController");
 const ConnectMongo_1 = __importDefault(require("./utils/Mongo/ConnectMongo"));
 const UserDashBoardActions_1 = require("./controllers/UserDashBoardActions");
+const Socket_1 = require("./controllers/Socket");
 class ArtificiumBackend {
     constructor() {
         dotenv_1.default.config();
@@ -60,7 +61,9 @@ class ArtificiumBackend {
         }); // Utwórz instancję serwera Socket.IO na bazie istniejącego serwera HTTP
         this.mongoClient = ConnectMongo_1.default.getInstance(); // inicjalizacja instancji klienta mongoDB bez możliwości stworzenia kolejnych
         this.setupRoutes();
-        this.setupSocketConnnection();
+        // this.setupSocketConnnection();
+        // INSTANCJA SOCKET.IO
+        new Socket_1.Socket(this.server, this.io, this.mongoClient);
     }
     // private - można używać tylko z wnętrza trej klasy!!
     setupRoutes() {
@@ -78,8 +81,6 @@ class ArtificiumBackend {
     setupSocketConnnection() {
         const client = this.mongoClient;
         const artificium_db = client.db("Artificium");
-        // POWINNIŚMY WYEKSPORTOWAĆ CAŁĄ LOGIKĘ SOCKETA DO OSOBNEJ KLASY. OBSŁUGA SOCKETA POWINNA BAZOWAĆ NA ŻĄDANIACH HTTPS CELEM UMOŻLIWIENIA OBSŁUGI EWENTUALNYCH BŁĘDÓW
-        // I ZWRACANIA UŻYTKOWNIKOWI ODPOWIEDZI Z SERWERA O STATUSACH JEGO ŻĄDAŃ.
         this.io.on('connect', (socket) => {
             console.log(`liczba połączonych użytkowników to: ${this.io.engine.clientsCount}`);
             console.log(`socket connection ID: ${socket.client.id}. Connected user id is: ${socket.handshake.query.userId}`); // ID KLIENTA !!!! SPÓJNE Z CLIENT-SIDE
