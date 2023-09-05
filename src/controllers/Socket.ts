@@ -33,8 +33,8 @@ export class Socket {
             console.log(`socket connection ID: ${socket.client.id}. Connected user id is: ${socket.handshake.query.userId as string}`) // ID KLIENTA !!!! SPÓJNE Z CLIENT-SIDE)
             socket.on("disconnect", (reason) => SocketHandlers.SOCKET_DISCONNECT(reason))
             SocketHandlers.INTERVAL_ALL_FRIENDS_UPDATE(this.mongo, socket)
-            socket.on("JOIN_GROUP_ROOM", (groupId, userId)=> SocketHandlers.JOIN_GROUP_ROOM(groupId, userId, socket, this.io))
-            socket.on("LEAVE_GROUP_ROOM", (groupId, userId)=> SocketHandlers.LEAVE_GROUP_ROOM(groupId, userId, socket, this.io))
+            socket.on("JOIN_GROUP_ROOM", (groupId, userId)=> SocketHandlers.JOIN_GROUP_ROOM(groupId, userId, socket, this.io, this.mongo))
+            socket.on("LEAVE_GROUP_ROOM", (groupId, userId)=> SocketHandlers.LEAVE_GROUP_ROOM(groupId, userId, socket, this.io, this.mongo))
         }) 
     }
     

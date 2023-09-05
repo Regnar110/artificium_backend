@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SocketHandlers = void 0;
 const UserDashBoardActions_1 = require("../../controllers/UserDashBoardActions");
+const groupActiveUsersModify_1 = require("./fnUtils/groupActiveUsersModify");
 class SocketHandlers {
     static SOCKET_DISCONNECT(reason) {
         console.log("user disconected");
@@ -19,18 +20,20 @@ class SocketHandlers {
     // DOŁĄCZANIE I OPUSZCZANIE GRUP
     //----------------------------------
     //UŻYTKOWNIK DOŁĄCZA DO POKOJU GRUPY    
-    static JOIN_GROUP_ROOM(groupId, userId, socket, io) {
+    static JOIN_GROUP_ROOM(groupId, userId, socket, io, mongo) {
         return __awaiter(this, void 0, void 0, function* () {
             console.log(`UŻYTKOWNIK ${userId} DOŁĄCZYŁ DO POKOJU GRUPY: ${groupId}`);
+            yield (0, groupActiveUsersModify_1.groupActiveUsersModify)("ADD_USER", userId, groupId, mongo);
             //CZekamy aż do grupy uda się dołączyć.
             // TUTAJ MUSIMY OGARNĄĆ LOGIKĘ ZWIĄZANĄ Z DODANIEM DO KONKRTNEGO DOKUENTU GRUPY ID UŻYTKOWNIKA W POLU ACTIVE USERS
             yield socket.join(groupId);
             // Emitujemy wiadomośc dla wszystkich uczestników grupy, że użytkownik o id userID dołączył do grupy.
-            io.to(groupId).emit("GROUP_USER_JOIN", userId);
+            io.to(groupId).emit("GROUP_USER_JOIN", userId); // TU BĘDZIEMY ZWRACAĆ OBIEKT UŻYTKOWNIKA< KTÓRY ŚWIEŻO DOŁĄCZYŁ DO GRUPY CELEM UMOŻLIWNIE APOZOSTAŁYM ZAKTUALIZOWANIE SWOJEJ LISTY UZYTKONIKÓW W GRUPIE
         });
     }
-    static LEAVE_GROUP_ROOM(groupId, userId, socket, io) {
+    static LEAVE_GROUP_ROOM(groupId, userId, socket, io, mongo) {
         return __awaiter(this, void 0, void 0, function* () {
+            yield (0, groupActiveUsersModify_1.groupActiveUsersModify)("REMOVE_USER", userId, groupId, mongo);
             io.to(groupId).emit("GROUP_USER_LEAVE", userId);
             yield socket.leave(groupId);
             console.log(`UŻYTKOWNIK ${userId} OPUSZCZA POKÓJ GRUPY: ${groupId}`);

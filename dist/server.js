@@ -22,15 +22,6 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -77,52 +68,6 @@ class ArtificiumBackend {
         // GROUPS ACTIONS ROUTES
         this.app.post('/createGroup', (req, res) => UserDashBoardActions_1.UserDashBoardActions.createGroup(req, res, artificium_db));
         this.app.post('/getUserGroups', (req, res) => UserDashBoardActions_1.UserDashBoardActions.getUserGroups(req, res, artificium_db));
-    }
-    setupSocketConnnection() {
-        const client = this.mongoClient;
-        const artificium_db = client.db("Artificium");
-        this.io.on('connect', (socket) => {
-            console.log(`liczba połączonych użytkowników to: ${this.io.engine.clientsCount}`);
-            console.log(`socket connection ID: ${socket.client.id}. Connected user id is: ${socket.handshake.query.userId}`); // ID KLIENTA !!!! SPÓJNE Z CLIENT-SIDE
-            // jeżeli socket pomyslnie się połączy wysyłamy do klienta true, jeżeli nie to false
-            socket.on("disconnect", (reason) => {
-                console.log("user disconected");
-                console.log(reason);
-            });
-            // DOŁĄCZANIE I OPUSZCZANIE GRUP
-            //----------------------------------
-            //UŻYTKOWNIK DOŁĄCZA DO POKOJU GRUPY
-            socket.on("JOIN_GROUP_ROOM", (...args) => __awaiter(this, void 0, void 0, function* () {
-                const [groupId, userId] = args;
-                console.log(`UŻYTKOWNIK ${userId} DOŁĄCZYŁ DO POKOJU GRUPY: ${groupId}`);
-                //CZekamy aż do grupy uda się dołączyć.
-                // TUTAJ MUSIMY OGARNĄĆ LOGIKĘ ZWIĄZANĄ Z DODANIEM DO KONKRTNEGO DOKUENTU GRUPY ID UŻYTKOWNIKA W POLU ACTIVE USERS
-                yield socket.join(groupId);
-                // Emitujemy wiadomośc dla wszystkich uczestników grupy, że użytkownik o id userID dołączył do grupy.
-                this.io.to(groupId).emit("GROUP_USER_JOIN", userId);
-                this.user_group_room = args[0];
-                // PO STronie klienta po wejściu w nową grupę, klient będzie emitował wiadomość dla servera że jest w tej grupie.
-            }));
-            // UZYTKOWNIK OPUSZCZA POKÓJ GRUPY
-            socket.on("LEAVE_GROUP_ROOM", (...args) => __awaiter(this, void 0, void 0, function* () {
-                const [groupId, userId] = args;
-                this.io.to(groupId).emit("GROUP_USER_LEAVE", userId);
-                yield socket.leave(groupId);
-                console.log(`UŻYTKOWNIK ${userId} OPUSZCZA POKÓJ GRUPY: ${groupId}`);
-            }));
-            // LOGOWANIE I WYLOGOWYWANIE ZNAJOMYCH - BEZ PODZIAŁU NA GRUPY!
-            setInterval(() => __awaiter(this, void 0, void 0, function* () {
-                try {
-                    const lookedFriends = yield UserDashBoardActions_1.UserDashBoardActions.getUserFriends(socket.handshake.query.userId, artificium_db);
-                    socket.emit("chat", lookedFriends);
-                    // if(typeof this.user_group === "string") {
-                    //     console.log("GRUPA WYBRANA")
-                    // }
-                }
-                catch (error) {
-                }
-            }), 10000);
-        });
     }
 }
 const artificium = (new ArtificiumBackend()).server;
