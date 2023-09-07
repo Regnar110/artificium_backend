@@ -9,6 +9,7 @@
 import { Db, WithId } from "mongodb";
 import { ResponseGenerator } from "../ResponseGenerator/ResponseGenerator";
 import { UserMongoDocument } from "../../globalTypings/userMongoDocument";
+import STATE_STORE from "../../state/state_store";
 
 export const ProviderLoginValidation = (target:any, name:string, descriptor:PropertyDescriptor) => {
     const originalMethod = descriptor.value
@@ -35,6 +36,7 @@ export const ProviderLoginValidation = (target:any, name:string, descriptor:Prop
                     })
                     userDocument.isOnline = true
                     args[0].body = userDocument
+                    STATE_STORE.SET_USER(userDocument)
                     return originalMethod.apply(target, args)
                 }                
             } else {

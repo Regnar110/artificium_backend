@@ -3,6 +3,8 @@ import { DefaultEventsMap } from "socket.io/dist/typed-events"
 import { UserDashBoardActions } from "../../controllers/UserDashBoardActions"
 import { MongoClient, ObjectId } from "mongodb"
 import { groupActiveUsersModify } from "./fnUtils/groupActiveUsersModify"
+import { getUserById } from "../Mongo/fnUtils/getUserById"
+import STATE_STORE from "../../state/state_store"
 
 type SOCKET = Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>
 type IO = Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>
@@ -19,15 +21,25 @@ export class SocketHandlers {
     //UŻYTKOWNIK DOŁĄCZA DO POKOJU GRUPY    
     static async JOIN_GROUP_ROOM(groupId:string, userId:string, socket:SOCKET, io:IO, mongo:MongoClient) {
         console.log(`UŻYTKOWNIK ${userId} DOŁĄCZYŁ DO POKOJU GRUPY: ${groupId}`)
-        await groupActiveUsersModify("ADD_USER", userId, groupId, mongo)
-        //CZekamy aż do grupy uda się dołączyć.
-        // TUTAJ MUSIMY OGARNĄĆ LOGIKĘ ZWIĄZANĄ Z DODANIEM DO KONKRTNEGO DOKUENTU GRUPY ID UŻYTKOWNIKA W POLU ACTIVE USERS
+        const activityChangeResult = await groupActiveUsersModify("ADD_USER", userId, groupId, mongo)
+        // const findUser = await getUserById(userId, mongo)
+        console.log("USER ZE STANU TO:")
+        console.log(STATE_STORE.user)
+        // JEŻELI UDAŁO SIĘ ZMIENIĆ STATUS UŻYTKOWNIKA W GRUPIE ( DODAĆ UŻYTKOWNIKA DO ACTIVE_USERS W DOKUMENCIE GRUPY)
+        if(activityChangeResult.status===200){
+            
+            //CZekamy aż do grupy uda się dołączyć.
+            await socket.join(groupId)
+
+            // Emitujemy wiadomośc dla wszystkich uczestników grupy, że użytkownik o id userID dołączył do grupy.
+            io.to(groupId).emit("GROUP_USER_JOIN", userId)
+
+        } else if(activityChangeResult.status===500) {
+
+            // JEŻELI NIE UDAŁO SIĘ ZMIENIĆ STATUSU UŻYTKOWNIKA W GRUPIE
+            socket.emit("SOCKET_FUNCTIONALITY_ERROR", activityChangeResult as ErrorResponseType)
+        }
         
-        await socket.join(groupId)
-        // Emitujemy wiadomośc dla wszystkich uczestników grupy, że użytkownik o id userID dołączył do grupy.
-
-
-        io.to(groupId).emit("GROUP_USER_JOIN", userId); // TU BĘDZIEMY ZWRACAĆ OBIEKT UŻYTKOWNIKA< KTÓRY ŚWIEŻO DOŁĄCZYŁ DO GRUPY CELEM UMOŻLIWNIE APOZOSTAŁYM ZAKTUALIZOWANIE SWOJEJ LISTY UZYTKONIKÓW W GRUPIE
 
     }
 

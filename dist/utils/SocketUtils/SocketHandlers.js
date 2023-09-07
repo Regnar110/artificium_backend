@@ -8,10 +8,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SocketHandlers = void 0;
 const UserDashBoardActions_1 = require("../../controllers/UserDashBoardActions");
 const groupActiveUsersModify_1 = require("./fnUtils/groupActiveUsersModify");
+const state_store_1 = __importDefault(require("../../state/state_store"));
 class SocketHandlers {
     static SOCKET_DISCONNECT(reason) {
         console.log("user disconected");
@@ -23,12 +27,21 @@ class SocketHandlers {
     static JOIN_GROUP_ROOM(groupId, userId, socket, io, mongo) {
         return __awaiter(this, void 0, void 0, function* () {
             console.log(`UŻYTKOWNIK ${userId} DOŁĄCZYŁ DO POKOJU GRUPY: ${groupId}`);
-            yield (0, groupActiveUsersModify_1.groupActiveUsersModify)("ADD_USER", userId, groupId, mongo);
-            //CZekamy aż do grupy uda się dołączyć.
-            // TUTAJ MUSIMY OGARNĄĆ LOGIKĘ ZWIĄZANĄ Z DODANIEM DO KONKRTNEGO DOKUENTU GRUPY ID UŻYTKOWNIKA W POLU ACTIVE USERS
-            yield socket.join(groupId);
-            // Emitujemy wiadomośc dla wszystkich uczestników grupy, że użytkownik o id userID dołączył do grupy.
-            io.to(groupId).emit("GROUP_USER_JOIN", userId); // TU BĘDZIEMY ZWRACAĆ OBIEKT UŻYTKOWNIKA< KTÓRY ŚWIEŻO DOŁĄCZYŁ DO GRUPY CELEM UMOŻLIWNIE APOZOSTAŁYM ZAKTUALIZOWANIE SWOJEJ LISTY UZYTKONIKÓW W GRUPIE
+            const activityChangeResult = yield (0, groupActiveUsersModify_1.groupActiveUsersModify)("ADD_USER", userId, groupId, mongo);
+            // const findUser = await getUserById(userId, mongo)
+            console.log("USER ZE STANU TO:");
+            console.log(state_store_1.default.user);
+            // JEŻELI UDAŁO SIĘ ZMIENIĆ STATUS UŻYTKOWNIKA W GRUPIE ( DODAĆ UŻYTKOWNIKA DO ACTIVE_USERS W DOKUMENCIE GRUPY)
+            if (activityChangeResult.status === 200) {
+                //CZekamy aż do grupy uda się dołączyć.
+                yield socket.join(groupId);
+                // Emitujemy wiadomośc dla wszystkich uczestników grupy, że użytkownik o id userID dołączył do grupy.
+                io.to(groupId).emit("GROUP_USER_JOIN", userId);
+            }
+            else if (activityChangeResult.status === 500) {
+                // JEŻELI NIE UDAŁO SIĘ ZMIENIĆ STATUSU UŻYTKOWNIKA W GRUPIE
+                socket.emit("SOCKET_FUNCTIONALITY_ERROR", activityChangeResult);
+            }
         });
     }
     static LEAVE_GROUP_ROOM(groupId, userId, socket, io, mongo) {
