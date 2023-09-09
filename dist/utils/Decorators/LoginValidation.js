@@ -8,10 +8,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LoginValidation = void 0;
 const comparePass_1 = require("../Login/comparePass");
 const ResponseGenerator_1 = require("../ResponseGenerator/ResponseGenerator");
+const state_store_1 = __importDefault(require("../../state/state_store"));
 const LoginValidation = (target, name, descriptor) => {
     const originalMethod = descriptor.value;
     descriptor.value = (...args) => __awaiter(void 0, void 0, void 0, function* () {
@@ -21,6 +25,7 @@ const LoginValidation = (target, name, descriptor) => {
             const { email, login_password } = args[0].body;
             const userDocument = yield artificium_users.findOne({ email: email });
             if (userDocument) {
+                console.log(userDocument);
                 const documentPassword = userDocument.password;
                 delete userDocument.password;
                 const isPasswordMatch = yield (0, comparePass_1.comparePass)(login_password, documentPassword);
@@ -35,6 +40,7 @@ const LoginValidation = (target, name, descriptor) => {
                     });
                     userDocument.isOnline = true;
                     args[0].body = userDocument;
+                    state_store_1.default.SET_USER(userDocument);
                     return originalMethod.apply(target, args);
                 }
                 else {

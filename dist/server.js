@@ -35,6 +35,7 @@ const UserAccessController_1 = require("./controllers/UserAccessController");
 const ConnectMongo_1 = __importDefault(require("./utils/Mongo/ConnectMongo"));
 const UserDashBoardActions_1 = require("./controllers/UserDashBoardActions");
 const Socket_1 = require("./controllers/Socket");
+const state_store_1 = __importDefault(require("./state/state_store"));
 class ArtificiumBackend {
     constructor() {
         dotenv_1.default.config();
@@ -55,6 +56,8 @@ class ArtificiumBackend {
         // this.setupSocketConnnection();
         // INSTANCJA SOCKET.IO
         new Socket_1.Socket(this.server, this.io, this.mongoClient);
+        // TU BĘDZIE INICJALIZACJA NOWEJ INSTANCJI STANU DLA KAŻDEGO Z POŁĄCZEŃ
+        this.STORE = new state_store_1.default;
     }
     // private - można używać tylko z wnętrza trej klasy!!
     setupRoutes() {

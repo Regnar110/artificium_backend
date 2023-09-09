@@ -9,13 +9,14 @@ import MongoDBClient from "./utils/Mongo/ConnectMongo";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
 import { UserDashBoardActions } from "./controllers/UserDashBoardActions";
 import { Socket } from "./controllers/Socket";
+import STATE_STORE from "./state/state_store";
 
 class ArtificiumBackend {
     readonly app:Express
     readonly io: Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>
     readonly server:http.Server
     readonly mongoClient: MongoClient
-    
+    private STORE:STATE_STORE
     //SOCKET
 
     private user_group_room: string | undefined
@@ -40,6 +41,8 @@ class ArtificiumBackend {
 
         // INSTANCJA SOCKET.IO
         new Socket(this.server, this.io, this.mongoClient)
+        // TU BĘDZIE INICJALIZACJA NOWEJ INSTANCJI STANU DLA KAŻDEGO Z POŁĄCZEŃ
+        this.STORE = new STATE_STORE
         
     }   
     

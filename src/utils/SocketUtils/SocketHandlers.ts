@@ -18,21 +18,24 @@ export class SocketHandlers {
 
     // DOŁĄCZANIE I OPUSZCZANIE GRUP
     //----------------------------------
+
+    //UŻYTKOWNIK DOŁĄCZA DO POKOPJU GRUPY ( OTRZYMUJE POCZĄTKOWĄ LISTĘ ACTIVE_USERS z aktywnymi użytkownikami)
+
+
+
     //UŻYTKOWNIK DOŁĄCZA DO POKOJU GRUPY    
     static async JOIN_GROUP_ROOM(groupId:string, userId:string, socket:SOCKET, io:IO, mongo:MongoClient) {
         console.log(`UŻYTKOWNIK ${userId} DOŁĄCZYŁ DO POKOJU GRUPY: ${groupId}`)
         const activityChangeResult = await groupActiveUsersModify("ADD_USER", userId, groupId, mongo)
         // const findUser = await getUserById(userId, mongo)
-        console.log("USER ZE STANU TO:")
-        console.log(STATE_STORE.user)
         // JEŻELI UDAŁO SIĘ ZMIENIĆ STATUS UŻYTKOWNIKA W GRUPIE ( DODAĆ UŻYTKOWNIKA DO ACTIVE_USERS W DOKUMENCIE GRUPY)
         if(activityChangeResult.status===200){
             
             //CZekamy aż do grupy uda się dołączyć.
             await socket.join(groupId)
 
-            // Emitujemy wiadomośc dla wszystkich uczestników grupy, że użytkownik o id userID dołączył do grupy.
-            io.to(groupId).emit("GROUP_USER_JOIN", userId)
+            // Emitujemy wiadomośc dla wszystkich uczestników grupy, że użytkownik o id userID dołączył do grupy. NIE POWINNA DOCHODZIĆ DO WYSYŁAJĄCEGO.
+            io.to(groupId).emit("GROUP_USER_JOIN", STATE_STORE.user)
 
         } else if(activityChangeResult.status===500) {
 
@@ -45,6 +48,8 @@ export class SocketHandlers {
 
     static async LEAVE_GROUP_ROOM(groupId:string, userId:string, socket:SOCKET, io:IO, mongo:MongoClient) {
         await groupActiveUsersModify("REMOVE_USER", userId, groupId, mongo)
+
+        // Tu emitujemy tylko userID bez obiektu użytkownika. Na bazie tego id będziemy go usuwali z grupy i dawali znać klientowi że obiekt z polem _id === userID będzie usuwany.
         io.to(groupId).emit("GROUP_USER_LEAVE", userId)
         await socket.leave(groupId)
         console.log(`UŻYTKOWNIK ${userId} OPUSZCZA POKÓJ GRUPY: ${groupId}`)

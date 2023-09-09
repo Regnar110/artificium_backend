@@ -23,20 +23,19 @@ class SocketHandlers {
     }
     // DOŁĄCZANIE I OPUSZCZANIE GRUP
     //----------------------------------
+    //UŻYTKOWNIK DOŁĄCZA DO POKOPJU GRUPY ( OTRZYMUJE POCZĄTKOWĄ LISTĘ ACTIVE_USERS z aktywnymi użytkownikami)
     //UŻYTKOWNIK DOŁĄCZA DO POKOJU GRUPY    
     static JOIN_GROUP_ROOM(groupId, userId, socket, io, mongo) {
         return __awaiter(this, void 0, void 0, function* () {
             console.log(`UŻYTKOWNIK ${userId} DOŁĄCZYŁ DO POKOJU GRUPY: ${groupId}`);
             const activityChangeResult = yield (0, groupActiveUsersModify_1.groupActiveUsersModify)("ADD_USER", userId, groupId, mongo);
             // const findUser = await getUserById(userId, mongo)
-            console.log("USER ZE STANU TO:");
-            console.log(state_store_1.default.user);
             // JEŻELI UDAŁO SIĘ ZMIENIĆ STATUS UŻYTKOWNIKA W GRUPIE ( DODAĆ UŻYTKOWNIKA DO ACTIVE_USERS W DOKUMENCIE GRUPY)
             if (activityChangeResult.status === 200) {
                 //CZekamy aż do grupy uda się dołączyć.
                 yield socket.join(groupId);
-                // Emitujemy wiadomośc dla wszystkich uczestników grupy, że użytkownik o id userID dołączył do grupy.
-                io.to(groupId).emit("GROUP_USER_JOIN", userId);
+                // Emitujemy wiadomośc dla wszystkich uczestników grupy, że użytkownik o id userID dołączył do grupy. NIE POWINNA DOCHODZIĆ DO WYSYŁAJĄCEGO.
+                io.to(groupId).emit("GROUP_USER_JOIN", state_store_1.default.user);
             }
             else if (activityChangeResult.status === 500) {
                 // JEŻELI NIE UDAŁO SIĘ ZMIENIĆ STATUSU UŻYTKOWNIKA W GRUPIE
@@ -47,6 +46,7 @@ class SocketHandlers {
     static LEAVE_GROUP_ROOM(groupId, userId, socket, io, mongo) {
         return __awaiter(this, void 0, void 0, function* () {
             yield (0, groupActiveUsersModify_1.groupActiveUsersModify)("REMOVE_USER", userId, groupId, mongo);
+            // Tu emitujemy tylko userID bez obiektu użytkownika. Na bazie tego id będziemy go usuwali z grupy i dawali znać klientowi że obiekt z polem _id === userID będzie usuwany.
             io.to(groupId).emit("GROUP_USER_LEAVE", userId);
             yield socket.leave(groupId);
             console.log(`UŻYTKOWNIK ${userId} OPUSZCZA POKÓJ GRUPY: ${groupId}`);

@@ -2,6 +2,7 @@ import { Db, WithId } from "mongodb";
 import { UserMongoDocument } from "../../globalTypings/userMongoDocument";
 import { comparePass } from "../Login/comparePass";
 import { ResponseGenerator } from "../ResponseGenerator/ResponseGenerator";
+import STATE_STORE from "../../state/state_store";
 
 export const LoginValidation = (target:any, name:string, descriptor:PropertyDescriptor) => {
     const originalMethod = descriptor.value
@@ -11,7 +12,8 @@ export const LoginValidation = (target:any, name:string, descriptor:PropertyDesc
             const artificium_users = artificium_db.collection("Users")
             const {email, login_password} = args[0].body
             const userDocument = await artificium_users.findOne({email:email}) as WithId<UserMongoDocument>
-            if(userDocument) {            
+            if(userDocument) {
+                console.log(userDocument)            
                 const documentPassword = userDocument.password as string
                 delete userDocument.password
                 const isPasswordMatch = await comparePass(login_password, documentPassword)
@@ -26,6 +28,7 @@ export const LoginValidation = (target:any, name:string, descriptor:PropertyDesc
                     })
                     userDocument.isOnline = true
                     args[0].body = userDocument
+                    STATE_STORE.SET_USER(userDocument)
                     return originalMethod.apply(target, args)
                 } else {
                     const errorObject = ResponseGenerator("ERROR")!<ErrorResponseType>(510, "LoginValidation Decorator: Decorator function error", "Wrong email or password")
@@ -37,7 +40,6 @@ export const LoginValidation = (target:any, name:string, descriptor:PropertyDesc
                 args[0].body = errorObject
                 return originalMethod.apply(target, args)
             }
-    
         } catch (error) {
             const errorObject = ResponseGenerator("ERROR")!<ErrorResponseType>(500, "LoginValidation Decorator: Decorator function error", "Login Error")
             args[0].body = errorObject
