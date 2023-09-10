@@ -90,7 +90,6 @@ export class UserAccessController {
             console.log(logoutResult)
             if(logoutResult.modifiedCount === 1) {
                 const succesObject = ResponseGenerator("SUCCESS")!<SuccesResponseType>(200, "Logout Succcesful!", logoutResult)
-                STATE_STORE.RESET_STATE()
                 res.status(200).json(succesObject)
             } else {
                 const errorObject = ResponseGenerator("ERROR")!<ErrorResponseType>(510, "UserAccesController:  userLogout updateOne method error", "modifiedCount is not 1. User status not changed") 

@@ -1,7 +1,7 @@
 import { MongoClient, ObjectId } from "mongodb";
 import { ResponseGenerator } from "../../ResponseGenerator/ResponseGenerator";
 
-export const groupActiveUsersModify = async (actionType:"ADD_USER" | "REMOVE_USER", userId:string, groupId:string, mongo:MongoClient):Promise<ErrorResponseType | SuccesResponseType> => {
+export const groupActiveUsersModify = async (actionType:"ADD_USER" | "REMOVE_USER", userId:ObjectId, groupId:string, mongo:MongoClient):Promise<ErrorResponseType | SuccesResponseType> => {
     try {
         const db = mongo.db("Artificium")
         const groups_col = db.collection("Groups")

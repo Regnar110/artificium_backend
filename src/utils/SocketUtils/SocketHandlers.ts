@@ -4,7 +4,8 @@ import { UserDashBoardActions } from "../../controllers/UserDashBoardActions"
 import { MongoClient, ObjectId } from "mongodb"
 import { groupActiveUsersModify } from "./fnUtils/groupActiveUsersModify"
 import { getUserById } from "../Mongo/fnUtils/getUserById"
-import STATE_STORE from "../../state/state_store"
+import { UserMongoDocument } from "../../globalTypings/userMongoDocument"
+import { getCurrentActiveGroupUsers } from "../Mongo/fnUtils/getCurrentActiveGroupUsers"
 
 type SOCKET = Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>
 type IO = Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>
@@ -24,18 +25,30 @@ export class SocketHandlers {
 
 
     //UŻYTKOWNIK DOŁĄCZA DO POKOJU GRUPY    
-    static async JOIN_GROUP_ROOM(groupId:string, userId:string, socket:SOCKET, io:IO, mongo:MongoClient) {
+    static async JOIN_GROUP_ROOM(groupId:string, joining_user:UserMongoDocument, socket:SOCKET, io:IO, mongo:MongoClient) {
+        const {_id } = joining_user
+        const userId = new ObjectId(_id)
         console.log(`UŻYTKOWNIK ${userId} DOŁĄCZYŁ DO POKOJU GRUPY: ${groupId}`)
-        const activityChangeResult = await groupActiveUsersModify("ADD_USER", userId, groupId, mongo)
+        const activityChangeResult = await groupActiveUsersModify("ADD_USER", userId , groupId, mongo)
         // const findUser = await getUserById(userId, mongo)
         // JEŻELI UDAŁO SIĘ ZMIENIĆ STATUS UŻYTKOWNIKA W GRUPIE ( DODAĆ UŻYTKOWNIKA DO ACTIVE_USERS W DOKUMENCIE GRUPY)
         if(activityChangeResult.status===200){
             
             //CZekamy aż do grupy uda się dołączyć.
             await socket.join(groupId)
+            // const foundUser = await getUserById(userId, mongo)
+            // console.log("found user TO!")
+            // console.log(foundUser)
+            // Emitujemy wiadomośc dla wszystkich uczestników grupy, że użytkownik dołączył do grupy. PRZESYŁAMY W ODPOWIEDZI OBIEKT UŻYTKOWNIKA, KTÓRY DOŁACZYŁ, CELEM JEGO
+            // PROPAGACJI W STANIE APLIKACJI U UZYTKOWNIKÓW
+            
+            // DO UŻYTKOWNIKA< KTÓRY DOŁĄCZA DO GRUPY ZOSTANIE ZWRÓCONA AKTUALNA LISTA AKTYWNYCH UŻYTKOWNIKÓW TEJ GRUPY!
 
-            // Emitujemy wiadomośc dla wszystkich uczestników grupy, że użytkownik o id userID dołączył do grupy. NIE POWINNA DOCHODZIĆ DO WYSYŁAJĄCEGO.
-            io.to(groupId).emit("GROUP_USER_JOIN", STATE_STORE.user)
+            const active_users = await getCurrentActiveGroupUsers(groupId, mongo)
+            socket.emit("CURRENT_ACTIVE_USERS", active_users) 
+
+            // DO INNYCH UŻYTKOWNIKÓW EMITUJEMY ŻE UŻYTKOWNIK DOŁĄCZYŁ DO GRUPY I PRZEKAZUJEMY IM JEGO OBIEKT CELEM AKTUALIZACJI STANU
+            socket.broadcast.to(groupId).emit("GROUP_USER_JOIN", joining_user)
 
         } else if(activityChangeResult.status===500) {
 
@@ -47,7 +60,10 @@ export class SocketHandlers {
     }
 
     static async LEAVE_GROUP_ROOM(groupId:string, userId:string, socket:SOCKET, io:IO, mongo:MongoClient) {
-        await groupActiveUsersModify("REMOVE_USER", userId, groupId, mongo)
+        const objectUserId = new ObjectId(userId)
+        console.log("USUWAM Z GRUPY")
+        console.log(objectUserId)
+        await groupActiveUsersModify("REMOVE_USER", objectUserId, groupId, mongo)
 
         // Tu emitujemy tylko userID bez obiektu użytkownika. Na bazie tego id będziemy go usuwali z grupy i dawali znać klientowi że obiekt z polem _id === userID będzie usuwany.
         io.to(groupId).emit("GROUP_USER_LEAVE", userId)

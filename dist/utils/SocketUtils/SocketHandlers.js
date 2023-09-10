@@ -8,14 +8,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SocketHandlers = void 0;
 const UserDashBoardActions_1 = require("../../controllers/UserDashBoardActions");
+const mongodb_1 = require("mongodb");
 const groupActiveUsersModify_1 = require("./fnUtils/groupActiveUsersModify");
-const state_store_1 = __importDefault(require("../../state/state_store"));
+const getCurrentActiveGroupUsers_1 = require("../Mongo/fnUtils/getCurrentActiveGroupUsers");
 class SocketHandlers {
     static SOCKET_DISCONNECT(reason) {
         console.log("user disconected");
@@ -25,8 +23,10 @@ class SocketHandlers {
     //----------------------------------
     //UŻYTKOWNIK DOŁĄCZA DO POKOPJU GRUPY ( OTRZYMUJE POCZĄTKOWĄ LISTĘ ACTIVE_USERS z aktywnymi użytkownikami)
     //UŻYTKOWNIK DOŁĄCZA DO POKOJU GRUPY    
-    static JOIN_GROUP_ROOM(groupId, userId, socket, io, mongo) {
+    static JOIN_GROUP_ROOM(groupId, joining_user, socket, io, mongo) {
         return __awaiter(this, void 0, void 0, function* () {
+            const { _id } = joining_user;
+            const userId = new mongodb_1.ObjectId(_id);
             console.log(`UŻYTKOWNIK ${userId} DOŁĄCZYŁ DO POKOJU GRUPY: ${groupId}`);
             const activityChangeResult = yield (0, groupActiveUsersModify_1.groupActiveUsersModify)("ADD_USER", userId, groupId, mongo);
             // const findUser = await getUserById(userId, mongo)
@@ -34,8 +34,16 @@ class SocketHandlers {
             if (activityChangeResult.status === 200) {
                 //CZekamy aż do grupy uda się dołączyć.
                 yield socket.join(groupId);
-                // Emitujemy wiadomośc dla wszystkich uczestników grupy, że użytkownik o id userID dołączył do grupy. NIE POWINNA DOCHODZIĆ DO WYSYŁAJĄCEGO.
-                io.to(groupId).emit("GROUP_USER_JOIN", state_store_1.default.user);
+                // const foundUser = await getUserById(userId, mongo)
+                // console.log("found user TO!")
+                // console.log(foundUser)
+                // Emitujemy wiadomośc dla wszystkich uczestników grupy, że użytkownik dołączył do grupy. PRZESYŁAMY W ODPOWIEDZI OBIEKT UŻYTKOWNIKA, KTÓRY DOŁACZYŁ, CELEM JEGO
+                // PROPAGACJI W STANIE APLIKACJI U UZYTKOWNIKÓW
+                // DO UŻYTKOWNIKA< KTÓRY DOŁĄCZA DO GRUPY ZOSTANIE ZWRÓCONA AKTUALNA LISTA AKTYWNYCH UŻYTKOWNIKÓW TEJ GRUPY!
+                const active_users = yield (0, getCurrentActiveGroupUsers_1.getCurrentActiveGroupUsers)(groupId, mongo);
+                socket.emit("CURRENT_ACTIVE_USERS", active_users);
+                // DO INNYCH UŻYTKOWNIKÓW EMITUJEMY ŻE UŻYTKOWNIK DOŁĄCZYŁ DO GRUPY I PRZEKAZUJEMY IM JEGO OBIEKT CELEM AKTUALIZACJI STANU
+                socket.broadcast.to(groupId).emit("GROUP_USER_JOIN", joining_user);
             }
             else if (activityChangeResult.status === 500) {
                 // JEŻELI NIE UDAŁO SIĘ ZMIENIĆ STATUSU UŻYTKOWNIKA W GRUPIE
@@ -45,7 +53,10 @@ class SocketHandlers {
     }
     static LEAVE_GROUP_ROOM(groupId, userId, socket, io, mongo) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield (0, groupActiveUsersModify_1.groupActiveUsersModify)("REMOVE_USER", userId, groupId, mongo);
+            const objectUserId = new mongodb_1.ObjectId(userId);
+            console.log("USUWAM Z GRUPY");
+            console.log(objectUserId);
+            yield (0, groupActiveUsersModify_1.groupActiveUsersModify)("REMOVE_USER", objectUserId, groupId, mongo);
             // Tu emitujemy tylko userID bez obiektu użytkownika. Na bazie tego id będziemy go usuwali z grupy i dawali znać klientowi że obiekt z polem _id === userID będzie usuwany.
             io.to(groupId).emit("GROUP_USER_LEAVE", userId);
             yield socket.leave(groupId);

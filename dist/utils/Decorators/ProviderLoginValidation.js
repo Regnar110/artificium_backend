@@ -15,13 +15,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProviderLoginValidation = void 0;
 const ResponseGenerator_1 = require("../ResponseGenerator/ResponseGenerator");
-const state_store_1 = __importDefault(require("../../state/state_store"));
 const ProviderLoginValidation = (target, name, descriptor) => {
     const originalMethod = descriptor.value;
     descriptor.value = (...args) => __awaiter(void 0, void 0, void 0, function* () {
@@ -48,7 +44,6 @@ const ProviderLoginValidation = (target, name, descriptor) => {
                     });
                     userDocument.isOnline = true;
                     args[0].body = userDocument;
-                    state_store_1.default.SET_USER(userDocument);
                     return originalMethod.apply(target, args);
                 }
             }

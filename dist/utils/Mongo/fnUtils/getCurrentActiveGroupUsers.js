@@ -9,17 +9,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getUserById = void 0;
-const getUserById = (userId, mongo) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const db = mongo.db("Artificium");
-        const collection = db.collection("Users");
-        const findResult = yield collection.findOne({ _id: userId }, { projection: { password: 0 } });
-        console.log(findResult);
-        return findResult;
-    }
-    catch (error) {
-        return null;
-    }
+exports.getCurrentActiveGroupUsers = void 0;
+const mongodb_1 = require("mongodb");
+const getCurrentActiveGroupUsers = (groupId, mongo) => __awaiter(void 0, void 0, void 0, function* () {
+    const group_collection = mongo.db("Artificium").collection("Groups");
+    const user_collection = mongo.db("Artificium").collection("Users");
+    const [{ active_users }] = yield group_collection.find({ _id: new mongodb_1.ObjectId(groupId) }, { projection: { active_users: 1, _id: 0 } }).toArray();
+    const active_users_objects = yield user_collection.find({ _id: { $in: active_users } }).toArray();
+    return active_users_objects;
 });
-exports.getUserById = getUserById;
+exports.getCurrentActiveGroupUsers = getCurrentActiveGroupUsers;

@@ -16,7 +16,7 @@ class ArtificiumBackend {
     readonly io: Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>
     readonly server:http.Server
     readonly mongoClient: MongoClient
-    private STORE:STATE_STORE
+
     //SOCKET
 
     private user_group_room: string | undefined
@@ -41,8 +41,6 @@ class ArtificiumBackend {
 
         // INSTANCJA SOCKET.IO
         new Socket(this.server, this.io, this.mongoClient)
-        // TU BĘDZIE INICJALIZACJA NOWEJ INSTANCJI STANU DLA KAŻDEGO Z POŁĄCZEŃ
-        this.STORE = new STATE_STORE
         
     }   
     

@@ -14,9 +14,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserAccessController = void 0;
 //USER Register Handler
@@ -25,7 +22,6 @@ const RegisterValidation_1 = require("../utils/Decorators/RegisterValidation");
 const ResponseGenerator_1 = require("../utils/ResponseGenerator/ResponseGenerator");
 const LoginValidation_1 = require("../utils/Decorators/LoginValidation");
 const ProviderLoginValidation_1 = require("../utils/Decorators/ProviderLoginValidation");
-const state_store_1 = __importDefault(require("../state/state_store"));
 class UserAccessController {
     static register(req, res, artificium_db) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -110,7 +106,6 @@ class UserAccessController {
                 console.log(logoutResult);
                 if (logoutResult.modifiedCount === 1) {
                     const succesObject = (0, ResponseGenerator_1.ResponseGenerator)("SUCCESS")(200, "Logout Succcesful!", logoutResult);
-                    state_store_1.default.RESET_STATE();
                     res.status(200).json(succesObject);
                 }
                 else {
