@@ -25,9 +25,12 @@ class SocketHandlers {
     //UŻYTKOWNIK DOŁĄCZA DO POKOJU GRUPY    
     static JOIN_GROUP_ROOM(groupId, joining_user, socket, io, mongo) {
         return __awaiter(this, void 0, void 0, function* () {
+            console.log("JOIN_GROUP_ROOM");
+            console.log(`GROUP: ${groupId}`);
+            console.log(joining_user);
             const { _id } = joining_user;
             const userId = new mongodb_1.ObjectId(_id);
-            console.log(`UŻYTKOWNIK ${userId} DOŁĄCZYŁ DO POKOJU GRUPY: ${groupId}`);
+            console.log(`USER ID TO ${userId} - TU JEST BŁĄD???`);
             const activityChangeResult = yield (0, groupActiveUsersModify_1.groupActiveUsersModify)("ADD_USER", userId, groupId, mongo);
             // const findUser = await getUserById(userId, mongo)
             // JEŻELI UDAŁO SIĘ ZMIENIĆ STATUS UŻYTKOWNIKA W GRUPIE ( DODAĆ UŻYTKOWNIKA DO ACTIVE_USERS W DOKUMENCIE GRUPY)
@@ -53,9 +56,10 @@ class SocketHandlers {
     }
     static LEAVE_GROUP_ROOM(groupId, userId, socket, io, mongo) {
         return __awaiter(this, void 0, void 0, function* () {
+            // TA FUNKCJA PO WYLOGOWANIU KLIENTA Z APKI GDY JEST W GRUPIE WYWOŁYWANA JEST DWA RAZY ( TYLKO PROVIDER ). PONIŻEJ TYMCZASOWE OBEJŚCIE, JEDNAK WYMAGA TO NAPRAWY
             const objectUserId = new mongodb_1.ObjectId(userId);
-            console.log("USUWAM Z GRUPY");
-            console.log(objectUserId);
+            console.log("LEAVE_GROUP_ROOM");
+            console.log(userId);
             yield (0, groupActiveUsersModify_1.groupActiveUsersModify)("REMOVE_USER", objectUserId, groupId, mongo);
             // Tu emitujemy tylko userID bez obiektu użytkownika. Na bazie tego id będziemy go usuwali z grupy i dawali znać klientowi że obiekt z polem _id === userID będzie usuwany.
             io.to(groupId).emit("GROUP_USER_LEAVE", userId);
@@ -78,3 +82,11 @@ class SocketHandlers {
     }
 }
 exports.SocketHandlers = SocketHandlers;
+// DO ROZWIĄZANIA:
+// GDY USER JEST W GRUPIE I SIĘ WYLOGUJE NASTĘPUJE JEGO:
+//1. WYLOGOWANIE - zmiana statusu w bazie
+//2. Odpala się LEAVE_GROUP_ROOM
+//3. FUNKCJA MODYFIKUJĄCA STAN DOKUMENTU GRUPY A DOKŁADNIEJ JEGO POLA ACTIVE_USERS
+//4. UWAGA ZNOWU WYWOŁUJE SIĘ JOIN GROUP ROOM ????? DLACZEGO
+//5. POWYŻSZE A PUSTY OBIEKT UŻYTKOWNIKA co tworzy nowy ObjectId który jest wpychany do dokuemtu grupy
+// PRAWDOPODOBNIE PRZY WYLOGOWYWANIU DOCHODZI DO WYWOŁANIA JOIN_GROUP_ROOM PO RAZ DRUGI.

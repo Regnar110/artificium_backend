@@ -3,6 +3,7 @@ import { ResponseGenerator } from "../../ResponseGenerator/ResponseGenerator";
 
 export const groupActiveUsersModify = async (actionType:"ADD_USER" | "REMOVE_USER", userId:ObjectId, groupId:string, mongo:MongoClient):Promise<ErrorResponseType | SuccesResponseType> => {
     try {
+        console.log("GROUP_ACTIVE_USER_MODIFY")
         const db = mongo.db("Artificium")
         const groups_col = db.collection("Groups")
         const docSearchFilter = { _id: new ObjectId(groupId)}

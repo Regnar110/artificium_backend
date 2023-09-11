@@ -26,9 +26,12 @@ export class SocketHandlers {
 
     //UŻYTKOWNIK DOŁĄCZA DO POKOJU GRUPY    
     static async JOIN_GROUP_ROOM(groupId:string, joining_user:UserMongoDocument, socket:SOCKET, io:IO, mongo:MongoClient) {
+        console.log("JOIN_GROUP_ROOM")
+        console.log(`GROUP: ${groupId}`)
+        console.log(joining_user)
         const {_id } = joining_user
         const userId = new ObjectId(_id)
-        console.log(`UŻYTKOWNIK ${userId} DOŁĄCZYŁ DO POKOJU GRUPY: ${groupId}`)
+        console.log(`USER ID TO ${userId} - TU JEST BŁĄD???`)
         const activityChangeResult = await groupActiveUsersModify("ADD_USER", userId , groupId, mongo)
         // const findUser = await getUserById(userId, mongo)
         // JEŻELI UDAŁO SIĘ ZMIENIĆ STATUS UŻYTKOWNIKA W GRUPIE ( DODAĆ UŻYTKOWNIKA DO ACTIVE_USERS W DOKUMENCIE GRUPY)
@@ -60,15 +63,17 @@ export class SocketHandlers {
     }
 
     static async LEAVE_GROUP_ROOM(groupId:string, userId:string, socket:SOCKET, io:IO, mongo:MongoClient) {
-        const objectUserId = new ObjectId(userId)
-        console.log("USUWAM Z GRUPY")
-        console.log(objectUserId)
-        await groupActiveUsersModify("REMOVE_USER", objectUserId, groupId, mongo)
+        // TA FUNKCJA PO WYLOGOWANIU KLIENTA Z APKI GDY JEST W GRUPIE WYWOŁYWANA JEST DWA RAZY ( TYLKO PROVIDER ). PONIŻEJ TYMCZASOWE OBEJŚCIE, JEDNAK WYMAGA TO NAPRAWY
+            const objectUserId = new ObjectId(userId)
+            console.log("LEAVE_GROUP_ROOM")
+            console.log(userId)
+            await groupActiveUsersModify("REMOVE_USER", objectUserId, groupId, mongo)
 
-        // Tu emitujemy tylko userID bez obiektu użytkownika. Na bazie tego id będziemy go usuwali z grupy i dawali znać klientowi że obiekt z polem _id === userID będzie usuwany.
-        io.to(groupId).emit("GROUP_USER_LEAVE", userId)
-        await socket.leave(groupId)
-        console.log(`UŻYTKOWNIK ${userId} OPUSZCZA POKÓJ GRUPY: ${groupId}`)
+            // Tu emitujemy tylko userID bez obiektu użytkownika. Na bazie tego id będziemy go usuwali z grupy i dawali znać klientowi że obiekt z polem _id === userID będzie usuwany.
+            io.to(groupId).emit("GROUP_USER_LEAVE", userId)
+            await socket.leave(groupId)
+            console.log(`UŻYTKOWNIK ${userId} OPUSZCZA POKÓJ GRUPY: ${groupId}`)            
+
     }
             
     // LOGOWANIE I WYLOGOWYWANIE ZNAJOMYCH - BEZ PODZIAŁU NA GRUPY!
@@ -86,3 +91,16 @@ export class SocketHandlers {
     }
 
 }
+
+
+// DO ROZWIĄZANIA:
+
+// GDY USER JEST W GRUPIE I SIĘ WYLOGUJE NASTĘPUJE JEGO:
+//1. WYLOGOWANIE - zmiana statusu w bazie
+//2. Odpala się LEAVE_GROUP_ROOM
+//3. FUNKCJA MODYFIKUJĄCA STAN DOKUMENTU GRUPY A DOKŁADNIEJ JEGO POLA ACTIVE_USERS
+//4. UWAGA ZNOWU WYWOŁUJE SIĘ JOIN GROUP ROOM ????? DLACZEGO
+//5. POWYŻSZE A PUSTY OBIEKT UŻYTKOWNIKA co tworzy nowy ObjectId który jest wpychany do dokuemtu grupy
+
+
+// PRAWDOPODOBNIE PRZY WYLOGOWYWANIU DOCHODZI DO WYWOŁANIA JOIN_GROUP_ROOM PO RAZ DRUGI.
