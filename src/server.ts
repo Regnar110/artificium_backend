@@ -57,6 +57,7 @@ class ArtificiumBackend {
         // GROUPS ACTIONS ROUTES
         this.app.post('/createGroup', (req,res) => UserDashBoardActions.createGroup(req,res,artificium_db))
         this.app.post('/getUserGroups', (req,res) => UserDashBoardActions.getUserGroups(req,res, artificium_db))
+        this.app.post('/getSelectedGroups', (req,res) => UserDashBoardActions.getSelectedGroups(req,res,artificium_db))
     }
 
     // private setupSocketConnnection() {// Chat będzie rozwijany w następnej kolejności. Na ten czas implementowana będzie logika odpowiedzialna za grupy i za wskazywanie użytkowników online.

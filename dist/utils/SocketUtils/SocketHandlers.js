@@ -32,16 +32,10 @@ class SocketHandlers {
             const userId = new mongodb_1.ObjectId(_id);
             console.log(`USER ID TO ${userId} - TU JEST BŁĄD???`);
             const activityChangeResult = yield (0, groupActiveUsersModify_1.groupActiveUsersModify)("ADD_USER", userId, groupId, mongo);
-            // const findUser = await getUserById(userId, mongo)
             // JEŻELI UDAŁO SIĘ ZMIENIĆ STATUS UŻYTKOWNIKA W GRUPIE ( DODAĆ UŻYTKOWNIKA DO ACTIVE_USERS W DOKUMENCIE GRUPY)
             if (activityChangeResult.status === 200) {
                 //CZekamy aż do grupy uda się dołączyć.
                 yield socket.join(groupId);
-                // const foundUser = await getUserById(userId, mongo)
-                // console.log("found user TO!")
-                // console.log(foundUser)
-                // Emitujemy wiadomośc dla wszystkich uczestników grupy, że użytkownik dołączył do grupy. PRZESYŁAMY W ODPOWIEDZI OBIEKT UŻYTKOWNIKA, KTÓRY DOŁACZYŁ, CELEM JEGO
-                // PROPAGACJI W STANIE APLIKACJI U UZYTKOWNIKÓW
                 // DO UŻYTKOWNIKA< KTÓRY DOŁĄCZA DO GRUPY ZOSTANIE ZWRÓCONA AKTUALNA LISTA AKTYWNYCH UŻYTKOWNIKÓW TEJ GRUPY!
                 const active_users = yield (0, getCurrentActiveGroupUsers_1.getCurrentActiveGroupUsers)(groupId, mongo);
                 socket.emit("CURRENT_ACTIVE_USERS", active_users);
@@ -82,11 +76,3 @@ class SocketHandlers {
     }
 }
 exports.SocketHandlers = SocketHandlers;
-// DO ROZWIĄZANIA:
-// GDY USER JEST W GRUPIE I SIĘ WYLOGUJE NASTĘPUJE JEGO:
-//1. WYLOGOWANIE - zmiana statusu w bazie
-//2. Odpala się LEAVE_GROUP_ROOM
-//3. FUNKCJA MODYFIKUJĄCA STAN DOKUMENTU GRUPY A DOKŁADNIEJ JEGO POLA ACTIVE_USERS
-//4. UWAGA ZNOWU WYWOŁUJE SIĘ JOIN GROUP ROOM ????? DLACZEGO
-//5. POWYŻSZE A PUSTY OBIEKT UŻYTKOWNIKA co tworzy nowy ObjectId który jest wpychany do dokuemtu grupy
-// PRAWDOPODOBNIE PRZY WYLOGOWYWANIU DOCHODZI DO WYWOŁANIA JOIN_GROUP_ROOM PO RAZ DRUGI.

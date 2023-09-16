@@ -51,6 +51,18 @@ class UserDashBoardActions {
             }
         });
     }
+    static getSelectedGroups(req, res, artificium_db) {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log(req.body);
+            const objectedIds = req.body.map(el => new mongodb_1.ObjectId(el));
+            try {
+                const groups = yield artificium_db.collection("Groups").find({ _id: { $in: objectedIds } }).toArray();
+                console.log(groups);
+            }
+            catch (error) {
+            }
+        });
+    }
     static removeGroup() {
         return __awaiter(this, void 0, void 0, function* () {
             // removeGroup - only for admin of the group. Group is deleted and connection to it is restricted
@@ -69,8 +81,6 @@ class UserDashBoardActions {
             const foundDocs = yield users.find({ _id: { $in: objectedFriends } }, { projection: {
                     password: 0,
                     provider: 0,
-                    user_friends_ids: 0,
-                    user_groups_ids: 0
                 } }).toArray();
             return foundDocs;
         });

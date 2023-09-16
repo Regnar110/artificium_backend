@@ -68,6 +68,7 @@ class ArtificiumBackend {
         // GROUPS ACTIONS ROUTES
         this.app.post('/createGroup', (req, res) => UserDashBoardActions_1.UserDashBoardActions.createGroup(req, res, artificium_db));
         this.app.post('/getUserGroups', (req, res) => UserDashBoardActions_1.UserDashBoardActions.getUserGroups(req, res, artificium_db));
+        this.app.post('/getSelectedGroups', (req, res) => UserDashBoardActions_1.UserDashBoardActions.getSelectedGroups(req, res, artificium_db));
     }
 }
 const artificium = (new ArtificiumBackend()).server;

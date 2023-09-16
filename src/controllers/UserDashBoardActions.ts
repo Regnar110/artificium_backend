@@ -33,6 +33,16 @@ export class UserDashBoardActions {
         }
     }
 
+    static async getSelectedGroups(req:any, res:any, artificium_db:Db) {
+        console.log(req.body)
+        const objectedIds = req.body.map(el => new ObjectId(el))
+        try {
+            const groups = await artificium_db.collection("Groups").find({_id: {$in:objectedIds}}).toArray()
+            console.log(groups)
+        } catch (error) {
+            
+        }
+    }
 
     static async removeGroup() {
         // removeGroup - only for admin of the group. Group is deleted and connection to it is restricted
@@ -49,8 +59,6 @@ export class UserDashBoardActions {
         const foundDocs = await users.find({_id: {$in: objectedFriends}}, {projection:{
             password:0, 
             provider:0,
-            user_friends_ids:0,
-            user_groups_ids:0
         }}).toArray()
         return foundDocs
     }
