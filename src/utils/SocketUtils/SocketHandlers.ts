@@ -72,16 +72,16 @@ export class SocketHandlers {
             
     // LOGOWANIE I WYLOGOWYWANIE ZNAJOMYCH - BEZ PODZIAŁU NA GRUPY!
     // ZWRACAMY UŻYTKOWNIKOWI CO 10 SEKUND AKTUALNĄ WARTOŚĆ JEGO ZNAJOMYCH
-    static INTERVAL_ALL_FRIENDS_UPDATE(mongoDb:MongoClient, socket:SOCKET) {
-    const artificium_db = mongoDb.db("Artificium")
-        setInterval(async () => { // EMITY Co 10 sekund do klienta
-            try {
-                const lookedFriends = await UserDashBoardActions.getUserFriends(socket.handshake.query.userId as string, artificium_db)
-                socket.emit("chat", lookedFriends)
-            } catch (error) {
+    // static INTERVAL_ALL_FRIENDS_UPDATE(mongoDb:MongoClient, socket:SOCKET) {
+    // const artificium_db = mongoDb.db("Artificium")
+    //     setInterval(async () => { // EMITY Co 10 sekund do klienta
+    //         try {
+    //             const lookedFriends = await UserDashBoardActions.getUserFriends(socket.handshake.query.userId as string, artificium_db)
+    //             socket.emit("chat", lookedFriends)
+    //         } catch (error) {
                 
-            }            
-        },10000)       
-    }
+    //         }            
+    //     },10000)       
+    // }
 
 }

@@ -9,7 +9,6 @@ import MongoDBClient from "./utils/Mongo/ConnectMongo";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
 import { UserDashBoardActions } from "./controllers/UserDashBoardActions";
 import { Socket } from "./controllers/Socket";
-import STATE_STORE from "./state/state_store";
 
 class ArtificiumBackend {
     readonly app:Express
@@ -18,9 +17,6 @@ class ArtificiumBackend {
     readonly mongoClient: MongoClient
 
     //SOCKET
-
-    private user_group_room: string | undefined
-    
     constructor() {
         dotenv.config();
         this.app = express();
@@ -58,6 +54,7 @@ class ArtificiumBackend {
         this.app.post('/createGroup', (req,res) => UserDashBoardActions.createGroup(req,res,artificium_db))
         this.app.post('/getUserGroups', (req,res) => UserDashBoardActions.getUserGroups(req,res, artificium_db))
         this.app.post('/getSelectedGroups', (req,res) => UserDashBoardActions.getSelectedGroups(req,res,artificium_db))
+        this.app.post('/getSelectedUsers', (req, res) => UserDashBoardActions.getSelectedFriends(req,res,artificium_db))
     }
 
     // private setupSocketConnnection() {// Chat będzie rozwijany w następnej kolejności. Na ten czas implementowana będzie logika odpowiedzialna za grupy i za wskazywanie użytkowników online.

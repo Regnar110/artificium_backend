@@ -36,6 +36,7 @@ const ConnectMongo_1 = __importDefault(require("./utils/Mongo/ConnectMongo"));
 const UserDashBoardActions_1 = require("./controllers/UserDashBoardActions");
 const Socket_1 = require("./controllers/Socket");
 class ArtificiumBackend {
+    //SOCKET
     constructor() {
         dotenv_1.default.config();
         this.app = (0, express_1.default)();
@@ -69,6 +70,7 @@ class ArtificiumBackend {
         this.app.post('/createGroup', (req, res) => UserDashBoardActions_1.UserDashBoardActions.createGroup(req, res, artificium_db));
         this.app.post('/getUserGroups', (req, res) => UserDashBoardActions_1.UserDashBoardActions.getUserGroups(req, res, artificium_db));
         this.app.post('/getSelectedGroups', (req, res) => UserDashBoardActions_1.UserDashBoardActions.getSelectedGroups(req, res, artificium_db));
+        this.app.post('/getSelectedUsers', (req, res) => UserDashBoardActions_1.UserDashBoardActions.getSelectedFriends(req, res, artificium_db));
     }
 }
 const artificium = (new ArtificiumBackend()).server;

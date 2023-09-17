@@ -53,13 +53,29 @@ class UserDashBoardActions {
     }
     static getSelectedGroups(req, res, artificium_db) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log(req.body);
             const objectedIds = req.body.map(el => new mongodb_1.ObjectId(el));
             try {
                 const groups = yield artificium_db.collection("Groups").find({ _id: { $in: objectedIds } }).toArray();
                 console.log(groups);
+                res.status(200).json(groups);
             }
             catch (error) {
+                const errorObject = (0, ResponseGenerator_1.ResponseGenerator)("ERROR")(500, "GetSelectedGroups Route: GetSelectedGroups Route overall error", "GetSelectedGroups route error");
+                res.status(500).json(errorObject);
+            }
+        });
+    }
+    static getSelectedFriends(req, res, artificium_db) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const objectedIds = req.body.map(el => new mongodb_1.ObjectId(el));
+            try {
+                const users = yield artificium_db.collection("Users").find({ _id: { $in: objectedIds } }).toArray();
+                console.log(users);
+                res.status(200).json(users);
+            }
+            catch (error) {
+                const errorObject = (0, ResponseGenerator_1.ResponseGenerator)("ERROR")(500, "GetSelectedFriends Route: GetSelectedFriends Route overall error", "GetSelectedFriends route error");
+                res.status(500).json(errorObject);
             }
         });
     }

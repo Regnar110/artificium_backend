@@ -34,13 +34,26 @@ export class UserDashBoardActions {
     }
 
     static async getSelectedGroups(req:any, res:any, artificium_db:Db) {
-        console.log(req.body)
         const objectedIds = req.body.map(el => new ObjectId(el))
         try {
             const groups = await artificium_db.collection("Groups").find({_id: {$in:objectedIds}}).toArray()
             console.log(groups)
+            res.status(200).json(groups)
         } catch (error) {
-            
+            const errorObject = ResponseGenerator("ERROR")!<ErrorResponseType>(500, "GetSelectedGroups Route: GetSelectedGroups Route overall error", "GetSelectedGroups route error")
+            res.status(500).json(errorObject)
+        }
+    }
+
+    static async getSelectedFriends(req:any, res:any, artificium_db:Db) {
+        const objectedIds = req.body.map(el => new ObjectId(el))
+        try {
+            const users = await artificium_db.collection("Users").find({_id: {$in:objectedIds}}).toArray()
+            console.log(users)
+            res.status(200).json(users)
+        } catch (error) {
+            const errorObject = ResponseGenerator("ERROR")!<ErrorResponseType>(500, "GetSelectedFriends Route: GetSelectedFriends Route overall error", "GetSelectedFriends route error")
+            res.status(500).json(errorObject)
         }
     }
 
