@@ -84,4 +84,25 @@ export class SocketHandlers {
     //     },10000)       
     // }
 
+    // OBSŁUGA STATUSÓW UŻYTKOWNIKÓW - ONLINE I OFFLINE
+
+    // GDY UŻYTKOWNIK LOGUJE SIĘ I JEST ONLINE WYSYŁA DO TEJ METODY SWÓJ OBIEKT.
+    // Z TEGO OBIEKTU SPRAWDZAMY JACY UŻYTKOWNICY Z FRIENDLISTY LOGUJĄCEGO SIĘ USERA SĄ ONLINE I INFORMUJEMY ICH ŻE TEN USER JEST ONLINE
+    static async USER_IS_ONLINE(online_user:UserMongoDocument, socket:SOCKET, io:IO, mongo:MongoClient) {
+        console.log("USER_IS_ONLINE")
+        const {user_friends_ids} = online_user
+        const user_frineds_Objected = user_friends_ids.map(friend => new ObjectId(friend))
+        const friendsOnline = await mongo.db("Artificium").collection("Users").find({_id: {$in: user_frineds_Objected}, isOnline: true}).project({_id:1}).toArray()
+        friendsOnline.forEach(friend => io.emit(`${friend._id}_USER_IS_ONLINE`, online_user))
+    }
+
+    static async USER_IS_OFFLINE(offline_user_id:string, socket:SOCKET, io:IO, mongo:MongoClient) {
+        console.log("USER_IS_OFFLINE")
+        const collection = mongo.db("Artificium").collection("Users")
+        const user_friends = await collection.find({_id: new ObjectId(offline_user_id)},{projection:{_id:0, user_friends_ids:1}}).toArray();
+        const objected_user_friends = user_friends[0].user_friends_ids.map((friend_id:string) => new ObjectId(friend_id))
+        const online_user_friends = await collection.find({_id: {$in:objected_user_friends}}, {projection:{_id:1}}).toArray()
+        online_user_friends.forEach(friend => socket.broadcast.emit(`${friend._id.toString()}_USER_IS_OFFLINE`, offline_user_id))
+        console.log(offline_user_id)
+    }
 }

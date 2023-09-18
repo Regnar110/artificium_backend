@@ -60,5 +60,40 @@ class SocketHandlers {
             console.log(`UŻYTKOWNIK ${userId} OPUSZCZA POKÓJ GRUPY: ${groupId}`);
         });
     }
+    // LOGOWANIE I WYLOGOWYWANIE ZNAJOMYCH - BEZ PODZIAŁU NA GRUPY!
+    // ZWRACAMY UŻYTKOWNIKOWI CO 10 SEKUND AKTUALNĄ WARTOŚĆ JEGO ZNAJOMYCH
+    // static INTERVAL_ALL_FRIENDS_UPDATE(mongoDb:MongoClient, socket:SOCKET) {
+    // const artificium_db = mongoDb.db("Artificium")
+    //     setInterval(async () => { // EMITY Co 10 sekund do klienta
+    //         try {
+    //             const lookedFriends = await UserDashBoardActions.getUserFriends(socket.handshake.query.userId as string, artificium_db)
+    //             socket.emit("chat", lookedFriends)
+    //         } catch (error) {
+    //         }            
+    //     },10000)       
+    // }
+    // OBSŁUGA STATUSÓW UŻYTKOWNIKÓW - ONLINE I OFFLINE
+    // GDY UŻYTKOWNIK LOGUJE SIĘ I JEST ONLINE WYSYŁA DO TEJ METODY SWÓJ OBIEKT.
+    // Z TEGO OBIEKTU SPRAWDZAMY JACY UŻYTKOWNICY Z FRIENDLISTY LOGUJĄCEGO SIĘ USERA SĄ ONLINE I INFORMUJEMY ICH ŻE TEN USER JEST ONLINE
+    static USER_IS_ONLINE(online_user, socket, io, mongo) {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log("USER_IS_ONLINE");
+            const { user_friends_ids } = online_user;
+            const user_frineds_Objected = user_friends_ids.map(friend => new mongodb_1.ObjectId(friend));
+            const friendsOnline = yield mongo.db("Artificium").collection("Users").find({ _id: { $in: user_frineds_Objected }, isOnline: true }).project({ _id: 1 }).toArray();
+            friendsOnline.forEach(friend => io.emit(`${friend._id}_USER_IS_ONLINE`, online_user));
+        });
+    }
+    static USER_IS_OFFLINE(offline_user_id, socket, io, mongo) {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log("USER_IS_OFFLINE");
+            const collection = mongo.db("Artificium").collection("Users");
+            const user_friends = yield collection.find({ _id: new mongodb_1.ObjectId(offline_user_id) }, { projection: { _id: 0, user_friends_ids: 1 } }).toArray();
+            const objected_user_friends = user_friends[0].user_friends_ids.map((friend_id) => new mongodb_1.ObjectId(friend_id));
+            const online_user_friends = yield collection.find({ _id: { $in: objected_user_friends } }, { projection: { _id: 1 } }).toArray();
+            online_user_friends.forEach(friend => socket.broadcast.emit(`${friend._id.toString()}_USER_IS_OFFLINE`, offline_user_id));
+            console.log(offline_user_id);
+        });
+    }
 }
 exports.SocketHandlers = SocketHandlers;

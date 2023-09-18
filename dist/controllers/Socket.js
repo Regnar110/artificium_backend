@@ -27,6 +27,8 @@ class Socket {
             socket.on("JOIN_GROUP_ROOM", (groupId, userId) => SocketHandlers_1.SocketHandlers.JOIN_GROUP_ROOM(groupId, userId, socket, this.io, this.mongo));
             // UŻYTKOWNIK OPUSZCZA GRUPĘ ( POKÓJ SOCKET )
             socket.on("LEAVE_GROUP_ROOM", (groupId, userId) => SocketHandlers_1.SocketHandlers.LEAVE_GROUP_ROOM(groupId, userId, socket, this.io, this.mongo));
+            socket.on("USER_IS_ONLINE", (online_user) => SocketHandlers_1.SocketHandlers.USER_IS_ONLINE(online_user, socket, this.io, this.mongo));
+            socket.on("USER_IS_OFFLINE", (offline_user_id) => SocketHandlers_1.SocketHandlers.USER_IS_OFFLINE(offline_user_id, socket, this.io, this.mongo));
         });
     }
 }
