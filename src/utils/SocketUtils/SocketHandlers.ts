@@ -70,32 +70,22 @@ export class SocketHandlers {
 
     }
             
-    // LOGOWANIE I WYLOGOWYWANIE ZNAJOMYCH - BEZ PODZIAŁU NA GRUPY!
-    // ZWRACAMY UŻYTKOWNIKOWI CO 10 SEKUND AKTUALNĄ WARTOŚĆ JEGO ZNAJOMYCH
-    // static INTERVAL_ALL_FRIENDS_UPDATE(mongoDb:MongoClient, socket:SOCKET) {
-    // const artificium_db = mongoDb.db("Artificium")
-    //     setInterval(async () => { // EMITY Co 10 sekund do klienta
-    //         try {
-    //             const lookedFriends = await UserDashBoardActions.getUserFriends(socket.handshake.query.userId as string, artificium_db)
-    //             socket.emit("chat", lookedFriends)
-    //         } catch (error) {
-                
-    //         }            
-    //     },10000)       
-    // }
-
+    
     // OBSŁUGA STATUSÓW UŻYTKOWNIKÓW - ONLINE I OFFLINE
 
     // GDY UŻYTKOWNIK LOGUJE SIĘ I JEST ONLINE WYSYŁA DO TEJ METODY SWÓJ OBIEKT.
     // Z TEGO OBIEKTU SPRAWDZAMY JACY UŻYTKOWNICY Z FRIENDLISTY LOGUJĄCEGO SIĘ USERA SĄ ONLINE I INFORMUJEMY ICH ŻE TEN USER JEST ONLINE
     static async USER_IS_ONLINE(online_user:UserMongoDocument, socket:SOCKET, io:IO, mongo:MongoClient) {
         console.log("USER_IS_ONLINE")
+        const collection = mongo.db("Artificium").collection("Users")
         const {user_friends_ids} = online_user
         const user_frineds_Objected = user_friends_ids.map(friend => new ObjectId(friend))
-        const friendsOnline = await mongo.db("Artificium").collection("Users").find({_id: {$in: user_frineds_Objected}, isOnline: true}).project({_id:1}).toArray()
-        friendsOnline.forEach(friend => io.emit(`${friend._id}_USER_IS_ONLINE`, online_user))
+        const friendsOnline = await collection.find({_id: {$in: user_frineds_Objected}, isOnline: true}, {projection:{_id:1}}).toArray()
+        friendsOnline.forEach(friend => socket.broadcast.emit(`${friend._id}_USER_IS_ONLINE`, online_user))
     }
 
+    // GDY UŻYTKOWNIK WYLOGOWUJE SIĘ Z APLIKACJI WYSYŁAMY DO TEJ METODY ID UŻYTKOWNIKA KTÓRY OPUSZCZA APLIKACJE
+    // NASTĘPNIE SPRAWDZAMY JACY JEGO ZNAJOMI SĄ ONLINE I DO KAŻDEGO Z NICH WYSYŁAMY INFORMACJĘ ŻE UŻYTKOWNIK O WSKAZANYM ID OPUŚCIŁ APLIKACJĘ ( WYLOGOWAŁ SIĘ )
     static async USER_IS_OFFLINE(offline_user_id:string, socket:SOCKET, io:IO, mongo:MongoClient) {
         console.log("USER_IS_OFFLINE")
         const collection = mongo.db("Artificium").collection("Users")
@@ -103,6 +93,5 @@ export class SocketHandlers {
         const objected_user_friends = user_friends[0].user_friends_ids.map((friend_id:string) => new ObjectId(friend_id))
         const online_user_friends = await collection.find({_id: {$in:objected_user_friends}}, {projection:{_id:1}}).toArray()
         online_user_friends.forEach(friend => socket.broadcast.emit(`${friend._id.toString()}_USER_IS_OFFLINE`, offline_user_id))
-        console.log(offline_user_id)
     }
 }
