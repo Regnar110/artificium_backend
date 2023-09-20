@@ -89,16 +89,18 @@ class UserDashBoardActions {
             // invite user to group. Each user can do this
         });
     }
-    static getUserFriends(connectedUserId, artificium_db) {
+    static getUserFriends(req, res, artificium_db) {
         return __awaiter(this, void 0, void 0, function* () {
+            console.log("GET USER FRIENDS");
             const users = artificium_db.collection("Users");
-            const friendsToFind = yield users.findOne({ _id: new mongodb_1.ObjectId(connectedUserId) }, { projection: { user_friends_ids: 1, _id: 0 } });
+            const { user_id } = req.body;
+            const friendsToFind = yield users.findOne({ _id: new mongodb_1.ObjectId(user_id) }, { projection: { user_friends_ids: 1, _id: 0 } });
             const objectedFriends = friendsToFind.user_friends_ids.map((id) => new mongodb_1.ObjectId(id));
             const foundDocs = yield users.find({ _id: { $in: objectedFriends } }, { projection: {
                     password: 0,
                     provider: 0,
                 } }).toArray();
-            return foundDocs;
+            res.json(foundDocs);
         });
     }
     static getUserGroupFriends(connectedUserId, groupId, artificium_db) {

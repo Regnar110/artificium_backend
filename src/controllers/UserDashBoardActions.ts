@@ -65,15 +65,17 @@ export class UserDashBoardActions {
         // invite user to group. Each user can do this
     }
 
-    static async getUserFriends(connectedUserId:string,  artificium_db:Db) { 
+    static async getUserFriends(req:any, res:any,  artificium_db:Db) { 
+        console.log("GET USER FRIENDS")
         const users = artificium_db.collection("Users")
-        const friendsToFind = await users.findOne({_id: new ObjectId(connectedUserId)}, {projection: {user_friends_ids:1, _id:0}})
+        const {user_id} = req.body
+        const friendsToFind = await users.findOne({_id: new ObjectId(user_id)}, {projection: {user_friends_ids:1, _id:0}})
         const objectedFriends = friendsToFind!.user_friends_ids.map((id:string) => new ObjectId(id))
         const foundDocs = await users.find({_id: {$in: objectedFriends}}, {projection:{
             password:0, 
             provider:0,
         }}).toArray()
-        return foundDocs
+        res.json(foundDocs)
     }
 
     static async getUserGroupFriends(connectedUserId:string, groupId:string, artificium_db:Db) {

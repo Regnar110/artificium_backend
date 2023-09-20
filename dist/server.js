@@ -71,6 +71,8 @@ class ArtificiumBackend {
         this.app.post('/getUserGroups', (req, res) => UserDashBoardActions_1.UserDashBoardActions.getUserGroups(req, res, artificium_db));
         this.app.post('/getSelectedGroups', (req, res) => UserDashBoardActions_1.UserDashBoardActions.getSelectedGroups(req, res, artificium_db));
         this.app.post('/getSelectedUsers', (req, res) => UserDashBoardActions_1.UserDashBoardActions.getSelectedFriends(req, res, artificium_db));
+        //FRIEND ACTION ROUTES
+        this.app.post('/getUserFriends', (req, res) => UserDashBoardActions_1.UserDashBoardActions.getUserFriends(req, res, artificium_db));
     }
 }
 const artificium = (new ArtificiumBackend()).server;

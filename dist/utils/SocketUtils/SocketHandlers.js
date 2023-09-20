@@ -65,6 +65,7 @@ class SocketHandlers {
     // Z TEGO OBIEKTU SPRAWDZAMY JACY UŻYTKOWNICY Z FRIENDLISTY LOGUJĄCEGO SIĘ USERA SĄ ONLINE I INFORMUJEMY ICH ŻE TEN USER JEST ONLINE
     static USER_IS_ONLINE(online_user, socket, io, mongo) {
         return __awaiter(this, void 0, void 0, function* () {
+            //POTRZEBNE : TABLICA PRZYJACIÓŁ USERA ONLINE, JEGO ID
             console.log("USER_IS_ONLINE");
             const collection = mongo.db("Artificium").collection("Users");
             const { user_friends_ids } = online_user;
