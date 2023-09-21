@@ -63,25 +63,23 @@ class SocketHandlers {
     // OBSŁUGA STATUSÓW UŻYTKOWNIKÓW - ONLINE I OFFLINE
     // GDY UŻYTKOWNIK LOGUJE SIĘ I JEST ONLINE WYSYŁA DO TEJ METODY SWÓJ OBIEKT.
     // Z TEGO OBIEKTU SPRAWDZAMY JACY UŻYTKOWNICY Z FRIENDLISTY LOGUJĄCEGO SIĘ USERA SĄ ONLINE I INFORMUJEMY ICH ŻE TEN USER JEST ONLINE
-    static USER_IS_ONLINE(online_user, socket, io, mongo) {
+    static USER_IS_ONLINE(online_user_id, user_friends, socket, io, mongo) {
         return __awaiter(this, void 0, void 0, function* () {
             //POTRZEBNE : TABLICA PRZYJACIÓŁ USERA ONLINE, JEGO ID
             console.log("USER_IS_ONLINE");
             const collection = mongo.db("Artificium").collection("Users");
-            const { user_friends_ids } = online_user;
-            const user_frineds_Objected = user_friends_ids.map(friend => new mongodb_1.ObjectId(friend));
+            const user_frineds_Objected = user_friends.map(friend => new mongodb_1.ObjectId(friend));
             const friendsOnline = yield collection.find({ _id: { $in: user_frineds_Objected }, isOnline: true }, { projection: { _id: 1 } }).toArray();
-            friendsOnline.forEach(friend => socket.broadcast.emit(`${friend._id}_USER_IS_ONLINE`, online_user));
+            friendsOnline.forEach(friend => socket.broadcast.emit(`${friend._id}_USER_IS_ONLINE`, online_user_id));
         });
     }
     // GDY UŻYTKOWNIK WYLOGOWUJE SIĘ Z APLIKACJI WYSYŁAMY DO TEJ METODY ID UŻYTKOWNIKA KTÓRY OPUSZCZA APLIKACJE
     // NASTĘPNIE SPRAWDZAMY JACY JEGO ZNAJOMI SĄ ONLINE I DO KAŻDEGO Z NICH WYSYŁAMY INFORMACJĘ ŻE UŻYTKOWNIK O WSKAZANYM ID OPUŚCIŁ APLIKACJĘ ( WYLOGOWAŁ SIĘ )
-    static USER_IS_OFFLINE(offline_user_id, socket, io, mongo) {
+    static USER_IS_OFFLINE(offline_user_id, user_friends, socket, io, mongo) {
         return __awaiter(this, void 0, void 0, function* () {
             console.log("USER_IS_OFFLINE");
             const collection = mongo.db("Artificium").collection("Users");
-            const user_friends = yield collection.find({ _id: new mongodb_1.ObjectId(offline_user_id) }, { projection: { _id: 0, user_friends_ids: 1 } }).toArray();
-            const objected_user_friends = user_friends[0].user_friends_ids.map((friend_id) => new mongodb_1.ObjectId(friend_id));
+            const objected_user_friends = user_friends.map((friend_id) => new mongodb_1.ObjectId(friend_id));
             const online_user_friends = yield collection.find({ _id: { $in: objected_user_friends } }, { projection: { _id: 1 } }).toArray();
             online_user_friends.forEach(friend => socket.broadcast.emit(`${friend._id.toString()}_USER_IS_OFFLINE`, offline_user_id));
         });
