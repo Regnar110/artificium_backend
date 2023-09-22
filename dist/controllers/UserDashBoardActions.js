@@ -56,7 +56,6 @@ class UserDashBoardActions {
             const objectedIds = req.body.map(el => new mongodb_1.ObjectId(el));
             try {
                 const groups = yield artificium_db.collection("Groups").find({ _id: { $in: objectedIds } }).toArray();
-                console.log(groups);
                 res.status(200).json(groups);
             }
             catch (error) {
@@ -70,7 +69,6 @@ class UserDashBoardActions {
             const objectedIds = req.body.map(el => new mongodb_1.ObjectId(el));
             try {
                 const users = yield artificium_db.collection("Users").find({ _id: { $in: objectedIds } }).toArray();
-                console.log(users);
                 res.status(200).json(users);
             }
             catch (error) {

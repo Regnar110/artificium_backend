@@ -24,12 +24,8 @@ class SocketHandlers {
     //UŻYTKOWNIK DOŁĄCZA DO POKOJU GRUPY    
     static JOIN_GROUP_ROOM(groupId, joining_user, socket, io, mongo) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("JOIN_GROUP_ROOM");
-            console.log(`GROUP: ${groupId}`);
-            console.log(joining_user);
             const { _id } = joining_user;
             const userId = new mongodb_1.ObjectId(_id);
-            console.log(`USER ID TO ${userId} - TU JEST BŁĄD???`);
             const activityChangeResult = yield (0, groupActiveUsersModify_1.groupActiveUsersModify)("ADD_USER", userId, groupId, mongo);
             // JEŻELI UDAŁO SIĘ ZMIENIĆ STATUS UŻYTKOWNIKA W GRUPIE ( DODAĆ UŻYTKOWNIKA DO ACTIVE_USERS W DOKUMENCIE GRUPY)
             if (activityChangeResult.status === 200) {
@@ -51,13 +47,10 @@ class SocketHandlers {
         return __awaiter(this, void 0, void 0, function* () {
             // TA FUNKCJA PO WYLOGOWANIU KLIENTA Z APKI GDY JEST W GRUPIE WYWOŁYWANA JEST DWA RAZY ( TYLKO PROVIDER ). PONIŻEJ TYMCZASOWE OBEJŚCIE, JEDNAK WYMAGA TO NAPRAWY
             const objectUserId = new mongodb_1.ObjectId(userId);
-            console.log("LEAVE_GROUP_ROOM");
-            console.log(userId);
             yield (0, groupActiveUsersModify_1.groupActiveUsersModify)("REMOVE_USER", objectUserId, groupId, mongo);
             // Tu emitujemy tylko userID bez obiektu użytkownika. Na bazie tego id będziemy go usuwali z grupy i dawali znać klientowi że obiekt z polem _id === userID będzie usuwany.
             io.to(groupId).emit("GROUP_USER_LEAVE", userId);
             yield socket.leave(groupId);
-            console.log(`UŻYTKOWNIK ${userId} OPUSZCZA POKÓJ GRUPY: ${groupId}`);
         });
     }
     // OBSŁUGA STATUSÓW UŻYTKOWNIKÓW - ONLINE I OFFLINE
@@ -67,6 +60,8 @@ class SocketHandlers {
         return __awaiter(this, void 0, void 0, function* () {
             //POTRZEBNE : TABLICA PRZYJACIÓŁ USERA ONLINE, JEGO ID
             console.log("USER_IS_ONLINE");
+            console.log(online_user_id);
+            console.log(user_friends);
             const collection = mongo.db("Artificium").collection("Users");
             const user_frineds_Objected = user_friends.map(friend => new mongodb_1.ObjectId(friend));
             const friendsOnline = yield collection.find({ _id: { $in: user_frineds_Objected }, isOnline: true }, { projection: { _id: 1 } }).toArray();
@@ -78,6 +73,8 @@ class SocketHandlers {
     static USER_IS_OFFLINE(offline_user_id, user_friends, socket, io, mongo) {
         return __awaiter(this, void 0, void 0, function* () {
             console.log("USER_IS_OFFLINE");
+            console.log(offline_user_id);
+            console.log(user_friends);
             const collection = mongo.db("Artificium").collection("Users");
             const objected_user_friends = user_friends.map((friend_id) => new mongodb_1.ObjectId(friend_id));
             const online_user_friends = yield collection.find({ _id: { $in: objected_user_friends } }, { projection: { _id: 1 } }).toArray();

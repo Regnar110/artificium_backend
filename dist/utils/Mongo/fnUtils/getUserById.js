@@ -15,7 +15,6 @@ const getUserById = (userId, mongo) => __awaiter(void 0, void 0, void 0, functio
         const db = mongo.db("Artificium");
         const collection = db.collection("Users");
         const findResult = yield collection.findOne({ _id: userId }, { projection: { password: 0 } });
-        console.log(findResult);
         return findResult;
     }
     catch (error) {

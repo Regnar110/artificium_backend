@@ -5,7 +5,6 @@ import { ResponseGenerator } from "../utils/ResponseGenerator/ResponseGenerator"
 import { LoginValidation } from "../utils/Decorators/LoginValidation"
 import dotenv from 'dotenv';
 import { ProviderLoginValidation } from "../utils/Decorators/ProviderLoginValidation";
-import STATE_STORE from "../state/state_store";
 export class UserAccessController {
 
     @RegisterValidation
@@ -78,7 +77,6 @@ export class UserAccessController {
         // zmieniamy status pola isOnline dokumentu uzytkownika na false - czym dajemy znać że użytkownik jest offline
         try {
             const { authUser } = req.body
-            console.log("Logged out user id:" + authUser)
             const artificium_users = artificium_db.collection("Users")
             const logoutResult = await artificium_users.updateOne({
                 _id:new ObjectId(authUser)

@@ -2,7 +2,6 @@ import dotenv from 'dotenv';
 import { MongoClient } from 'mongodb';
 import { Server } from 'socket.io';
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';
-import { UserDashBoardActions } from './UserDashBoardActions';
 import { SocketHandlers } from '../utils/SocketUtils/SocketHandlers';
 
 type PASSED_IO = Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>
