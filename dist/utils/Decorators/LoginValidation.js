@@ -21,7 +21,6 @@ const LoginValidation = (target, name, descriptor) => {
             const { email, login_password } = args[0].body;
             const userDocument = yield artificium_users.findOne({ email: email });
             if (userDocument) {
-                console.log(userDocument);
                 const documentPassword = userDocument.password;
                 delete userDocument.password;
                 const isPasswordMatch = yield (0, comparePass_1.comparePass)(login_password, documentPassword);

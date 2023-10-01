@@ -11,8 +11,7 @@ export const LoginValidation = (target:any, name:string, descriptor:PropertyDesc
             const artificium_users = artificium_db.collection("Users")
             const {email, login_password} = args[0].body
             const userDocument = await artificium_users.findOne({email:email}) as WithId<UserMongoDocument>
-            if(userDocument) {
-                console.log(userDocument)            
+            if(userDocument) {      
                 const documentPassword = userDocument.password as string
                 delete userDocument.password
                 const isPasswordMatch = await comparePass(login_password, documentPassword)

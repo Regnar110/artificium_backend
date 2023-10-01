@@ -14,7 +14,6 @@ const mongodb_1 = require("mongodb");
 const ResponseGenerator_1 = require("../../ResponseGenerator/ResponseGenerator");
 const groupActiveUsersModify = (actionType, userId, groupId, mongo) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        console.log("GROUP_ACTIVE_USER_MODIFY");
         const db = mongo.db("Artificium");
         const groups_col = db.collection("Groups");
         const docSearchFilter = { _id: new mongodb_1.ObjectId(groupId) };
