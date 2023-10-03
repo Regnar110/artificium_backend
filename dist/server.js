@@ -35,12 +35,14 @@ const UserAccessController_1 = require("./controllers/UserAccessController");
 const ConnectMongo_1 = __importDefault(require("./utils/Mongo/ConnectMongo"));
 const UserDashBoardActions_1 = require("./controllers/UserDashBoardActions");
 const Socket_1 = require("./controllers/Socket");
+const body_parser_1 = require("body-parser");
 class ArtificiumBackend {
     //SOCKET
     constructor() {
         dotenv_1.default.config();
         this.app = (0, express_1.default)();
         this.app.use((0, express_1.json)());
+        this.app.use((0, body_parser_1.text)());
         this.app.use((0, cors_1.default)());
         this.server = http_1.default.createServer(this.app);
         this.io = new socket_io_1.Server(this.server, {

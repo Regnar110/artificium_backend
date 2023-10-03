@@ -9,6 +9,7 @@ import MongoDBClient from "./utils/Mongo/ConnectMongo";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
 import { UserDashBoardActions } from "./controllers/UserDashBoardActions";
 import { Socket } from "./controllers/Socket";
+import { text } from "body-parser";
 
 class ArtificiumBackend {
     readonly app:Express
@@ -21,6 +22,7 @@ class ArtificiumBackend {
         dotenv.config();
         this.app = express();
         this.app.use(json());
+        this.app.use(text())
         this.app.use(cors());
         this.server = http.createServer(this.app);
         this.io = new Server(this.server, {
