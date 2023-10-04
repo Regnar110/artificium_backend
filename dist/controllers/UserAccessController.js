@@ -91,10 +91,12 @@ class UserAccessController {
     }
     static userLogout(req, res, artificium_db) {
         return __awaiter(this, void 0, void 0, function* () {
+            const pars = JSON.parse(req.body);
+            console.log(typeof pars);
             // zmieniamy status pola isOnline dokumentu uzytkownika na false - czym dajemy znać że użytkownik jest offline
             try {
-                console.log(JSON.parse(req));
-                console.log(JSON.parse(req.body));
+                console.log(req);
+                console.log(req.body);
                 const { authUser } = req.body;
                 const artificium_users = artificium_db.collection("Users");
                 const logoutResult = yield artificium_users.updateOne({

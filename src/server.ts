@@ -1,4 +1,4 @@
-import express, {json, Express} from "express"
+import express, {json, Express, text} from "express"
 import { Server } from "socket.io";
 import http from 'http';
 import cors from "cors"
@@ -9,8 +9,6 @@ import MongoDBClient from "./utils/Mongo/ConnectMongo";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
 import { UserDashBoardActions } from "./controllers/UserDashBoardActions";
 import { Socket } from "./controllers/Socket";
-import { text } from "body-parser";
-
 class ArtificiumBackend {
     readonly app:Express
     readonly io: Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>
