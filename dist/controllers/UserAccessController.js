@@ -91,13 +91,11 @@ class UserAccessController {
     }
     static userLogout(req, res, artificium_db) {
         return __awaiter(this, void 0, void 0, function* () {
-            const pars = JSON.parse(req.body);
-            console.log(typeof pars);
             // zmieniamy status pola isOnline dokumentu uzytkownika na false - czym dajemy znać że użytkownik jest offline
             try {
-                console.log(req);
-                console.log(req.body);
-                const { authUser } = req.body;
+                // ZE WZGLĘDU NA TO ŻE DO TEGO ENDPOINTU MOŻE DOTRZEĆ RÓWNIEŻ ŻĄDANIE WYKONANE PRZY UŻYCIU navigator.sendBeacon() WYKONANE W MOMENCIE ZAMKNIĘCIA ZAKŁDKI LUB OKNA PRZEKLĄDARKI KLIENTA
+                // SPRAWDZAMY CZY REQ.BODY JEST STRINGIEM. JEŻELI TAK TO ZNACZY ŻE REQUEST NADSZEDŁ Z BEACON API, W INNYM PRZYPADKU REQ.BODY BĘDZIE {authUser:string} WYSŁANY Z FETCH API
+                let authUser = typeof req.body === "string" ? req.body : req.body.authUser;
                 const artificium_users = artificium_db.collection("Users");
                 const logoutResult = yield artificium_users.updateOne({
                     _id: new mongodb_1.ObjectId(authUser)
