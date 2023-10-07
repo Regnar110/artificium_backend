@@ -8,12 +8,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SocketHandlers = void 0;
 const mongodb_1 = require("mongodb");
 const groupActiveUsersModify_1 = require("./fnUtils/groupActiveUsersModify");
 const getUserById_1 = require("../Mongo/fnUtils/getUserById");
 const getCurrentActiveGroupUsers_1 = require("../Mongo/fnUtils/getCurrentActiveGroupUsers");
+const ConnectMongo_1 = __importDefault(require("../Mongo/ConnectMongo"));
 class SocketHandlers {
     static SOCKET_DISCONNECT(reason) {
         console.log("user disconected");
@@ -46,11 +50,12 @@ class SocketHandlers {
     }
     static LEAVE_GROUP_ROOM(groupId, userId, socket, io, mongo) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("LEAVE GROUP ROOM HIT");
+            console.log("LEAVE_GROUP_ROOM");
+            const mongo2 = ConnectMongo_1.default.getInstance();
             // TA FUNKCJA PO WYLOGOWANIU KLIENTA Z APKI GDY JEST W GRUPIE WYWOŁYWANA JEST DWA RAZY ( TYLKO PROVIDER ). PONIŻEJ TYMCZASOWE OBEJŚCIE, JEDNAK WYMAGA TO NAPRAWY
             const objectUserId = new mongodb_1.ObjectId(userId);
             yield (0, groupActiveUsersModify_1.groupActiveUsersModify)("REMOVE_USER", objectUserId, groupId, mongo);
-            const leaving_user = yield (0, getUserById_1.getUserById)(objectUserId, mongo);
+            const leaving_user = yield (0, getUserById_1.getUserById)(objectUserId, mongo2);
             // TU EMITUJEMY CAŁY OBIEKT UŻYTKOWNIKA. MA TO NA CELU UMOŻLIWIENIE POINFORMOWANIA INNYCH UŻYTKOWNIKÓW OTYM KTO OPUŚCIŁ GRUPĘ I WYŚWIETLENIE KOMUNIKATU W UI
             io.to(groupId).emit("GROUP_USER_LEAVE", leaving_user);
             yield socket.leave(groupId);
@@ -61,8 +66,9 @@ class SocketHandlers {
     // Z TEGO OBIEKTU SPRAWDZAMY JACY UŻYTKOWNICY Z FRIENDLISTY LOGUJĄCEGO SIĘ USERA SĄ ONLINE I INFORMUJEMY ICH ŻE TEN USER JEST ONLINE
     static USER_IS_ONLINE(online_user_id, user_friends, socket, io, mongo) {
         return __awaiter(this, void 0, void 0, function* () {
+            const mongo2 = ConnectMongo_1.default.getInstance();
             //POTRZEBNE : TABLICA PRZYJACIÓŁ USERA ONLINE, JEGO ID
-            const collection = mongo.db("Artificium").collection("Users");
+            const collection = mongo2.db("Artificium").collection("Users");
             const user_frineds_Objected = user_friends.map(friend => new mongodb_1.ObjectId(friend));
             const friendsOnline = yield collection.find({ _id: { $in: user_frineds_Objected }, isOnline: true }, { projection: { _id: 1 } }).toArray();
             friendsOnline.forEach(friend => socket.broadcast.emit(`${friend._id}_USER_IS_ONLINE`, online_user_id));
@@ -70,12 +76,25 @@ class SocketHandlers {
     }
     // GDY UŻYTKOWNIK WYLOGOWUJE SIĘ Z APLIKACJI WYSYŁAMY DO TEJ METODY ID UŻYTKOWNIKA KTÓRY OPUSZCZA APLIKACJE
     // NASTĘPNIE SPRAWDZAMY JACY JEGO ZNAJOMI SĄ ONLINE I DO KAŻDEGO Z NICH WYSYŁAMY INFORMACJĘ ŻE UŻYTKOWNIK O WSKAZANYM ID OPUŚCIŁ APLIKACJĘ ( WYLOGOWAŁ SIĘ )
-    static USER_IS_OFFLINE(offline_user_id, user_friends, socket, io, mongo) {
+    static USER_IS_OFFLINE(offline_user_id, user_friends, socket, mongo) {
         return __awaiter(this, void 0, void 0, function* () {
-            const collection = mongo.db("Artificium").collection("Users");
-            const objected_user_friends = user_friends.map((friend_id) => new mongodb_1.ObjectId(friend_id));
+            console.log("USER_IS_OFFLINE");
+            const mongo2 = ConnectMongo_1.default.getInstance();
+            const collection = mongo2.db("Artificium").collection("Users");
+            const objected_user_friends = user_friends.map((friend_id) => {
+                console.log(friend_id);
+                return new mongodb_1.ObjectId(friend_id);
+            });
+            console.log(objected_user_friends);
             const online_user_friends = yield collection.find({ _id: { $in: objected_user_friends } }, { projection: { _id: 1 } }).toArray();
             online_user_friends.forEach(friend => socket.broadcast.emit(`${friend._id.toString()}_USER_IS_OFFLINE`, offline_user_id));
+        });
+    }
+    static USER_IS_UNACTIVE(unactive_user_id, user_friends, groupId, socket, io, mongo) {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log("USER IS UNACTIVE!!!!");
+            this.USER_IS_OFFLINE(unactive_user_id, user_friends, socket, mongo);
+            groupId && this.LEAVE_GROUP_ROOM(groupId, unactive_user_id, socket, io, mongo);
         });
     }
 }

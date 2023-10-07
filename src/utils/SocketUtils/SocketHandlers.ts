@@ -6,6 +6,7 @@ import { groupActiveUsersModify } from "./fnUtils/groupActiveUsersModify"
 import { getUserById } from "../Mongo/fnUtils/getUserById"
 import { UserMongoDocument } from "../../globalTypings/userMongoDocument"
 import { getCurrentActiveGroupUsers } from "../Mongo/fnUtils/getCurrentActiveGroupUsers"
+import MongoDBClient from "../Mongo/ConnectMongo"
 
 type SOCKET = Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>
 type IO = Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>
@@ -53,11 +54,12 @@ export class SocketHandlers {
     }
 
     static async LEAVE_GROUP_ROOM(groupId:string, userId:string, socket:SOCKET, io:IO, mongo:MongoClient) {
-        console.log("LEAVE GROUP ROOM HIT")
+        console.log("LEAVE_GROUP_ROOM")
+        const mongo2 = MongoDBClient.getInstance()
         // TA FUNKCJA PO WYLOGOWANIU KLIENTA Z APKI GDY JEST W GRUPIE WYWOŁYWANA JEST DWA RAZY ( TYLKO PROVIDER ). PONIŻEJ TYMCZASOWE OBEJŚCIE, JEDNAK WYMAGA TO NAPRAWY
             const objectUserId = new ObjectId(userId)
             await groupActiveUsersModify("REMOVE_USER", objectUserId, groupId, mongo)
-            const leaving_user = await getUserById(objectUserId, mongo)
+            const leaving_user = await getUserById(objectUserId, mongo2)
             // TU EMITUJEMY CAŁY OBIEKT UŻYTKOWNIKA. MA TO NA CELU UMOŻLIWIENIE POINFORMOWANIA INNYCH UŻYTKOWNIKÓW OTYM KTO OPUŚCIŁ GRUPĘ I WYŚWIETLENIE KOMUNIKATU W UI
             io.to(groupId).emit("GROUP_USER_LEAVE", leaving_user)
             await socket.leave(groupId)            
@@ -70,8 +72,9 @@ export class SocketHandlers {
     // GDY UŻYTKOWNIK LOGUJE SIĘ I JEST ONLINE WYSYŁA DO TEJ METODY SWÓJ OBIEKT.
     // Z TEGO OBIEKTU SPRAWDZAMY JACY UŻYTKOWNICY Z FRIENDLISTY LOGUJĄCEGO SIĘ USERA SĄ ONLINE I INFORMUJEMY ICH ŻE TEN USER JEST ONLINE
     static async USER_IS_ONLINE(online_user_id:string, user_friends:string[], socket:SOCKET, io:IO, mongo:MongoClient) {
+        const mongo2 = MongoDBClient.getInstance()
         //POTRZEBNE : TABLICA PRZYJACIÓŁ USERA ONLINE, JEGO ID
-        const collection = mongo.db("Artificium").collection("Users")
+        const collection = mongo2.db("Artificium").collection("Users")
         const user_frineds_Objected = user_friends.map(friend => new ObjectId(friend))
         const friendsOnline = await collection.find({_id: {$in: user_frineds_Objected}, isOnline: true}, {projection:{_id:1}}).toArray()
         friendsOnline.forEach(friend => socket.broadcast.emit(`${friend._id}_USER_IS_ONLINE`, online_user_id))
@@ -79,10 +82,23 @@ export class SocketHandlers {
 
     // GDY UŻYTKOWNIK WYLOGOWUJE SIĘ Z APLIKACJI WYSYŁAMY DO TEJ METODY ID UŻYTKOWNIKA KTÓRY OPUSZCZA APLIKACJE
     // NASTĘPNIE SPRAWDZAMY JACY JEGO ZNAJOMI SĄ ONLINE I DO KAŻDEGO Z NICH WYSYŁAMY INFORMACJĘ ŻE UŻYTKOWNIK O WSKAZANYM ID OPUŚCIŁ APLIKACJĘ ( WYLOGOWAŁ SIĘ )
-    static async USER_IS_OFFLINE(offline_user_id:string, user_friends:string[], socket:SOCKET, io:IO, mongo:MongoClient) {
-        const collection = mongo.db("Artificium").collection("Users")
-        const objected_user_friends = user_friends.map((friend_id:string) => new ObjectId(friend_id))
+    static async USER_IS_OFFLINE(offline_user_id:string, user_friends:string[], socket:SOCKET, mongo:MongoClient) {
+        console.log("USER_IS_OFFLINE")
+        const mongo2 = MongoDBClient.getInstance()
+        const collection = mongo2.db("Artificium").collection("Users")
+        const objected_user_friends = user_friends.map((friend_id:string) => { 
+                console.log(friend_id)
+                return new ObjectId(friend_id)
+            }
+        )
+        console.log(objected_user_friends)
         const online_user_friends = await collection.find({_id: {$in:objected_user_friends}}, {projection:{_id:1}}).toArray()
         online_user_friends.forEach(friend => socket.broadcast.emit(`${friend._id.toString()}_USER_IS_OFFLINE`, offline_user_id))
+    }
+
+    static async USER_IS_UNACTIVE(unactive_user_id:string, user_friends:string[], groupId:string, socket:SOCKET, io:IO, mongo:MongoClient) {
+        console.log("USER IS UNACTIVE!!!!")
+        this.USER_IS_OFFLINE(unactive_user_id, user_friends, socket, mongo)
+        groupId && this.LEAVE_GROUP_ROOM(groupId, unactive_user_id, socket,io,mongo)
     }
 }

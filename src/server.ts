@@ -12,6 +12,7 @@ import { Socket } from "./controllers/Socket";
 class ArtificiumBackend {
     readonly app:Express
     readonly io: Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>
+    readonly socket: Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>
     readonly server:http.Server
     readonly mongoClient: MongoClient
 
@@ -36,7 +37,7 @@ class ArtificiumBackend {
         // this.setupSocketConnnection();
 
         // INSTANCJA SOCKET.IO
-        new Socket(this.server, this.io, this.mongoClient)
+        this.socket = new Socket(this.server, this.io, this.mongoClient)
         
     }   
     

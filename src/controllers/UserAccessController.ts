@@ -1,10 +1,13 @@
 //USER Register Handler
-import { Db, ObjectId} from "mongodb"
+import { Db, MongoClient, ObjectId} from "mongodb"
 import { RegisterValidation } from "../utils/Decorators/RegisterValidation"
 import { ResponseGenerator } from "../utils/ResponseGenerator/ResponseGenerator"
 import { LoginValidation } from "../utils/Decorators/LoginValidation"
 import dotenv from 'dotenv';
 import { ProviderLoginValidation } from "../utils/Decorators/ProviderLoginValidation";
+import { SocketHandlers } from "../utils/SocketUtils/SocketHandlers";
+import { Server, Socket } from "socket.io";
+import { DefaultEventsMap } from "socket.io/dist/typed-events";
 export class UserAccessController {
 
     @RegisterValidation

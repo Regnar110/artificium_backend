@@ -56,7 +56,7 @@ class ArtificiumBackend {
         this.setupRoutes();
         // this.setupSocketConnnection();
         // INSTANCJA SOCKET.IO
-        new Socket_1.Socket(this.server, this.io, this.mongoClient);
+        this.socket = new Socket_1.Socket(this.server, this.io, this.mongoClient);
     }
     // private - można używać tylko z wnętrza trej klasy!!
     setupRoutes() {

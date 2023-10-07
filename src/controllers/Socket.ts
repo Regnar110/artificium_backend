@@ -13,14 +13,15 @@ export class Socket {
     socket: Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>
 
     constructor(server: PASSED_SERVER, io:PASSED_IO, mongoClient:MongoClient){
-        this.io = new Server(server, {
-            cors: {
-                origin:["http://localhost:3000"],
-                methods:["GET", "POST"]
-            },
-            addTrailingSlash:false,
-            transports: ['polling', 'websocket'],
-        }); // Utwórz instancję serwera Socket.IO na bazie istniejącego serwera HTTP
+        this.io = io
+        // this.io = new Server(server, {
+        //     cors: {
+        //         origin:["http://localhost:3000"],
+        //         methods:["GET", "POST"]
+        //     },
+        //     addTrailingSlash:false,
+        //     transports: ['polling', 'websocket'],
+        // }); // Utwórz instancję serwera Socket.IO na bazie istniejącego serwera HTTP
         this.mongo = mongoClient
         this.SETUP_SOCKET()
     }
@@ -40,8 +41,10 @@ export class Socket {
             socket.on("LEAVE_GROUP_ROOM", (groupId, userId)=> SocketHandlers.LEAVE_GROUP_ROOM(groupId, userId, socket, this.io, this.mongo))
             socket.on("USER_IS_ONLINE", (online_user_id, user_friends) => SocketHandlers.USER_IS_ONLINE(online_user_id, user_friends, socket, this.io, this.mongo))
             socket.on("USER_IS_OFFLINE", (offline_user_id, user_friends) => SocketHandlers.USER_IS_OFFLINE(offline_user_id, user_friends, socket, this.io, this.mongo))
+            socket.on("USER_IS_UNACTIVE", (unactive_user_id, user_friends, groupId) => SocketHandlers.USER_IS_UNACTIVE(unactive_user_id, user_friends, groupId, socket, this.io, this.mongo))
         }) 
     }
     
     
 }
+
