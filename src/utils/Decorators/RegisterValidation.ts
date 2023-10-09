@@ -17,6 +17,7 @@ export const RegisterValidation = (target: any, name: string, descriptor: Proper
           if(userExist === false) {
             const userObject = {
               isOnline:false,
+              isInactive:false,
               email,
               nickname,
               password: securedPass,

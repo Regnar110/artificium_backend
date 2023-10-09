@@ -64,7 +64,7 @@ class SocketHandlers {
     // OBSŁUGA STATUSÓW UŻYTKOWNIKÓW - ONLINE I OFFLINE
     // GDY UŻYTKOWNIK LOGUJE SIĘ I JEST ONLINE WYSYŁA DO TEJ METODY SWÓJ OBIEKT.
     // Z TEGO OBIEKTU SPRAWDZAMY JACY UŻYTKOWNICY Z FRIENDLISTY LOGUJĄCEGO SIĘ USERA SĄ ONLINE I INFORMUJEMY ICH ŻE TEN USER JEST ONLINE
-    static USER_IS_ONLINE(online_user_id, user_friends, socket, io, mongo) {
+    static USER_IS_ONLINE(online_user_id, user_friends, socket) {
         return __awaiter(this, void 0, void 0, function* () {
             const mongo2 = ConnectMongo_1.default.getInstance();
             //POTRZEBNE : TABLICA PRZYJACIÓŁ USERA ONLINE, JEGO ID
@@ -76,7 +76,7 @@ class SocketHandlers {
     }
     // GDY UŻYTKOWNIK WYLOGOWUJE SIĘ Z APLIKACJI WYSYŁAMY DO TEJ METODY ID UŻYTKOWNIKA KTÓRY OPUSZCZA APLIKACJE
     // NASTĘPNIE SPRAWDZAMY JACY JEGO ZNAJOMI SĄ ONLINE I DO KAŻDEGO Z NICH WYSYŁAMY INFORMACJĘ ŻE UŻYTKOWNIK O WSKAZANYM ID OPUŚCIŁ APLIKACJĘ ( WYLOGOWAŁ SIĘ )
-    static USER_IS_OFFLINE(offline_user_id, user_friends, socket, mongo) {
+    static USER_IS_OFFLINE(offline_user_id, user_friends, socket) {
         return __awaiter(this, void 0, void 0, function* () {
             console.log("USER_IS_OFFLINE");
             const mongo2 = ConnectMongo_1.default.getInstance();
@@ -93,8 +93,25 @@ class SocketHandlers {
     static USER_IS_UNACTIVE(unactive_user_id, user_friends, groupId, socket, io, mongo) {
         return __awaiter(this, void 0, void 0, function* () {
             console.log("USER IS UNACTIVE!!!!");
-            this.USER_IS_OFFLINE(unactive_user_id, user_friends, socket, mongo);
+            this.USER_IS_OFFLINE(unactive_user_id, user_friends, socket);
             groupId && this.LEAVE_GROUP_ROOM(groupId, unactive_user_id, socket, io, mongo);
+            const updateDocumentResult = mongo.db("Artificium").collection("Users").updateOne({ _id: new mongodb_1.ObjectId(unactive_user_id) }, { $set: { "isInactive": true } });
+        });
+    }
+    static USER_IS_ACTIVE(active_user_id, user_friends, socket, io, mongo) {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log("USER IS ACTIVE AGAIN !!!!");
+            const users_collection = mongo.db("Artificium").collection("Users");
+            //SPrawdzamy czy pole dokumentu użytkownika isInactive jest true.
+            // Oznaczałoby to że użytkownik jest ONLINE, ale jest nieaktywny.
+            const { isInactive } = yield users_collection.findOne({ _id: new mongodb_1.ObjectId(active_user_id) }, { projection: { _id: 0, isInactive: 1 } });
+            //JEŻELI UŻYTKOWNIK FAJKTYCZNIE BYŁ NIEAKTYWNY( WYSZEDŁ Z APPKI PRZEZ AMKNIĘCIE NP OKNA, BEZ RZECZYWISTEGO WYLOGOWANIA SIĘ )
+            if (isInactive) {
+                // zmieniamy stan pola isInactive dokumentu użytkownika na false bo użytkownik już wrócił do aplikacji
+                const updateDocumentResult = users_collection.updateOne({ _id: new mongodb_1.ObjectId(active_user_id) }, { $set: { "isInactive": false } });
+                // emitujemy do jego znajomych że już wrócił
+                this.USER_IS_ONLINE(active_user_id, user_friends, socket);
+            }
         });
     }
 }

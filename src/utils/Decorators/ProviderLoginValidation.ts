@@ -41,6 +41,7 @@ export const ProviderLoginValidation = (target:any, name:string, descriptor:Prop
                 //Email nie istnieje. Rejestracja użytkownika i jego zwrot
                 const newUserObject = {
                     isOnline:true, // ponieważ następuje natychmiastowe udzielenie dostępu do dalszej części aplikacji
+                    isInactive:false, 
                     ...args[0].body,
                     avatar_id:"1",
                     user_friends_ids:[],

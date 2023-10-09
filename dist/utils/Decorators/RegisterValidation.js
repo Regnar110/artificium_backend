@@ -26,6 +26,7 @@ const RegisterValidation = (target, name, descriptor) => {
             if (userExist === false) {
                 const userObject = {
                     isOnline: false,
+                    isInactive: false,
                     email,
                     nickname,
                     password: securedPass,

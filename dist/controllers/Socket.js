@@ -27,9 +27,10 @@ class Socket {
             socket.on("JOIN_GROUP_ROOM", (groupId, userId) => SocketHandlers_1.SocketHandlers.JOIN_GROUP_ROOM(groupId, userId, socket, this.io, this.mongo));
             // UŻYTKOWNIK OPUSZCZA GRUPĘ ( POKÓJ SOCKET )
             socket.on("LEAVE_GROUP_ROOM", (groupId, userId) => SocketHandlers_1.SocketHandlers.LEAVE_GROUP_ROOM(groupId, userId, socket, this.io, this.mongo));
-            socket.on("USER_IS_ONLINE", (online_user_id, user_friends) => SocketHandlers_1.SocketHandlers.USER_IS_ONLINE(online_user_id, user_friends, socket, this.io, this.mongo));
-            socket.on("USER_IS_OFFLINE", (offline_user_id, user_friends) => SocketHandlers_1.SocketHandlers.USER_IS_OFFLINE(offline_user_id, user_friends, socket, this.io, this.mongo));
+            socket.on("USER_IS_ONLINE", (online_user_id, user_friends) => SocketHandlers_1.SocketHandlers.USER_IS_ONLINE(online_user_id, user_friends, socket));
+            socket.on("USER_IS_OFFLINE", (offline_user_id, user_friends) => SocketHandlers_1.SocketHandlers.USER_IS_OFFLINE(offline_user_id, user_friends, socket));
             socket.on("USER_IS_UNACTIVE", (unactive_user_id, user_friends, groupId) => SocketHandlers_1.SocketHandlers.USER_IS_UNACTIVE(unactive_user_id, user_friends, groupId, socket, this.io, this.mongo));
+            socket.on("USER_IS_ACTIVE", (active_user_id, user_friends) => SocketHandlers_1.SocketHandlers.USER_IS_ACTIVE(active_user_id, user_friends, socket, this.io, this.mongo));
         });
     }
 }
