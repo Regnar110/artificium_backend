@@ -75,9 +75,10 @@ export class SocketHandlers {
         const mongo2 = MongoDBClient.getInstance()
         //POTRZEBNE : TABLICA PRZYJACIÓŁ USERA ONLINE, JEGO ID
         const collection = mongo2.db("Artificium").collection("Users")
+        const online_user = await collection.findOne({_id:new ObjectId(online_user_id)})
         const user_frineds_Objected = user_friends.map(friend => new ObjectId(friend))
         const friendsOnline = await collection.find({_id: {$in: user_frineds_Objected}, isOnline: true}, {projection:{_id:1}}).toArray()
-        friendsOnline.forEach(friend => socket.broadcast.emit(`${friend._id}_USER_IS_ONLINE`, online_user_id))
+        friendsOnline.forEach(friend => socket.broadcast.emit(`${friend._id}_USER_IS_ONLINE`, online_user))
     }
 
     // GDY UŻYTKOWNIK WYLOGOWUJE SIĘ Z APLIKACJI WYSYŁAMY DO TEJ METODY ID UŻYTKOWNIKA KTÓRY OPUSZCZA APLIKACJE
@@ -86,14 +87,14 @@ export class SocketHandlers {
         console.log("USER_IS_OFFLINE")
         const mongo2 = MongoDBClient.getInstance()
         const collection = mongo2.db("Artificium").collection("Users")
+        const offline_user = await collection.findOne({_id:new ObjectId(offline_user_id)})
         const objected_user_friends = user_friends.map((friend_id:string) => { 
                 console.log(friend_id)
                 return new ObjectId(friend_id)
             }
         )
-        console.log(objected_user_friends)
         const online_user_friends = await collection.find({_id: {$in:objected_user_friends}}, {projection:{_id:1}}).toArray()
-        online_user_friends.forEach(friend => socket.broadcast.emit(`${friend._id.toString()}_USER_IS_OFFLINE`, offline_user_id))
+        online_user_friends.forEach(friend => socket.broadcast.emit(`${friend._id.toString()}_USER_IS_OFFLINE`, offline_user))
     }
 
     static async USER_IS_UNACTIVE(unactive_user_id:string, user_friends:string[], groupId:string, socket:SOCKET, io:IO, mongo:MongoClient) {
@@ -118,7 +119,7 @@ export class SocketHandlers {
         ) as WithId<{isInactive:boolean}>
         
         //JEŻELI UŻYTKOWNIK FAJKTYCZNIE BYŁ NIEAKTYWNY( WYSZEDŁ Z APPKI PRZEZ AMKNIĘCIE NP OKNA, BEZ RZECZYWISTEGO WYLOGOWANIA SIĘ )
-        if(isInactive) {
+        if(isInactive === true) {
             // zmieniamy stan pola isInactive dokumentu użytkownika na false bo użytkownik już wrócił do aplikacji
             const updateDocumentResult = users_collection.updateOne(
                 {_id: new ObjectId(active_user_id)},
