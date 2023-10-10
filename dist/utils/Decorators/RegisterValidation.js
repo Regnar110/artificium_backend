@@ -18,13 +18,12 @@ const RegisterValidation = (target, name, descriptor) => {
     const originalMethod = descriptor.value;
     descriptor.value = (...args) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            const artificium_db = args[2];
-            const artificium_users = artificium_db.collection("Users");
             const { nickname, register_password, email, provider } = args[0].body;
             const securedPass = yield (0, SecurePass_1.SecurePass)(register_password);
-            const userExist = yield (0, CheckUserExistence_1.checkUserExistence)(email, nickname, artificium_users);
+            const userExist = yield (0, CheckUserExistence_1.checkUserExistence)(email, nickname);
             if (userExist === false) {
-                const userObject = {
+                // REQ.BODY STAJE SIĘ NOWYM OBIEKTEM UŻYTKWONIKA
+                args[0].body = {
                     isOnline: false,
                     isInactive: false,
                     email,
@@ -35,7 +34,6 @@ const RegisterValidation = (target, name, descriptor) => {
                     user_friends_ids: [],
                     user_groups_ids: [],
                 };
-                args[0].body = userObject;
                 return originalMethod.apply(target, args);
             }
             else if (userExist.status) {

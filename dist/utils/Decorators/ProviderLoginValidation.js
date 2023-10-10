@@ -18,14 +18,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProviderLoginValidation = void 0;
 const ResponseGenerator_1 = require("../ResponseGenerator/ResponseGenerator");
+const ConnectMongo_1 = require("../Mongo/ConnectMongo");
 const ProviderLoginValidation = (target, name, descriptor) => {
     const originalMethod = descriptor.value;
     descriptor.value = (...args) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            const artificium_db = args[2];
-            const artificium_users = artificium_db.collection("Users");
             const { email, provider } = args[0].body;
-            const userDocument = yield artificium_users.findOne({ email: email });
+            const userDocument = yield (0, ConnectMongo_1.db_collection)("Users").findOne({ email: email });
             if (userDocument) {
                 if (userDocument.provider !== provider) {
                     // Email istnieje, ale provider jest inny
@@ -35,7 +34,7 @@ const ProviderLoginValidation = (target, name, descriptor) => {
                 }
                 else {
                     // Użytkownik istnieje, provider zgodny. Logowanie kontynuowane
-                    const updateUserActivityStatus = yield artificium_users.updateOne({
+                    const updateUserActivityStatus = yield (0, ConnectMongo_1.db_collection)("Users").updateOne({
                         email: email
                     }, {
                         $set: {
@@ -49,8 +48,8 @@ const ProviderLoginValidation = (target, name, descriptor) => {
             }
             else {
                 //Email nie istnieje. Rejestracja użytkownika i jego zwrot
-                const newUserObject = Object.assign(Object.assign({ isOnline: true, isInactive: false }, args[0].body), { avatar_id: "1", user_friends_ids: [], user_groups_ids: [] });
-                args[0].body = newUserObject;
+                //REQ.BODY STAJE SIE NOWYM OBIEKTEM UZYTKOWNIKA
+                args[0].body = Object.assign(Object.assign({ isOnline: true, isInactive: false }, args[0].body), { avatar_id: "1", user_friends_ids: [], user_groups_ids: [] });
                 return originalMethod.apply(target, args);
             }
         }

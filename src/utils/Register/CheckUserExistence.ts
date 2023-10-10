@@ -1,12 +1,13 @@
-import { Collection } from "mongodb"
 import { ResponseGenerator } from "../ResponseGenerator/ResponseGenerator"
+import { db_collection } from "../Mongo/ConnectMongo"
 
-export const checkUserExistence = async (email:string, nickname:string, collection:Collection<Document>) => {
+export const checkUserExistence = async (email:string, nickname:string) => {
     try {
-        const isEmailExist = await collection.countDocuments({
+
+        const isEmailExist = await db_collection("Users").countDocuments({
             email:email
         }, {limit:1})
-        const isNicknameExist = await collection.countDocuments({
+        const isNicknameExist = await db_collection("Users").countDocuments({
             nickname:nickname
         }, {limit:1})
 

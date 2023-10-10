@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateGroupHandler = void 0;
 const ResponseGenerator_1 = require("../../ResponseGenerator/ResponseGenerator");
 const BoundUserToGroup_1 = require("../../GroupActionUtils/BoundUserToGroup");
+const ConnectMongo_1 = require("../../Mongo/ConnectMongo");
 const CreateGroupHandler = (target, name, descriptor) => {
     //Dekorator, który odpowiada za utworzenie nowego dokumentu grupy w kolekcjo Groups. 
     // Dodatkowo w ciele dekoratora znajduje się funkcja boundUserToGroup.
@@ -22,8 +23,7 @@ const CreateGroupHandler = (target, name, descriptor) => {
     descriptor.value = (...args) => __awaiter(void 0, void 0, void 0, function* () {
         const [req, res, artificium_db] = args;
         try {
-            const groupsCollection = artificium_db.collection("Groups");
-            const isGroupNameExist = yield groupsCollection.countDocuments({
+            const isGroupNameExist = yield (0, ConnectMongo_1.db_collection)("Groups").countDocuments({
                 group_name: req.body.group_name // należy tutaj poprawić sprawdzenie po literach lowercase
             }, { limit: 1 });
             if (isGroupNameExist === 1) { // jeżeli taka grupa już instnieje
@@ -33,18 +33,18 @@ const CreateGroupHandler = (target, name, descriptor) => {
             }
             else { // jeżeli taka grupa nie istnieje
                 const newGroupTemplate = Object.assign(Object.assign({}, req.body), { active_users: [], group_users: [], group_invite_slugId: "" });
-                const insertResult = yield groupsCollection.insertOne(newGroupTemplate);
-                const boundResult = yield (0, BoundUserToGroup_1.boundUserToGroup)(artificium_db, insertResult.insertedId, req.body.group_admin);
+                const insertResult = yield (0, ConnectMongo_1.db_collection)("Groups").insertOne(newGroupTemplate);
+                const boundResult = yield (0, BoundUserToGroup_1.boundUserToGroup)(insertResult.insertedId, req.body.group_admin);
                 if (boundResult === 500) {
                     // błąd bloku try catch bounduserToGroup
-                    groupsCollection.deleteOne({ _id: insertResult.insertedId }); // jeżeli status 500(błąd) usuń dokonany wpis w mongo db
+                    (0, ConnectMongo_1.db_collection)("Groups").deleteOne({ _id: insertResult.insertedId }); // jeżeli status 500(błąd) usuń dokonany wpis w mongo db
                     const boundError = (0, ResponseGenerator_1.ResponseGenerator)("ERROR")(boundResult, "BoundUserToGroup: Utility function error", "BoundUserToGroup Error.");
                     args[0].body = boundError;
                     return originalMethod.apply(target, args);
                 }
                 else if (boundResult === 510) {
                     // błąd konkretnej funkcjonalnośći bounUserToGroup - np. użytkniwnik już jest przywiązany do grupy do której próbujemy go dodać
-                    groupsCollection.deleteOne({ _id: insertResult.insertedId }); // jeżeli status 510(błąd) usuń dokonany wpis w mongo db
+                    (0, ConnectMongo_1.db_collection)("Groups").deleteOne({ _id: insertResult.insertedId }); // jeżeli status 510(błąd) usuń dokonany wpis w mongo db
                     const boundError = (0, ResponseGenerator_1.ResponseGenerator)("ERROR")(boundResult, "BoundUserToGroup: Utility function error", "The group creation process could not be completed.");
                     args[0].body = boundError;
                     return originalMethod.apply(target, args);

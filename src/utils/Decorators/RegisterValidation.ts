@@ -2,20 +2,18 @@
 import { SecurePass } from "../Register/SecurePass";
 import { ResponseGenerator } from "../ResponseGenerator/ResponseGenerator";
 import { checkUserExistence } from "../Register/CheckUserExistence";
-import { Collection, Db } from "mongodb";
 
 export const RegisterValidation = (target: any, name: string, descriptor: PropertyDescriptor) => {
   
     const originalMethod = descriptor.value;
     descriptor.value = async (...args: any[]) => {
       try {
-          const artificium_db = args[2] as Db;
-          const artificium_users:Collection<Document> = artificium_db.collection("Users")
           const { nickname, register_password, email, provider } = args[0].body;
           const securedPass = await SecurePass(register_password);
-          const userExist = await checkUserExistence(email, nickname, artificium_users)
-          if(userExist === false) {
-            const userObject = {
+          const userExist = await checkUserExistence(email, nickname)
+          if(userExist === false) { 
+            // REQ.BODY STAJE SIĘ NOWYM OBIEKTEM UŻYTKWONIKA
+            args[0].body={
               isOnline:false,
               isInactive:false,
               email,
@@ -25,8 +23,7 @@ export const RegisterValidation = (target: any, name: string, descriptor: Proper
               avatar_id: "123",
               user_friends_ids: [],
               user_groups_ids: [],
-            };              
-            args[0].body=userObject
+            };             
             return originalMethod.apply(target, args);            
           } else if(userExist!.status) {
             args[0].body=userExist; // in this case userExist is errorObject which describes what happend in userExist check function

@@ -6,18 +6,17 @@
 // gdy ten proces się zakończy użytkownik jest AUTHENTICATED. 
 // Jezeli użytkownik nie poda maila, nasapi natycmmiadtowe zakończenie sesji po stronie klienta
 
-import { Db, WithId } from "mongodb";
+import { WithId } from "mongodb";
 import { ResponseGenerator } from "../ResponseGenerator/ResponseGenerator";
 import { UserMongoDocument } from "../../globalTypings/userMongoDocument";
+import { db_collection } from "../Mongo/ConnectMongo";
 
 export const ProviderLoginValidation = (target:any, name:string, descriptor:PropertyDescriptor) => {
     const originalMethod = descriptor.value
     descriptor.value = async (...args:any[]) => {
         try {
-            const artificium_db = args[2] as Db;
-            const artificium_users = artificium_db.collection("Users")
             const {email, provider} = args[0].body
-            const userDocument = await artificium_users.findOne({email:email}) as WithId<UserMongoDocument>
+            const userDocument = await db_collection("Users").findOne({email:email}) as WithId<UserMongoDocument>
             if(userDocument) {
                 if(userDocument.provider !== provider) {
                     // Email istnieje, ale provider jest inny
@@ -26,7 +25,7 @@ export const ProviderLoginValidation = (target:any, name:string, descriptor:Prop
                     return originalMethod.apply(target, args)
                 } else {
                     // Użytkownik istnieje, provider zgodny. Logowanie kontynuowane
-                    const updateUserActivityStatus = await artificium_users.updateOne({
+                    const updateUserActivityStatus = await db_collection("Users").updateOne({
                         email:email
                     }, {
                         $set: {
@@ -39,7 +38,9 @@ export const ProviderLoginValidation = (target:any, name:string, descriptor:Prop
                 }                
             } else {
                 //Email nie istnieje. Rejestracja użytkownika i jego zwrot
-                const newUserObject = {
+
+                //REQ.BODY STAJE SIE NOWYM OBIEKTEM UZYTKOWNIKA
+                args[0].body =  {
                     isOnline:true, // ponieważ następuje natychmiastowe udzielenie dostępu do dalszej części aplikacji
                     isInactive:false, 
                     ...args[0].body,
@@ -48,7 +49,6 @@ export const ProviderLoginValidation = (target:any, name:string, descriptor:Prop
                     user_groups_ids:[]
 
                 }
-                args[0].body = newUserObject
                 return originalMethod.apply(target, args)
             }
 

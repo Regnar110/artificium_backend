@@ -1,21 +1,18 @@
-//USER Register Handler
-import { Db, MongoClient, ObjectId} from "mongodb"
+import { Db, ObjectId} from "mongodb"
 import { RegisterValidation } from "../utils/Decorators/RegisterValidation"
 import { ResponseGenerator } from "../utils/ResponseGenerator/ResponseGenerator"
 import { LoginValidation } from "../utils/Decorators/LoginValidation"
 import dotenv from 'dotenv';
 import { ProviderLoginValidation } from "../utils/Decorators/ProviderLoginValidation";
-import { SocketHandlers } from "../utils/SocketUtils/SocketHandlers";
-import { Server, Socket } from "socket.io";
-import { DefaultEventsMap } from "socket.io/dist/typed-events";
+import { db_collection } from "../utils/Mongo/ConnectMongo";
 export class UserAccessController {
 
     @RegisterValidation
-    static async  register(req:any, res:any, artificium_db:Db) {
+    static async  register(req:any, res:any) {
         try {
             if(!req.body.status) {
-                const artificium_users = artificium_db.collection("Users")
-                const result = await artificium_users.insertOne(req.body)
+                
+                const result = await db_collection("Users").insertOne(req.body)
                 const succesObject = ResponseGenerator("SUCCESS")!<SuccesResponseType>(200, "Registration successful!", result)
                 res.status(200).json(succesObject)                 
             } else {
@@ -28,7 +25,7 @@ export class UserAccessController {
     }
 
     @LoginValidation
-    static async login(req:any, res:any, _artificium_db:Db) {
+    static async login(req:any, res:any) {
         try {
             if(!req.body.status) {
                 const succesObject = ResponseGenerator("SUCCESS")!<SuccesResponseType>(200, "Login Succcesful!", req.body)
@@ -43,9 +40,9 @@ export class UserAccessController {
         }
     }
     @ProviderLoginValidation
-    static async googleIdentityLogin(req:any,res:any, artificium_db:Db) {
-        console.log("googleidentitylogin")
+    static async googleIdentityLogin(req:any,res:any) { 
         try {
+            
             if(!req.body.status) {
                 if(req.body._id) {
 
@@ -57,9 +54,7 @@ export class UserAccessController {
 
                     // dokument użytkownika nie znaleziony po emailu. Rejestrujemy i zwracamy OBIEKT UŻYTKOWNIKA!!!! Nie zwracmamy samej wiadomosci o powodzeniui rejestracji.
                     // Tuta uzytkownik od razu jest zalogowany po rejestracji danych w bazie
-
-                    const artificium_users = artificium_db.collection("Users")
-                    await artificium_users.insertOne(req.body)
+                    await db_collection("Users").insertOne(req.body)
                     const succesObject = ResponseGenerator("SUCCESS")!<SuccesResponseType>(200, "Registration successful!", req.body)
                     res.status(200).json(succesObject)                         
                 }
@@ -76,21 +71,21 @@ export class UserAccessController {
         
     }
 
-    static async userLogout(req:any, res:any, artificium_db:Db) {
+    static async userLogout(req:any, res:any) {
+        console.log("LOGOUT HUIT")
         // zmieniamy status pola isOnline dokumentu uzytkownika na false - czym dajemy znać że użytkownik jest offline
         try {
+            db_collection("Users")
             // ZE WZGLĘDU NA TO ŻE DO TEGO ENDPOINTU MOŻE DOTRZEĆ RÓWNIEŻ ŻĄDANIE WYKONANE PRZY UŻYCIU navigator.sendBeacon() WYKONANE W MOMENCIE ZAMKNIĘCIA ZAKŁDKI LUB OKNA PRZEKLĄDARKI KLIENTA
             // SPRAWDZAMY CZY REQ.BODY JEST STRINGIEM. JEŻELI TAK TO ZNACZY ŻE REQUEST NADSZEDŁ Z BEACON API, W INNYM PRZYPADKU REQ.BODY BĘDZIE {authUser:string} WYSŁANY Z FETCH API
             let authUser:string = typeof req.body === "string" ? req.body : req.body.authUser
-            const artificium_users = artificium_db.collection("Users")
-            const logoutResult = await artificium_users.updateOne({
+            const logoutResult = await db_collection("Users").updateOne({
                 _id:new ObjectId(authUser)
             }, {
                 $set: {
                     isOnline:false
                 }
             })
-            console.log(logoutResult)
             if(logoutResult.modifiedCount === 1) {
                 const succesObject = ResponseGenerator("SUCCESS")!<SuccesResponseType>(200, "Logout Succcesful!", logoutResult)
                 res.status(200).json(succesObject)

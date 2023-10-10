@@ -16,19 +16,18 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserAccessController = void 0;
-//USER Register Handler
 const mongodb_1 = require("mongodb");
 const RegisterValidation_1 = require("../utils/Decorators/RegisterValidation");
 const ResponseGenerator_1 = require("../utils/ResponseGenerator/ResponseGenerator");
 const LoginValidation_1 = require("../utils/Decorators/LoginValidation");
 const ProviderLoginValidation_1 = require("../utils/Decorators/ProviderLoginValidation");
+const ConnectMongo_1 = require("../utils/Mongo/ConnectMongo");
 class UserAccessController {
-    static register(req, res, artificium_db) {
+    static register(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 if (!req.body.status) {
-                    const artificium_users = artificium_db.collection("Users");
-                    const result = yield artificium_users.insertOne(req.body);
+                    const result = yield (0, ConnectMongo_1.db_collection)("Users").insertOne(req.body);
                     const succesObject = (0, ResponseGenerator_1.ResponseGenerator)("SUCCESS")(200, "Registration successful!", result);
                     res.status(200).json(succesObject);
                 }
@@ -42,7 +41,7 @@ class UserAccessController {
             }
         });
     }
-    static login(req, res, _artificium_db) {
+    static login(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 if (!req.body.status) {
@@ -59,9 +58,8 @@ class UserAccessController {
             }
         });
     }
-    static googleIdentityLogin(req, res, artificium_db) {
+    static googleIdentityLogin(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("googleidentitylogin");
             try {
                 if (!req.body.status) {
                     if (req.body._id) {
@@ -72,8 +70,7 @@ class UserAccessController {
                     else {
                         // dokument użytkownika nie znaleziony po emailu. Rejestrujemy i zwracamy OBIEKT UŻYTKOWNIKA!!!! Nie zwracmamy samej wiadomosci o powodzeniui rejestracji.
                         // Tuta uzytkownik od razu jest zalogowany po rejestracji danych w bazie
-                        const artificium_users = artificium_db.collection("Users");
-                        yield artificium_users.insertOne(req.body);
+                        yield (0, ConnectMongo_1.db_collection)("Users").insertOne(req.body);
                         const succesObject = (0, ResponseGenerator_1.ResponseGenerator)("SUCCESS")(200, "Registration successful!", req.body);
                         res.status(200).json(succesObject);
                     }
@@ -89,22 +86,22 @@ class UserAccessController {
             }
         });
     }
-    static userLogout(req, res, artificium_db) {
+    static userLogout(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
+            console.log("LOGOUT HUIT");
             // zmieniamy status pola isOnline dokumentu uzytkownika na false - czym dajemy znać że użytkownik jest offline
             try {
+                (0, ConnectMongo_1.db_collection)("Users");
                 // ZE WZGLĘDU NA TO ŻE DO TEGO ENDPOINTU MOŻE DOTRZEĆ RÓWNIEŻ ŻĄDANIE WYKONANE PRZY UŻYCIU navigator.sendBeacon() WYKONANE W MOMENCIE ZAMKNIĘCIA ZAKŁDKI LUB OKNA PRZEKLĄDARKI KLIENTA
                 // SPRAWDZAMY CZY REQ.BODY JEST STRINGIEM. JEŻELI TAK TO ZNACZY ŻE REQUEST NADSZEDŁ Z BEACON API, W INNYM PRZYPADKU REQ.BODY BĘDZIE {authUser:string} WYSŁANY Z FETCH API
                 let authUser = typeof req.body === "string" ? req.body : req.body.authUser;
-                const artificium_users = artificium_db.collection("Users");
-                const logoutResult = yield artificium_users.updateOne({
+                const logoutResult = yield (0, ConnectMongo_1.db_collection)("Users").updateOne({
                     _id: new mongodb_1.ObjectId(authUser)
                 }, {
                     $set: {
                         isOnline: false
                     }
                 });
-                console.log(logoutResult);
                 if (logoutResult.modifiedCount === 1) {
                     const succesObject = (0, ResponseGenerator_1.ResponseGenerator)("SUCCESS")(200, "Logout Succcesful!", logoutResult);
                     res.status(200).json(succesObject);

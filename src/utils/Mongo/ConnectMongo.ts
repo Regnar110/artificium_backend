@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import { Collection, MongoClient } from 'mongodb';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -24,6 +24,11 @@ class MongoDBClient {
 
     return MongoDBClient.instance;
   }
+  public static db_collection(collection_name:string) {
+    return MongoDBClient.instance && MongoDBClient.instance.db("Artificium").collection(collection_name)
+  }
 }
 
 export default MongoDBClient
+
+export const {db_collection} = MongoDBClient

@@ -19,9 +19,11 @@ exports.UserDashBoardActions = void 0;
 const mongodb_1 = require("mongodb");
 const CreateGroupHandler_1 = require("../utils/Decorators/DashBoardActions/CreateGroupHandler");
 const ResponseGenerator_1 = require("../utils/ResponseGenerator/ResponseGenerator");
+const ConnectMongo_1 = require("../utils/Mongo/ConnectMongo");
 class UserDashBoardActions {
-    static createGroup(req, res, artificium_db) {
+    static createGroup(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
+            console.log(req.body);
             // Po dotarciu do tej ścieżki uruchamiany jest proces tworzenia grupy wraz z wiązaniem użytkownika, który tworzy tą grupę do tej właśnie grupy.
             try {
                 if (!req.body.status) {
@@ -38,11 +40,11 @@ class UserDashBoardActions {
             }
         });
     }
-    static getUserGroups(req, res, artificium_db) {
+    static getUserGroups(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             // ścieżka zwracająca aktywne grupy danego użytkownika.
             try {
-                const groups = yield artificium_db.collection("Groups").find({ group_users: { $in: [req.body.user_id] } }).toArray();
+                const groups = yield (0, ConnectMongo_1.db_collection)("Groups").find({ group_users: { $in: [req.body.user_id] } }).toArray();
                 res.status(200).json(groups);
             }
             catch (error) {
@@ -51,11 +53,11 @@ class UserDashBoardActions {
             }
         });
     }
-    static getSelectedGroups(req, res, artificium_db) {
+    static getSelectedGroups(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const objectedIds = req.body.map(el => new mongodb_1.ObjectId(el));
+            const objectedIds = req.body.map((el) => new mongodb_1.ObjectId(el));
             try {
-                const groups = yield artificium_db.collection("Groups").find({ _id: { $in: objectedIds } }).toArray();
+                const groups = yield (0, ConnectMongo_1.db_collection)("Groups").find({ _id: { $in: objectedIds } }).toArray();
                 res.status(200).json(groups);
             }
             catch (error) {
@@ -64,11 +66,11 @@ class UserDashBoardActions {
             }
         });
     }
-    static getSelectedFriends(req, res, artificium_db) {
+    static getSelectedFriends(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const objectedIds = req.body.map(el => new mongodb_1.ObjectId(el));
+            const objectedIds = req.body.map((el) => new mongodb_1.ObjectId(el));
             try {
-                const users = yield artificium_db.collection("Users").find({ _id: { $in: objectedIds } }).toArray();
+                const users = yield (0, ConnectMongo_1.db_collection)("Groups").find({ _id: { $in: objectedIds } }).toArray();
                 res.status(200).json(users);
             }
             catch (error) {
@@ -87,21 +89,20 @@ class UserDashBoardActions {
             // invite user to group. Each user can do this
         });
     }
-    static getUserFriends(req, res, artificium_db) {
+    static getUserFriends(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             console.log("GET USER FRIENDS");
-            const users = artificium_db.collection("Users");
             const { user_id } = req.body;
-            const friendsToFind = yield users.findOne({ _id: new mongodb_1.ObjectId(user_id) }, { projection: { user_friends_ids: 1, _id: 0 } });
+            const friendsToFind = yield (0, ConnectMongo_1.db_collection)("Users").findOne({ _id: new mongodb_1.ObjectId(user_id) }, { projection: { user_friends_ids: 1, _id: 0 } });
             const objectedFriends = friendsToFind.user_friends_ids.map((id) => new mongodb_1.ObjectId(id));
-            const foundDocs = yield users.find({ _id: { $in: objectedFriends } }, { projection: {
+            const foundDocs = yield (0, ConnectMongo_1.db_collection)("Users").find({ _id: { $in: objectedFriends } }, { projection: {
                     password: 0,
                     provider: 0,
                 } }).toArray();
             res.json(foundDocs);
         });
     }
-    static getUserGroupFriends(connectedUserId, groupId, artificium_db) {
+    static getUserGroupFriends(connectedUserId, groupId) {
         return __awaiter(this, void 0, void 0, function* () {
         });
     }

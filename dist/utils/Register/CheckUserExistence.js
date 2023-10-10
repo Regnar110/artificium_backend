@@ -11,12 +11,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.checkUserExistence = void 0;
 const ResponseGenerator_1 = require("../ResponseGenerator/ResponseGenerator");
-const checkUserExistence = (email, nickname, collection) => __awaiter(void 0, void 0, void 0, function* () {
+const ConnectMongo_1 = require("../Mongo/ConnectMongo");
+const checkUserExistence = (email, nickname) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const isEmailExist = yield collection.countDocuments({
+        const isEmailExist = yield (0, ConnectMongo_1.db_collection)("Users").countDocuments({
             email: email
         }, { limit: 1 });
-        const isNicknameExist = yield collection.countDocuments({
+        const isNicknameExist = yield (0, ConnectMongo_1.db_collection)("Users").countDocuments({
             nickname: nickname
         }, { limit: 1 });
         if (isEmailExist === 1 && isNicknameExist === 1) {

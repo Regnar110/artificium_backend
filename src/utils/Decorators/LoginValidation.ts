@@ -1,23 +1,22 @@
-import { Db, WithId } from "mongodb";
+import { WithId } from "mongodb";
 import { UserMongoDocument } from "../../globalTypings/userMongoDocument";
 import { comparePass } from "../Login/comparePass";
 import { ResponseGenerator } from "../ResponseGenerator/ResponseGenerator";
+import { db_collection } from "../Mongo/ConnectMongo";
 
 export const LoginValidation = (target:any, name:string, descriptor:PropertyDescriptor) => {
     const originalMethod = descriptor.value
     descriptor.value = async (...args:any[]) => {
         try {
-            const artificium_db = args[2] as Db;
-            const artificium_users = artificium_db.collection("Users")
             const {email, login_password} = args[0].body
-            const userDocument = await artificium_users.findOne({email:email}) as WithId<UserMongoDocument>
+            const userDocument = await db_collection("Users").findOne({email:email}) as WithId<UserMongoDocument>
             if(userDocument) {      
                 const documentPassword = userDocument.password as string
                 delete userDocument.password
                 const isPasswordMatch = await comparePass(login_password, documentPassword)
                 if(isPasswordMatch === true) {
                     // logowanie udane
-                    const updateUserActivityStatus = await artificium_users.updateOne({
+                    const updateUserActivityStatus = await db_collection("Users").updateOne({
                         email:email
                     }, {
                         $set: {

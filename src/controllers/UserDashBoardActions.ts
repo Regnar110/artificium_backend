@@ -1,10 +1,11 @@
 import { Db, ObjectId } from "mongodb";
 import { CreateGroupHandler } from "../utils/Decorators/DashBoardActions/CreateGroupHandler";
 import { ResponseGenerator } from "../utils/ResponseGenerator/ResponseGenerator";
+import { db_collection } from "../utils/Mongo/ConnectMongo";
 export class UserDashBoardActions {
-
     @CreateGroupHandler
-    static async createGroup(req:any, res:any, artificium_db:Db) {
+    static async createGroup(req:any, res:any) {
+        console.log(req.body)
         // Po dotarciu do tej ścieżki uruchamiany jest proces tworzenia grupy wraz z wiązaniem użytkownika, który tworzy tą grupę do tej właśnie grupy.
         try {
             if(!req.body.status) {
@@ -20,10 +21,10 @@ export class UserDashBoardActions {
 
     }
 
-    static async getUserGroups(req:any, res:any, artificium_db:Db) {
+    static async getUserGroups(req:any, res:any) {
         // ścieżka zwracająca aktywne grupy danego użytkownika.
         try {
-            const groups = await artificium_db.collection("Groups").find({group_users: {$in: [req.body.user_id]}}).toArray()
+            const groups = await db_collection("Groups").find({group_users: {$in: [req.body.user_id]}}).toArray()
             res.status(200).json(groups)
         } catch (error) {
             const errorObject = ResponseGenerator("ERROR")!<ErrorResponseType>(500, "GetUserGroups Route: GetUserGroups Route overall error", "GetUserGroups route error")
@@ -31,10 +32,10 @@ export class UserDashBoardActions {
         }
     }
 
-    static async getSelectedGroups(req:any, res:any, artificium_db:Db) {
-        const objectedIds = req.body.map(el => new ObjectId(el))
+    static async getSelectedGroups(req:any, res:any) {
+        const objectedIds = req.body.map((el:string) => new ObjectId(el))
         try {
-            const groups = await artificium_db.collection("Groups").find({_id: {$in:objectedIds}}).toArray()
+            const groups = await db_collection("Groups").find({_id: {$in:objectedIds}}).toArray()
             res.status(200).json(groups)
         } catch (error) {
             const errorObject = ResponseGenerator("ERROR")!<ErrorResponseType>(500, "GetSelectedGroups Route: GetSelectedGroups Route overall error", "GetSelectedGroups route error")
@@ -42,10 +43,10 @@ export class UserDashBoardActions {
         }
     }
 
-    static async getSelectedFriends(req:any, res:any, artificium_db:Db) {
-        const objectedIds = req.body.map(el => new ObjectId(el))
+    static async getSelectedFriends(req:any, res:any) {
+        const objectedIds = req.body.map((el:string) => new ObjectId(el))
         try {
-            const users = await artificium_db.collection("Users").find({_id: {$in:objectedIds}}).toArray()
+            const users = await db_collection("Groups").find({_id: {$in:objectedIds}}).toArray()
             res.status(200).json(users)
         } catch (error) {
             const errorObject = ResponseGenerator("ERROR")!<ErrorResponseType>(500, "GetSelectedFriends Route: GetSelectedFriends Route overall error", "GetSelectedFriends route error")
@@ -61,20 +62,19 @@ export class UserDashBoardActions {
         // invite user to group. Each user can do this
     }
 
-    static async getUserFriends(req:any, res:any,  artificium_db:Db) { 
+    static async getUserFriends(req:any, res:any) { 
         console.log("GET USER FRIENDS")
-        const users = artificium_db.collection("Users")
         const {user_id} = req.body
-        const friendsToFind = await users.findOne({_id: new ObjectId(user_id)}, {projection: {user_friends_ids:1, _id:0}})
+        const friendsToFind = await db_collection("Users").findOne({_id: new ObjectId(user_id)}, {projection: {user_friends_ids:1, _id:0}})
         const objectedFriends = friendsToFind!.user_friends_ids.map((id:string) => new ObjectId(id))
-        const foundDocs = await users.find({_id: {$in: objectedFriends}}, {projection:{
+        const foundDocs = await db_collection("Users").find({_id: {$in: objectedFriends}}, {projection:{
             password:0, 
             provider:0,
         }}).toArray()
         res.json(foundDocs)
     }
 
-    static async getUserGroupFriends(connectedUserId:string, groupId:string, artificium_db:Db) {
+    static async getUserGroupFriends(connectedUserId:string, groupId:string) {
 
     }
 }

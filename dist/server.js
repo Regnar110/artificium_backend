@@ -54,26 +54,23 @@ class ArtificiumBackend {
         }); // Utwórz instancję serwera Socket.IO na bazie istniejącego serwera HTTP
         this.mongoClient = ConnectMongo_1.default.getInstance(); // inicjalizacja instancji klienta mongoDB bez możliwości stworzenia kolejnych
         this.setupRoutes();
-        // this.setupSocketConnnection();
         // INSTANCJA SOCKET.IO
-        this.socket = new Socket_1.Socket(this.server, this.io, this.mongoClient);
+        new Socket_1.SocketIO(this.io, this.mongoClient);
     }
     // private - można używać tylko z wnętrza trej klasy!!
     setupRoutes() {
-        const client = this.mongoClient;
-        const artificium_db = client.db("Artificium");
         // USER ACTIONS ROUTES
-        this.app.post('/register', (req, res) => UserAccessController_1.UserAccessController.register(req, res, artificium_db));
-        this.app.post('/login', (req, res) => UserAccessController_1.UserAccessController.login(req, res, artificium_db));
-        this.app.post('/googleIdentityLogin', (req, res) => UserAccessController_1.UserAccessController.googleIdentityLogin(req, res, artificium_db));
-        this.app.post('/userLogout', (req, res) => UserAccessController_1.UserAccessController.userLogout(req, res, artificium_db));
+        this.app.post('/register', (req, res) => UserAccessController_1.UserAccessController.register(req, res));
+        this.app.post('/login', (req, res) => UserAccessController_1.UserAccessController.login(req, res));
+        this.app.post('/googleIdentityLogin', (req, res) => UserAccessController_1.UserAccessController.googleIdentityLogin(req, res));
+        this.app.post('/userLogout', (req, res) => UserAccessController_1.UserAccessController.userLogout(req, res));
         // GROUPS ACTIONS ROUTES
-        this.app.post('/createGroup', (req, res) => UserDashBoardActions_1.UserDashBoardActions.createGroup(req, res, artificium_db));
-        this.app.post('/getUserGroups', (req, res) => UserDashBoardActions_1.UserDashBoardActions.getUserGroups(req, res, artificium_db));
-        this.app.post('/getSelectedGroups', (req, res) => UserDashBoardActions_1.UserDashBoardActions.getSelectedGroups(req, res, artificium_db));
-        this.app.post('/getSelectedUsers', (req, res) => UserDashBoardActions_1.UserDashBoardActions.getSelectedFriends(req, res, artificium_db));
+        this.app.post('/createGroup', (req, res) => UserDashBoardActions_1.UserDashBoardActions.createGroup(req, res));
+        this.app.post('/getUserGroups', (req, res) => UserDashBoardActions_1.UserDashBoardActions.getUserGroups(req, res));
+        this.app.post('/getSelectedGroups', (req, res) => UserDashBoardActions_1.UserDashBoardActions.getSelectedGroups(req, res));
+        this.app.post('/getSelectedUsers', (req, res) => UserDashBoardActions_1.UserDashBoardActions.getSelectedFriends(req, res));
         //FRIEND ACTION ROUTES
-        this.app.post('/getUserFriends', (req, res) => UserDashBoardActions_1.UserDashBoardActions.getUserFriends(req, res, artificium_db));
+        this.app.post('/getUserFriends', (req, res) => UserDashBoardActions_1.UserDashBoardActions.getUserFriends(req, res));
     }
 }
 const artificium = (new ArtificiumBackend()).server;
