@@ -28,7 +28,7 @@ const ProviderLoginValidation = (target, name, descriptor) => {
             if (userDocument) {
                 if (userDocument.provider !== provider) {
                     // Email istnieje, ale provider jest inny
-                    const errorObject = (0, ResponseGenerator_1.ResponseGenerator)("ERROR")(510, "ProviderLoginValidation Decorator: Decorator function error", "User with this email already exist! Provider is not correct");
+                    const errorObject = (0, ResponseGenerator_1.ERROR_response)(510, "ProviderLoginValidation Decorator: Decorator function error", "User with this email already exist! Provider is not correct");
                     args[0].body = errorObject;
                     return originalMethod.apply(target, args);
                 }
@@ -54,7 +54,7 @@ const ProviderLoginValidation = (target, name, descriptor) => {
             }
         }
         catch (error) {
-            const errorObject = (0, ResponseGenerator_1.ResponseGenerator)("ERROR")(500, "LoginValidation Decorator: Decorator function error", "Login Error");
+            const errorObject = (0, ResponseGenerator_1.ERROR_response)(500, "LoginValidation Decorator: Decorator function error", "Login Error");
             args[0].body = errorObject;
             return originalMethod.apply(target, args);
         }

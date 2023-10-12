@@ -111,7 +111,7 @@ SocketHandlers.USER_IS_UNACTIVE = (unactive_user_id, user_friends, groupId, sock
     groupId && _a.LEAVE_GROUP_ROOM(groupId, unactive_user_id, socket, io);
     (0, ConnectMongo_1.db_collection)("Users").updateOne({ _id: new mongodb_1.ObjectId(unactive_user_id) }, { $set: { "isInactive": true } });
 });
-SocketHandlers.USER_IS_ACTIVE = (active_user_id, user_friends, socket, io, mongo) => __awaiter(void 0, void 0, void 0, function* () {
+SocketHandlers.USER_IS_ACTIVE = (active_user_id, user_friends, socket) => __awaiter(void 0, void 0, void 0, function* () {
     //SPrawdzamy czy pole dokumentu użytkownika isInactive jest true.
     // Oznaczałoby to że użytkownik jest ONLINE, ale jest nieaktywny.
     const { isInactive } = yield (0, ConnectMongo_1.db_collection)("Users").findOne({ _id: new mongodb_1.ObjectId(active_user_id) }, { projection: { _id: 0, isInactive: 1 } });

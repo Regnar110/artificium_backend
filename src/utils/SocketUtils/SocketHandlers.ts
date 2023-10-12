@@ -104,7 +104,7 @@ export class SocketHandlers {
         )
     }
 
-    static USER_IS_ACTIVE = async (active_user_id:string, user_friends:string[], socket:SOCKET, io:IO, mongo:MongoClient) => {
+    static USER_IS_ACTIVE = async (active_user_id:string, user_friends:string[], socket:SOCKET) => {
         //SPrawdzamy czy pole dokumentu użytkownika isInactive jest true.
         // Oznaczałoby to że użytkownik jest ONLINE, ale jest nieaktywny.
         const {isInactive} = await db_collection("Users").findOne(

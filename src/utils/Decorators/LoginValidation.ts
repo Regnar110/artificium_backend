@@ -1,7 +1,7 @@
 import { WithId } from "mongodb";
 import { UserMongoDocument } from "../../globalTypings/userMongoDocument";
 import { comparePass } from "../Login/comparePass";
-import { ResponseGenerator } from "../ResponseGenerator/ResponseGenerator";
+import { ERROR_response } from "../ResponseGenerator/ResponseGenerator";
 import { db_collection } from "../Mongo/ConnectMongo";
 
 export const LoginValidation = (target:any, name:string, descriptor:PropertyDescriptor) => {
@@ -27,17 +27,17 @@ export const LoginValidation = (target:any, name:string, descriptor:PropertyDesc
                     args[0].body = userDocument
                     return originalMethod.apply(target, args)
                 } else {
-                    const errorObject = ResponseGenerator("ERROR")!<ErrorResponseType>(510, "LoginValidation Decorator: Decorator function error", "Wrong email or password")
+                    const errorObject = ERROR_response(510, "LoginValidation Decorator: Decorator function error", "Wrong email or password")
                     args[0].body = errorObject
                     return originalMethod.apply(target, args)
                 }                   
             } else if(!userDocument) {
-                const errorObject = ResponseGenerator("ERROR")!<ErrorResponseType>(510, "LoginValidation Decorator: Decorator function error", "Wrong email or password" )
+                const errorObject = ERROR_response(510, "LoginValidation Decorator: Decorator function error", "Wrong email or password" )
                 args[0].body = errorObject
                 return originalMethod.apply(target, args)
             }
         } catch (error) {
-            const errorObject = ResponseGenerator("ERROR")!<ErrorResponseType>(500, "LoginValidation Decorator: Decorator function error", "Login Error")
+            const errorObject = ERROR_response(500, "LoginValidation Decorator: Decorator function error", "Login Error")
             args[0].body = errorObject
             return originalMethod.apply(target, args)
         }

@@ -1,4 +1,4 @@
-import { Db, ObjectId } from "mongodb";
+import { ObjectId } from "mongodb";
 import { db_collection } from "../Mongo/ConnectMongo";
 
 export const boundUserToGroup = async (groupId:ObjectId, boundedUserId:string) => {

@@ -21,23 +21,23 @@ const checkUserExistence = (email, nickname) => __awaiter(void 0, void 0, void 0
             nickname: nickname
         }, { limit: 1 });
         if (isEmailExist === 1 && isNicknameExist === 1) {
-            const errorObject = (0, ResponseGenerator_1.ResponseGenerator)("ERROR")(510, "UserExistenceValidation Decorator: Decorator function error:CheckUserExistence Function", "User with this nickname and email already exist.");
+            const errorObject = (0, ResponseGenerator_1.ERROR_response)(510, "UserExistenceValidation Decorator: Decorator function error:CheckUserExistence Function", "User with this nickname and email already exist.");
             return errorObject;
         }
         else if (isEmailExist === 0 && isNicknameExist === 0) {
             return false;
         }
         else if (isEmailExist === 1) {
-            const errorObject = (0, ResponseGenerator_1.ResponseGenerator)("ERROR")(510, "UserExistenceValidation Decorator: Decorator function error:CheckUserExistence Function", "User with this email adress already exist.");
+            const errorObject = (0, ResponseGenerator_1.ERROR_response)(510, "UserExistenceValidation Decorator: Decorator function error:CheckUserExistence Function", "User with this email adress already exist.");
             return errorObject;
         }
         else if (isNicknameExist === 1) {
-            const errorObject = (0, ResponseGenerator_1.ResponseGenerator)("ERROR")(510, "UserExistenceValidation Decorator: Decorator function error:CheckUserExistence Function", "User with this nickname already exist.");
+            const errorObject = (0, ResponseGenerator_1.ERROR_response)(510, "UserExistenceValidation Decorator: Decorator function error:CheckUserExistence Function", "User with this nickname already exist.");
             return errorObject;
         }
     }
     catch (error) {
-        const errorObject = (0, ResponseGenerator_1.ResponseGenerator)("ERROR")(500, "UserExistenceValidation Decorator: Decorator function error:CheckUserExistence Function", "Registration Error");
+        const errorObject = (0, ResponseGenerator_1.ERROR_response)(500, "UserExistenceValidation Decorator: Decorator function error:CheckUserExistence Function", "Registration Error");
         return errorObject;
     }
 });

@@ -7,7 +7,7 @@
 // Jezeli użytkownik nie poda maila, nasapi natycmmiadtowe zakończenie sesji po stronie klienta
 
 import { WithId } from "mongodb";
-import { ResponseGenerator } from "../ResponseGenerator/ResponseGenerator";
+import { ERROR_response } from "../ResponseGenerator/ResponseGenerator";
 import { UserMongoDocument } from "../../globalTypings/userMongoDocument";
 import { db_collection } from "../Mongo/ConnectMongo";
 
@@ -20,7 +20,7 @@ export const ProviderLoginValidation = (target:any, name:string, descriptor:Prop
             if(userDocument) {
                 if(userDocument.provider !== provider) {
                     // Email istnieje, ale provider jest inny
-                    const errorObject = ResponseGenerator("ERROR")!<ErrorResponseType>(510, "ProviderLoginValidation Decorator: Decorator function error", "User with this email already exist! Provider is not correct")
+                    const errorObject = ERROR_response(510, "ProviderLoginValidation Decorator: Decorator function error", "User with this email already exist! Provider is not correct")
                     args[0].body = errorObject
                     return originalMethod.apply(target, args)
                 } else {
@@ -53,7 +53,7 @@ export const ProviderLoginValidation = (target:any, name:string, descriptor:Prop
             }
 
         } catch (error) {
-            const errorObject = ResponseGenerator("ERROR")!<ErrorResponseType>(500, "LoginValidation Decorator: Decorator function error", "Login Error")
+            const errorObject = ERROR_response(500, "LoginValidation Decorator: Decorator function error", "Login Error")
             args[0].body = errorObject
             return originalMethod.apply(target, args)
         }

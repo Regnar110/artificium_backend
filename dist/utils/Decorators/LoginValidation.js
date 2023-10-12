@@ -37,19 +37,19 @@ const LoginValidation = (target, name, descriptor) => {
                     return originalMethod.apply(target, args);
                 }
                 else {
-                    const errorObject = (0, ResponseGenerator_1.ResponseGenerator)("ERROR")(510, "LoginValidation Decorator: Decorator function error", "Wrong email or password");
+                    const errorObject = (0, ResponseGenerator_1.ERROR_response)(510, "LoginValidation Decorator: Decorator function error", "Wrong email or password");
                     args[0].body = errorObject;
                     return originalMethod.apply(target, args);
                 }
             }
             else if (!userDocument) {
-                const errorObject = (0, ResponseGenerator_1.ResponseGenerator)("ERROR")(510, "LoginValidation Decorator: Decorator function error", "Wrong email or password");
+                const errorObject = (0, ResponseGenerator_1.ERROR_response)(510, "LoginValidation Decorator: Decorator function error", "Wrong email or password");
                 args[0].body = errorObject;
                 return originalMethod.apply(target, args);
             }
         }
         catch (error) {
-            const errorObject = (0, ResponseGenerator_1.ResponseGenerator)("ERROR")(500, "LoginValidation Decorator: Decorator function error", "Login Error");
+            const errorObject = (0, ResponseGenerator_1.ERROR_response)(500, "LoginValidation Decorator: Decorator function error", "Login Error");
             args[0].body = errorObject;
             return originalMethod.apply(target, args);
         }

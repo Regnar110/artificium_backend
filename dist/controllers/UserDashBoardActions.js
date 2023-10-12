@@ -15,7 +15,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UserDashBoardActions = void 0;
+exports.getUserFriends = exports.getSelectedFriends = exports.getSelectedGroups = exports.getUserGroups = exports.createGroup = exports.UserDashBoardActions = void 0;
 const mongodb_1 = require("mongodb");
 const CreateGroupHandler_1 = require("../utils/Decorators/DashBoardActions/CreateGroupHandler");
 const ResponseGenerator_1 = require("../utils/ResponseGenerator/ResponseGenerator");
@@ -111,3 +111,4 @@ __decorate([
     CreateGroupHandler_1.CreateGroupHandler
 ], UserDashBoardActions, "createGroup", null);
 exports.UserDashBoardActions = UserDashBoardActions;
+exports.createGroup = UserDashBoardActions.createGroup, exports.getUserGroups = UserDashBoardActions.getUserGroups, exports.getSelectedGroups = UserDashBoardActions.getSelectedGroups, exports.getSelectedFriends = UserDashBoardActions.getSelectedFriends, exports.getUserFriends = UserDashBoardActions.getUserFriends;

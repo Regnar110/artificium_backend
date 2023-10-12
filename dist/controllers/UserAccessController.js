@@ -15,7 +15,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UserAccessController = void 0;
+exports.userLogout = exports.googleIdentityLogin = exports.login = exports.register = exports.UserAccessController = void 0;
 const mongodb_1 = require("mongodb");
 const RegisterValidation_1 = require("../utils/Decorators/RegisterValidation");
 const ResponseGenerator_1 = require("../utils/ResponseGenerator/ResponseGenerator");
@@ -28,7 +28,11 @@ class UserAccessController {
             try {
                 if (!req.body.status) {
                     const result = yield (0, ConnectMongo_1.db_collection)("Users").insertOne(req.body);
-                    const succesObject = (0, ResponseGenerator_1.ResponseGenerator)("SUCCESS")(200, "Registration successful!", result);
+                    const testSucc = (0, ResponseGenerator_1.SUCCESS_response)(200, "REG SUCCESFUL", result);
+                    console.log("TEST NOWEGO RESPONSA");
+                    console.log(testSucc);
+                    const succesObject = (0, ResponseGenerator_1.SUCCESS_response)(200, "Registration successful!", result);
+                    console.log(succesObject);
                     res.status(200).json(succesObject);
                 }
                 else {
@@ -36,7 +40,7 @@ class UserAccessController {
                 }
             }
             catch (error) {
-                const errorObject = (0, ResponseGenerator_1.ResponseGenerator)("ERROR")(510, "UserAccesController: register method error", "Register Error");
+                const errorObject = (0, ResponseGenerator_1.ERROR_response)(510, "UserAccesController: register method error", "Register Error");
                 res.status(510).json(errorObject);
             }
         });
@@ -45,7 +49,7 @@ class UserAccessController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 if (!req.body.status) {
-                    const succesObject = (0, ResponseGenerator_1.ResponseGenerator)("SUCCESS")(200, "Login Succcesful!", req.body);
+                    const succesObject = (0, ResponseGenerator_1.SUCCESS_response)(200, "Login Succcesful!", req.body);
                     res.status(200).json(succesObject);
                 }
                 else {
@@ -53,7 +57,7 @@ class UserAccessController {
                 }
             }
             catch (error) {
-                const errorObject = (0, ResponseGenerator_1.ResponseGenerator)("ERROR")(510, "UserAccessController: login method error", "Login Error");
+                const errorObject = (0, ResponseGenerator_1.ERROR_response)(510, "UserAccessController: login method error", "Login Error");
                 res.status(510).json(errorObject);
             }
         });
@@ -64,14 +68,14 @@ class UserAccessController {
                 if (!req.body.status) {
                     if (req.body._id) {
                         // Dokument użytkownika znaleziony po emailu , provider zgodny
-                        const succesObject = (0, ResponseGenerator_1.ResponseGenerator)("SUCCESS")(200, "Login Succcesful!", req.body);
+                        const succesObject = (0, ResponseGenerator_1.SUCCESS_response)(200, "Login Succcesful!", req.body);
                         res.status(200).json(succesObject);
                     }
                     else {
                         // dokument użytkownika nie znaleziony po emailu. Rejestrujemy i zwracamy OBIEKT UŻYTKOWNIKA!!!! Nie zwracmamy samej wiadomosci o powodzeniui rejestracji.
                         // Tuta uzytkownik od razu jest zalogowany po rejestracji danych w bazie
                         yield (0, ConnectMongo_1.db_collection)("Users").insertOne(req.body);
-                        const succesObject = (0, ResponseGenerator_1.ResponseGenerator)("SUCCESS")(200, "Registration successful!", req.body);
+                        const succesObject = (0, ResponseGenerator_1.SUCCESS_response)(200, "Registration successful!", req.body);
                         res.status(200).json(succesObject);
                     }
                 }
@@ -81,7 +85,7 @@ class UserAccessController {
                 }
             }
             catch (error) {
-                const errorObject = (0, ResponseGenerator_1.ResponseGenerator)("ERROR")(510, "UserAccesController: googleIdentityLogin method error", "googleIdentityLogin Error");
+                const errorObject = (0, ResponseGenerator_1.ERROR_response)(510, "UserAccesController: googleIdentityLogin method error", "googleIdentityLogin Error");
                 res.status(500).json(errorObject);
             }
         });
@@ -103,16 +107,16 @@ class UserAccessController {
                     }
                 });
                 if (logoutResult.modifiedCount === 1) {
-                    const succesObject = (0, ResponseGenerator_1.ResponseGenerator)("SUCCESS")(200, "Logout Succcesful!", logoutResult);
+                    const succesObject = (0, ResponseGenerator_1.SUCCESS_response)(200, "Logout Succcesful!", logoutResult);
                     res.status(200).json(succesObject);
                 }
                 else {
-                    const errorObject = (0, ResponseGenerator_1.ResponseGenerator)("ERROR")(510, "UserAccesController:  userLogout updateOne method error", "modifiedCount is not 1. User status not changed");
+                    const errorObject = (0, ResponseGenerator_1.ERROR_response)(510, "UserAccesController:  userLogout updateOne method error", "modifiedCount is not 1. User status not changed");
                     res.status(510).json(errorObject);
                 }
             }
             catch (error) {
-                const errorObject = (0, ResponseGenerator_1.ResponseGenerator)("ERROR")(500, "UserAccesController:  userLogout route error", "userLogout route overall error");
+                const errorObject = (0, ResponseGenerator_1.ERROR_response)(500, "UserAccesController:  userLogout route error", "userLogout route overall error");
                 res.status(500).json(errorObject);
             }
         });
@@ -128,3 +132,4 @@ __decorate([
     ProviderLoginValidation_1.ProviderLoginValidation
 ], UserAccessController, "googleIdentityLogin", null);
 exports.UserAccessController = UserAccessController;
+exports.register = UserAccessController.register, exports.login = UserAccessController.login, exports.googleIdentityLogin = UserAccessController.googleIdentityLogin, exports.userLogout = UserAccessController.userLogout;

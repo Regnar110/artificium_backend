@@ -1,6 +1,6 @@
 // import clientPromise from "../Mongo/ConnectMongo";
 import { SecurePass } from "../Register/SecurePass";
-import { ResponseGenerator } from "../ResponseGenerator/ResponseGenerator";
+import { ERROR_response } from "../ResponseGenerator/ResponseGenerator";
 import { checkUserExistence } from "../Register/CheckUserExistence";
 
 export const RegisterValidation = (target: any, name: string, descriptor: PropertyDescriptor) => {
@@ -30,7 +30,7 @@ export const RegisterValidation = (target: any, name: string, descriptor: Proper
             return originalMethod.apply(target, args)
           }
       } catch (error) {
-          const errorObject = ResponseGenerator("ERROR")!<ErrorResponseType>(510, "RegisterValidation Decorator: Decorator function error", "Registration Error")
+          const errorObject = ERROR_response(510, "RegisterValidation Decorator: Decorator function error", "Registration Error")
           args[0].body = errorObject
           return originalMethod.apply(target, args) 
       }

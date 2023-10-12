@@ -79,3 +79,4 @@ export class UserDashBoardActions {
     }
 }
 
+export const {createGroup, getUserGroups, getSelectedGroups, getSelectedFriends, getUserFriends } = UserDashBoardActions

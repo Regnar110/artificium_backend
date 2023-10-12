@@ -29,16 +29,16 @@ const groupActiveUsersModify = (actionType, userId, groupId, mongo) => __awaiter
                 break;
         }
         if (updateResult && updateResult.modifiedCount === 1) {
-            const responseObject = (0, ResponseGenerator_1.ResponseGenerator)("SUCCESS")(200, "Performed group activity action with success", {});
+            const responseObject = (0, ResponseGenerator_1.SUCCESS_response)(200, "Performed group activity action with success", {});
             return responseObject;
         }
         else {
-            const responseObject = (0, ResponseGenerator_1.ResponseGenerator)("ERROR")(510, "groupActiveUserModify Utility Function:", "Failed to perform action on group JOIN / LEAVE. Contact us to solve the problem.");
+            const responseObject = (0, ResponseGenerator_1.ERROR_response)(510, "groupActiveUserModify Utility Function:", "Failed to perform action on group JOIN / LEAVE. Contact us to solve the problem.");
             return responseObject;
         }
     }
     catch (error) {
-        const errorObject = (0, ResponseGenerator_1.ResponseGenerator)("ERROR")(510, "groupActiveUserModify Utility Function:", "Failed to perform TRY block logic on groupActiveUsersModify Function");
+        const errorObject = (0, ResponseGenerator_1.ERROR_response)(510, "groupActiveUserModify Utility Function:", "Failed to perform TRY block logic on groupActiveUsersModify Function");
         return errorObject;
     }
 });
