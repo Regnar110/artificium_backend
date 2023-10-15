@@ -26,6 +26,7 @@ export class SocketHandlers {
 
     //UŻYTKOWNIK DOŁĄCZA DO POKOJU GRUPY    
     static JOIN_GROUP_ROOM = async (groupId:string, joining_user:UserMongoDocument, socket:SOCKET, io:IO) => {
+        console.log("JOIN_GROUP_ROOM")
         const mongo = MongoDBClient.getInstance()
         const {_id } = joining_user
         const userId = new ObjectId(_id)
@@ -54,6 +55,7 @@ export class SocketHandlers {
     }
 
     static LEAVE_GROUP_ROOM = async (groupId:string, userId:string, socket:SOCKET, io:IO) => {
+        console.log("LEAVE_GROUP_ROOM")
         const mongo = MongoDBClient.getInstance()
         // TA FUNKCJA PO WYLOGOWANIU KLIENTA Z APKI GDY JEST W GRUPIE WYWOŁYWANA JEST DWA RAZY ( TYLKO PROVIDER ). PONIŻEJ TYMCZASOWE OBEJŚCIE, JEDNAK WYMAGA TO NAPRAWY
             const objectUserId = new ObjectId(userId)
@@ -71,6 +73,7 @@ export class SocketHandlers {
     // GDY UŻYTKOWNIK LOGUJE SIĘ I JEST ONLINE WYSYŁA DO TEJ METODY SWÓJ OBIEKT.
     // Z TEGO OBIEKTU SPRAWDZAMY JACY UŻYTKOWNICY Z FRIENDLISTY LOGUJĄCEGO SIĘ USERA SĄ ONLINE I INFORMUJEMY ICH ŻE TEN USER JEST ONLINE
     static USER_IS_ONLINE = async (online_user_id:string, user_friends:string[], socket:SOCKET) => {
+        console.log("USER_IS_ONLINE")
         const mongo = MongoDBClient.getInstance()
         //POTRZEBNE : TABLICA PRZYJACIÓŁ USERA ONLINE, JEGO ID
         const collection = mongo.db("Artificium").collection("Users")
@@ -105,6 +108,8 @@ export class SocketHandlers {
     }
 
     static USER_IS_ACTIVE = async (active_user_id:string, user_friends:string[], socket:SOCKET) => {
+        console.log("USER IS ACTIVE CALL")
+        console.log(active_user_id)
         //SPrawdzamy czy pole dokumentu użytkownika isInactive jest true.
         // Oznaczałoby to że użytkownik jest ONLINE, ale jest nieaktywny.
         const {isInactive} = await db_collection("Users").findOne(

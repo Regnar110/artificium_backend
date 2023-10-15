@@ -52,6 +52,7 @@ _a = SocketHandlers;
 //UŻYTKOWNIK DOŁĄCZA DO POKOPJU GRUPY ( OTRZYMUJE POCZĄTKOWĄ LISTĘ ACTIVE_USERS z aktywnymi użytkownikami)
 //UŻYTKOWNIK DOŁĄCZA DO POKOJU GRUPY    
 SocketHandlers.JOIN_GROUP_ROOM = (groupId, joining_user, socket, io) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log("JOIN_GROUP_ROOM");
     const mongo = ConnectMongo_1.default.getInstance();
     const { _id } = joining_user;
     const userId = new mongodb_1.ObjectId(_id);
@@ -72,6 +73,7 @@ SocketHandlers.JOIN_GROUP_ROOM = (groupId, joining_user, socket, io) => __awaite
     }
 });
 SocketHandlers.LEAVE_GROUP_ROOM = (groupId, userId, socket, io) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log("LEAVE_GROUP_ROOM");
     const mongo = ConnectMongo_1.default.getInstance();
     // TA FUNKCJA PO WYLOGOWANIU KLIENTA Z APKI GDY JEST W GRUPIE WYWOŁYWANA JEST DWA RAZY ( TYLKO PROVIDER ). PONIŻEJ TYMCZASOWE OBEJŚCIE, JEDNAK WYMAGA TO NAPRAWY
     const objectUserId = new mongodb_1.ObjectId(userId);
@@ -85,6 +87,7 @@ SocketHandlers.LEAVE_GROUP_ROOM = (groupId, userId, socket, io) => __awaiter(voi
 // GDY UŻYTKOWNIK LOGUJE SIĘ I JEST ONLINE WYSYŁA DO TEJ METODY SWÓJ OBIEKT.
 // Z TEGO OBIEKTU SPRAWDZAMY JACY UŻYTKOWNICY Z FRIENDLISTY LOGUJĄCEGO SIĘ USERA SĄ ONLINE I INFORMUJEMY ICH ŻE TEN USER JEST ONLINE
 SocketHandlers.USER_IS_ONLINE = (online_user_id, user_friends, socket) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log("USER_IS_ONLINE");
     const mongo = ConnectMongo_1.default.getInstance();
     //POTRZEBNE : TABLICA PRZYJACIÓŁ USERA ONLINE, JEGO ID
     const collection = mongo.db("Artificium").collection("Users");
@@ -112,6 +115,8 @@ SocketHandlers.USER_IS_UNACTIVE = (unactive_user_id, user_friends, groupId, sock
     (0, ConnectMongo_1.db_collection)("Users").updateOne({ _id: new mongodb_1.ObjectId(unactive_user_id) }, { $set: { "isInactive": true } });
 });
 SocketHandlers.USER_IS_ACTIVE = (active_user_id, user_friends, socket) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log("USER IS ACTIVE CALL");
+    console.log(active_user_id);
     //SPrawdzamy czy pole dokumentu użytkownika isInactive jest true.
     // Oznaczałoby to że użytkownik jest ONLINE, ale jest nieaktywny.
     const { isInactive } = yield (0, ConnectMongo_1.db_collection)("Users").findOne({ _id: new mongodb_1.ObjectId(active_user_id) }, { projection: { _id: 0, isInactive: 1 } });
