@@ -46,7 +46,7 @@ export class UserDashBoardActions {
     static async getSelectedFriends(req:any, res:any) {
         const objectedIds = req.body.map((el:string) => new ObjectId(el))
         try {
-            const users = await db_collection("Groups").find({_id: {$in:objectedIds}}).toArray()
+            const users = await db_collection("Users").find({_id: {$in:objectedIds}}).toArray()
             res.status(200).json(users)
         } catch (error) {
             const errorObject = ResponseGenerator("ERROR")!<ErrorResponseType>(500, "GetSelectedFriends Route: GetSelectedFriends Route overall error", "GetSelectedFriends route error")

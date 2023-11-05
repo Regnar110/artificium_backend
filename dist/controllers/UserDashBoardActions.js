@@ -70,7 +70,7 @@ class UserDashBoardActions {
         return __awaiter(this, void 0, void 0, function* () {
             const objectedIds = req.body.map((el) => new mongodb_1.ObjectId(el));
             try {
-                const users = yield (0, ConnectMongo_1.db_collection)("Groups").find({ _id: { $in: objectedIds } }).toArray();
+                const users = yield (0, ConnectMongo_1.db_collection)("Users").find({ _id: { $in: objectedIds } }).toArray();
                 res.status(200).json(users);
             }
             catch (error) {

@@ -6,13 +6,15 @@ import { getUserById } from "../Mongo/fnUtils/getUserById"
 import { UserMongoDocument } from "../../globalTypings/userMongoDocument"
 import { getCurrentActiveGroupUsers } from "../Mongo/fnUtils/getCurrentActiveGroupUsers"
 import MongoDBClient, { db_collection } from "../Mongo/ConnectMongo"
+import SocketClientState, { findClient, getState, removeClient } from "../../stateManager/SocketClientsState"
 
 type SOCKET = Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>
 type IO = Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>
 
 export class SocketHandlers {
 
-    static SOCKET_DISCONNECT(reason: DisconnectReason) {
+    static SOCKET_DISCONNECT(socketId:string, reason: DisconnectReason) {
+        removeClient(socketId)
         console.log("user disconected")
         console.log(reason)
     }
@@ -129,5 +131,37 @@ export class SocketHandlers {
         }
 
     }
+
+    static SEND_FRIEND_REQUEST = async (fromId:string, toId:string) => {
+        console.log(fromId)
+        console.log(toId)
+
+        //ID socket'u do którego będziemy emitować wiadomość zwrotną o otrzymaniu nowego friendRequesta
+        const socketClient = findClient(toId)
+
+        //Obiekt, który będziemy umieszczali w mongoDb oraz wysyłali do klienta, który miał dostać prośbę o dołączenie do znajomych
+        const FriendRequestObject = {
+            fromId,
+            system_type:"friend_request",
+            topic:"Friend Request",
+            content: "Hello! I would like you to join my group of friends. This would make it easier gor us to establish and maintain contact. Consider my request."
+        }
+        //Umieszczamy obiekt w bazie maili konkretnego użytkownika
+        await db_collection("Mailboxes").updateOne({ownerId: toId}, {$push : {mails: FriendRequestObject}})
+        //Następnie sprawdzamy czy użytkownik jest obecnie online. 
+        const {isOnline} = await db_collection("Users").findOne({_id: new ObjectId(toId)}) as UserMongoDocument
+
+        if(isOnline && socketClient) {
+            // Jeżeli tak emitujemy mu wiadomosć o nowym mailu.{
+            console.log("TARGET USER IS ONLINE")
+            console.log(socketClient)
+        } else {
+            // Jeżeli nie nie robimy nic po za umieszczeniem maila w bazie. Użytkownik będzie mógł go odczytać później. 
+            console.log("TARGET USER IS OFFLINE")
+        }
+        
+
+        
+    }
 }
-export const { SOCKET_DISCONNECT, JOIN_GROUP_ROOM, LEAVE_GROUP_ROOM, USER_IS_ONLINE, USER_IS_OFFLINE, USER_IS_ACTIVE, USER_IS_UNACTIVE} = SocketHandlers
+export const { SOCKET_DISCONNECT, JOIN_GROUP_ROOM, LEAVE_GROUP_ROOM, USER_IS_ONLINE, USER_IS_OFFLINE, USER_IS_ACTIVE, USER_IS_UNACTIVE, SEND_FRIEND_REQUEST} = SocketHandlers

@@ -33,14 +33,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.USER_IS_UNACTIVE = exports.USER_IS_ACTIVE = exports.USER_IS_OFFLINE = exports.USER_IS_ONLINE = exports.LEAVE_GROUP_ROOM = exports.JOIN_GROUP_ROOM = exports.SOCKET_DISCONNECT = exports.SocketHandlers = void 0;
+exports.SEND_FRIEND_REQUEST = exports.USER_IS_UNACTIVE = exports.USER_IS_ACTIVE = exports.USER_IS_OFFLINE = exports.USER_IS_ONLINE = exports.LEAVE_GROUP_ROOM = exports.JOIN_GROUP_ROOM = exports.SOCKET_DISCONNECT = exports.SocketHandlers = void 0;
 const mongodb_1 = require("mongodb");
 const groupActiveUsersModify_1 = require("./fnUtils/groupActiveUsersModify");
 const getUserById_1 = require("../Mongo/fnUtils/getUserById");
 const getCurrentActiveGroupUsers_1 = require("../Mongo/fnUtils/getCurrentActiveGroupUsers");
 const ConnectMongo_1 = __importStar(require("../Mongo/ConnectMongo"));
+const SocketClientsState_1 = require("../../stateManager/SocketClientsState");
 class SocketHandlers {
-    static SOCKET_DISCONNECT(reason) {
+    static SOCKET_DISCONNECT(socketId, reason) {
+        (0, SocketClientsState_1.removeClient)(socketId);
         console.log("user disconected");
         console.log(reason);
     }
@@ -128,4 +130,30 @@ SocketHandlers.USER_IS_ACTIVE = (active_user_id, user_friends, socket) => __awai
         _a.USER_IS_ONLINE(active_user_id, user_friends, socket);
     }
 });
-exports.SOCKET_DISCONNECT = SocketHandlers.SOCKET_DISCONNECT, exports.JOIN_GROUP_ROOM = SocketHandlers.JOIN_GROUP_ROOM, exports.LEAVE_GROUP_ROOM = SocketHandlers.LEAVE_GROUP_ROOM, exports.USER_IS_ONLINE = SocketHandlers.USER_IS_ONLINE, exports.USER_IS_OFFLINE = SocketHandlers.USER_IS_OFFLINE, exports.USER_IS_ACTIVE = SocketHandlers.USER_IS_ACTIVE, exports.USER_IS_UNACTIVE = SocketHandlers.USER_IS_UNACTIVE;
+SocketHandlers.SEND_FRIEND_REQUEST = (fromId, toId) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log(fromId);
+    console.log(toId);
+    //ID socket'u do którego będziemy emitować wiadomość zwrotną o otrzymaniu nowego friendRequesta
+    const socketClient = (0, SocketClientsState_1.findClient)(toId);
+    //Obiekt, który będziemy umieszczali w mongoDb oraz wysyłali do klienta, który miał dostać prośbę o dołączenie do znajomych
+    const FriendRequestObject = {
+        fromId,
+        system_type: "friend_request",
+        topic: "Friend Request",
+        content: "Hello! I would like you to join my group of friends. This would make it easier gor us to establish and maintain contact. Consider my request."
+    };
+    //Umieszczamy obiekt w bazie maili konkretnego użytkownika
+    yield (0, ConnectMongo_1.db_collection)("Mailboxes").updateOne({ ownerId: toId }, { $push: { mails: FriendRequestObject } });
+    //Następnie sprawdzamy czy użytkownik jest obecnie online. 
+    const { isOnline } = yield (0, ConnectMongo_1.db_collection)("Users").findOne({ _id: new mongodb_1.ObjectId(toId) });
+    if (isOnline && socketClient) {
+        // Jeżeli tak emitujemy mu wiadomosć o nowym mailu.{
+        console.log("TARGET USER IS ONLINE");
+        console.log(socketClient);
+    }
+    else {
+        // Jeżeli nie nie robimy nic po za umieszczeniem maila w bazie. Użytkownik będzie mógł go odczytać później. 
+        console.log("TARGET USER IS OFFLINE");
+    }
+});
+exports.SOCKET_DISCONNECT = SocketHandlers.SOCKET_DISCONNECT, exports.JOIN_GROUP_ROOM = SocketHandlers.JOIN_GROUP_ROOM, exports.LEAVE_GROUP_ROOM = SocketHandlers.LEAVE_GROUP_ROOM, exports.USER_IS_ONLINE = SocketHandlers.USER_IS_ONLINE, exports.USER_IS_OFFLINE = SocketHandlers.USER_IS_OFFLINE, exports.USER_IS_ACTIVE = SocketHandlers.USER_IS_ACTIVE, exports.USER_IS_UNACTIVE = SocketHandlers.USER_IS_UNACTIVE, exports.SEND_FRIEND_REQUEST = SocketHandlers.SEND_FRIEND_REQUEST;
