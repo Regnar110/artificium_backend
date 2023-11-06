@@ -44,7 +44,7 @@ export class SocketIO {
             socket.on("USER_IS_ACTIVE", (active_user_id, user_friends) => USER_IS_ACTIVE(active_user_id, user_friends, socket))
 
             // UZYTKOWNIK WYSYŁA ZAPROSZENIE DO GRONA ZNAJOMYCH
-            socket.on("SEND_FRIEND_REQUEST", (fromId, toId) => SEND_FRIEND_REQUEST(fromId, toId))
+            socket.on("SEND_FRIEND_REQUEST", (fromId, toId) => SEND_FRIEND_REQUEST(fromId, toId, socket))
         }) 
     }
     

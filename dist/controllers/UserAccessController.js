@@ -22,17 +22,26 @@ const ResponseGenerator_1 = require("../utils/ResponseGenerator/ResponseGenerato
 const LoginValidation_1 = require("../utils/Decorators/LoginValidation");
 const ProviderLoginValidation_1 = require("../utils/Decorators/ProviderLoginValidation");
 const ConnectMongo_1 = require("../utils/Mongo/ConnectMongo");
+const createNewUserMailbox_1 = require("../utils/Register/createNewUserMailbox");
 class UserAccessController {
     static register(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 if (!req.body.status) {
-                    const result = yield (0, ConnectMongo_1.db_collection)("Users").insertOne(req.body);
-                    const testSucc = (0, ResponseGenerator_1.SUCCESS_response)(200, "REG SUCCESFUL", result);
-                    console.log("TEST NOWEGO RESPONSA");
-                    console.log(testSucc);
-                    const succesObject = (0, ResponseGenerator_1.SUCCESS_response)(200, "Registration successful!", result);
-                    console.log(succesObject);
+                    const userRegisterResult = yield (0, ConnectMongo_1.db_collection)("Users").insertOne(req.body);
+                    if (userRegisterResult.acknowledged) {
+                        const mailboxCreateResult = yield (0, createNewUserMailbox_1.createNewUserMailbox)(userRegisterResult.insertedId.toString());
+                        if (mailboxCreateResult !== false) {
+                            const addMailboxToUserDocument = yield (0, ConnectMongo_1.db_collection)("Users").updateOne({ _id: userRegisterResult.insertedId }, { $set: { mailboxId: mailboxCreateResult } });
+                        }
+                        else {
+                            // obsługa błędu jeżeli nie uda się utworzyć mailboxa
+                        }
+                    }
+                    else {
+                        // obsługa błędu jeżeli nie uda się utworzyć użytkownika.
+                    }
+                    const succesObject = (0, ResponseGenerator_1.SUCCESS_response)(200, "Registration successful!", userRegisterResult);
                     res.status(200).json(succesObject);
                 }
                 else {

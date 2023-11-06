@@ -130,7 +130,7 @@ SocketHandlers.USER_IS_ACTIVE = (active_user_id, user_friends, socket) => __awai
         _a.USER_IS_ONLINE(active_user_id, user_friends, socket);
     }
 });
-SocketHandlers.SEND_FRIEND_REQUEST = (fromId, toId) => __awaiter(void 0, void 0, void 0, function* () {
+SocketHandlers.SEND_FRIEND_REQUEST = (fromId, toId, socket) => __awaiter(void 0, void 0, void 0, function* () {
     console.log(fromId);
     console.log(toId);
     //ID socket'u do którego będziemy emitować wiadomość zwrotną o otrzymaniu nowego friendRequesta
@@ -150,6 +150,7 @@ SocketHandlers.SEND_FRIEND_REQUEST = (fromId, toId) => __awaiter(void 0, void 0,
         // Jeżeli tak emitujemy mu wiadomosć o nowym mailu.{
         console.log("TARGET USER IS ONLINE");
         console.log(socketClient);
+        socket.broadcast.emit("INCOMING_FRIEND_REQUEST", "NADCHODZĄCY FR OD", FriendRequestObject);
     }
     else {
         // Jeżeli nie nie robimy nic po za umieszczeniem maila w bazie. Użytkownik będzie mógł go odczytać później. 

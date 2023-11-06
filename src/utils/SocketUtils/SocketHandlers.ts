@@ -132,7 +132,7 @@ export class SocketHandlers {
 
     }
 
-    static SEND_FRIEND_REQUEST = async (fromId:string, toId:string) => {
+    static SEND_FRIEND_REQUEST = async (fromId:string, toId:string, socket:SOCKET) => {
         console.log(fromId)
         console.log(toId)
 
@@ -155,6 +155,8 @@ export class SocketHandlers {
             // Jeżeli tak emitujemy mu wiadomosć o nowym mailu.{
             console.log("TARGET USER IS ONLINE")
             console.log(socketClient)
+            socket.broadcast.emit("INCOMING_FRIEND_REQUEST","NADCHODZĄCY FR OD" , FriendRequestObject)
+            
         } else {
             // Jeżeli nie nie robimy nic po za umieszczeniem maila w bazie. Użytkownik będzie mógł go odczytać później. 
             console.log("TARGET USER IS OFFLINE")

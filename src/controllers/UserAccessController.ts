@@ -5,6 +5,7 @@ import { LoginValidation } from "../utils/Decorators/LoginValidation"
 import dotenv from 'dotenv';
 import { ProviderLoginValidation } from "../utils/Decorators/ProviderLoginValidation";
 import { db_collection } from "../utils/Mongo/ConnectMongo";
+import { createNewUserMailbox } from "../utils/Register/createNewUserMailbox";
 export class UserAccessController {
 
     @RegisterValidation
@@ -12,12 +13,19 @@ export class UserAccessController {
         try {
             if(!req.body.status) {
                 
-                const result = await db_collection("Users").insertOne(req.body)
-                const testSucc = SUCCESS_response(200, "REG SUCCESFUL", result)
-                console.log("TEST NOWEGO RESPONSA")
-                console.log(testSucc)
-                const succesObject = SUCCESS_response(200, "Registration successful!", result)
-                console.log(succesObject)
+                const userRegisterResult = await db_collection("Users").insertOne(req.body)
+                if(userRegisterResult.acknowledged) {
+                    const mailboxCreateResult = await createNewUserMailbox(userRegisterResult.insertedId.toString())
+                    if(mailboxCreateResult !==false ){
+                        const addMailboxToUserDocument = await db_collection("Users").updateOne({_id: userRegisterResult.insertedId}, {$set: {mailboxId:mailboxCreateResult}})   
+                    } else {
+                        // obsługa błędu jeżeli nie uda się utworzyć mailboxa
+                    } 
+
+                } else {
+                    // obsługa błędu jeżeli nie uda się utworzyć użytkownika.
+                }
+                const succesObject = SUCCESS_response(200, "Registration successful!", userRegisterResult)
                 res.status(200).json(succesObject)                 
             } else {
                 res.status(500).json(req.body)
