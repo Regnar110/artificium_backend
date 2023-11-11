@@ -2,7 +2,9 @@ import { Db, ObjectId } from "mongodb";
 import { CreateGroupHandler } from "../utils/Decorators/DashBoardActions/CreateGroupHandler";
 import { ResponseGenerator } from "../utils/ResponseGenerator/ResponseGenerator";
 import { db_collection } from "../utils/Mongo/ConnectMongo";
+
 export class UserDashBoardActions {
+    
     @CreateGroupHandler
     static async createGroup(req:any, res:any) {
         console.log(req.body)
@@ -77,6 +79,20 @@ export class UserDashBoardActions {
     static async getUserGroupFriends(connectedUserId:string, groupId:string) {
 
     }
+
+    static async getUserMails(req:any, res:any) {
+        const {userId, newMailsOffset, endOffset}: {userId:string, newMailsOffset:number, endOffset:number} = req.body
+        console.log("GET USER MAIL HIT")
+        const foundMails = (await db_collection("Mailboxes").find({ownerId:userId}).project({mails:1, _id:0}).toArray())
+
+        // zwracamy 10 maili w zależności od numeru strony mailboxa na której znajduje się user po stronie klienta
+        const processedMails = foundMails[0].mails.slice(newMailsOffset, endOffset)
+
+        console.log(processedMails)
+        console.log(processedMails.length)
+        res.status(200).json(foundMails[0].mails)
+    
+    }
 }
 
-export const {createGroup, getUserGroups, getSelectedGroups, getSelectedFriends, getUserFriends } = UserDashBoardActions
+export const {createGroup, getUserGroups, getSelectedGroups, getSelectedFriends, getUserFriends,  getUserMails } = UserDashBoardActions

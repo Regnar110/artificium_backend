@@ -15,7 +15,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getUserFriends = exports.getSelectedFriends = exports.getSelectedGroups = exports.getUserGroups = exports.createGroup = exports.UserDashBoardActions = void 0;
+exports.getUserMails = exports.getUserFriends = exports.getSelectedFriends = exports.getSelectedGroups = exports.getUserGroups = exports.createGroup = exports.UserDashBoardActions = void 0;
 const mongodb_1 = require("mongodb");
 const CreateGroupHandler_1 = require("../utils/Decorators/DashBoardActions/CreateGroupHandler");
 const ResponseGenerator_1 = require("../utils/ResponseGenerator/ResponseGenerator");
@@ -106,9 +106,21 @@ class UserDashBoardActions {
         return __awaiter(this, void 0, void 0, function* () {
         });
     }
+    static getUserMails(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { userId, newMailsOffset, endOffset } = req.body;
+            console.log("GET USER MAIL HIT");
+            const foundMails = (yield (0, ConnectMongo_1.db_collection)("Mailboxes").find({ ownerId: userId }).project({ mails: 1, _id: 0 }).toArray());
+            // zwracamy 10 maili w zależności od numeru strony mailboxa na której znajduje się user po stronie klienta
+            const processedMails = foundMails[0].mails.slice(newMailsOffset, endOffset);
+            console.log(processedMails);
+            console.log(processedMails.length);
+            res.status(200).json(foundMails[0].mails);
+        });
+    }
 }
 __decorate([
     CreateGroupHandler_1.CreateGroupHandler
 ], UserDashBoardActions, "createGroup", null);
 exports.UserDashBoardActions = UserDashBoardActions;
-exports.createGroup = UserDashBoardActions.createGroup, exports.getUserGroups = UserDashBoardActions.getUserGroups, exports.getSelectedGroups = UserDashBoardActions.getSelectedGroups, exports.getSelectedFriends = UserDashBoardActions.getSelectedFriends, exports.getUserFriends = UserDashBoardActions.getUserFriends;
+exports.createGroup = UserDashBoardActions.createGroup, exports.getUserGroups = UserDashBoardActions.getUserGroups, exports.getSelectedGroups = UserDashBoardActions.getSelectedGroups, exports.getSelectedFriends = UserDashBoardActions.getSelectedFriends, exports.getUserFriends = UserDashBoardActions.getUserFriends, exports.getUserMails = UserDashBoardActions.getUserMails;

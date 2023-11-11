@@ -4,7 +4,7 @@ import cors from "cors"
 import dotenv from 'dotenv'
 import { googleIdentityLogin, login, register, userLogout } from "./controllers/UserAccessController";
 import MongoDBClient from "./utils/Mongo/ConnectMongo";
-import { createGroup, getSelectedFriends, getSelectedGroups, getUserFriends, getUserGroups } from "./controllers/UserDashBoardActions";
+import { createGroup, getSelectedFriends, getSelectedGroups, getUserFriends, getUserGroups, getUserMails } from "./controllers/UserDashBoardActions";
 import { SocketIO } from "./controllers/Socket";
 
 class ArtificiumBackend {
@@ -41,6 +41,7 @@ class ArtificiumBackend {
         post('/getUserGroups', getUserGroups)
         post('/getSelectedGroups', getSelectedGroups)
         post('/getSelectedUsers', getSelectedFriends)
+        post('/getUserMails', getUserMails)
         
         //FRIEND ACTION ROUTES
         

@@ -61,6 +61,7 @@ class ArtificiumBackend {
         post('/getUserGroups', UserDashBoardActions_1.getUserGroups);
         post('/getSelectedGroups', UserDashBoardActions_1.getSelectedGroups);
         post('/getSelectedUsers', UserDashBoardActions_1.getSelectedFriends);
+        post('/getUserMails', UserDashBoardActions_1.getUserMails);
         //FRIEND ACTION ROUTES
         post('/getUserFriends', UserDashBoardActions_1.getUserFriends);
     }
