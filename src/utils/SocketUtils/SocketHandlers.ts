@@ -7,6 +7,7 @@ import { UserMongoDocument } from "../../globalTypings/userMongoDocument"
 import { getCurrentActiveGroupUsers } from "../Mongo/fnUtils/getCurrentActiveGroupUsers"
 import MongoDBClient, { db_collection } from "../Mongo/ConnectMongo"
 import SocketClientState, { findClient, getState, removeClient } from "../../stateManager/SocketClientsState"
+import { ERROR_response, ResponseGenerator, SUCCESS_response } from "../ResponseGenerator/ResponseGenerator"
 
 type SOCKET = Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>
 type IO = Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>
@@ -132,35 +133,43 @@ export class SocketHandlers {
 
     }
 
-    static SEND_FRIEND_REQUEST = async (fromId:string, toId:string, socket:SOCKET) => {
-        console.log(fromId)
-        console.log(toId)
-
-        //ID socket'u do którego będziemy emitować wiadomość zwrotną o otrzymaniu nowego friendRequesta
-        const socketClient = findClient(toId)
-
-        //Obiekt, który będziemy umieszczali w mongoDb oraz wysyłali do klienta, który miał dostać prośbę o dołączenie do znajomych
-        const FriendRequestObject = {
-            fromId,
-            system_type:"friend_request",
-            topic:"Friend Request",
-            content: "Hello! I would like you to join my group of friends. This would make it easier gor us to establish and maintain contact. Consider my request."
+    static SEND_FRIEND_REQUEST = async (fromId:string, fromNickName:string, toId:string, io:IO, socket:SOCKET) => {
+        try {
+            //ID socket'u do którego będziemy emitować wiadomość zwrotną o otrzymaniu nowego friendRequesta
+            const socketClient = findClient(toId)
+            //Obiekt, który będziemy umieszczali w mongoDb oraz wysyłali do klienta, który miał dostać prośbę o dołączenie do znajomych
+            const FriendRequestObject = {
+                fromId,
+                fromNickName,
+                system_type:"friend_request555",
+                topic:"Friend Request",
+                content: "Hello! I would like you to join my group of friends. This would make it easier gor us to establish and maintain contact. Consider my request."
+            }
+            //Umieszczamy obiekt w bazie maili konkretnego użytkownika. Obiekt umieszczany jest na pozycji 0 co sprawia że będzie on zawsze wyświetlany na liście maili jako pierwszy
+            const updateResult = await db_collection("Mailboxes").updateOne({ownerId: toId}, {$push : {mails: {$each: [FriendRequestObject], $position:0}}})
+            //Następnie sprawdzamy czy użytkownik jest obecnie online. 
+            const {isOnline} = await db_collection("Users").findOne({_id: new ObjectId(toId)}) as UserMongoDocument
+            let responseObject:SuccesResponseType|ErrorResponseType
+            if(updateResult.modifiedCount === 1) {
+                responseObject = SUCCESS_response(200, `Hello! I would like you to join my group of friends.`, FriendRequestObject)
+                if(isOnline && socketClient) {
+                    // Jeżeli tak emitujemy mu wiadomosć o nowym mailu.
+                    console.log("TARGET USER IS ONLsINE")
+                    io.to(socketClient.socketId).emit("INCOMING_FRIEND_REQUEST", responseObject)
+                    
+                }
+                // Jeżeli warunek powyższy nie jest true to nie robimy nic po za umieszczeniem maila w bazie.
+            } else {
+                console.log("BŁĄD 510")
+                responseObject = ERROR_response(510, "SocketHandler:SEND_FRIEND_REQUEST: Error with updating mongo mailbox document with new mail", 'We cannot perform this action. Please try again in a moment or contact the support center.')
+                socket.emit("INCOMING_FRIEND_REQUEST",responseObject)
+            }
+        } catch {
+            const errorObject = ERROR_response(500, "SocketHandler:SEND_FRIEND_REQUEST: TRY block failed. Response send trough CATCH block with status 500. ", "We cannot perform this action. Please try again in a moment or contact the support center.")
+            socket.emit("INCOMING_FRIEND_REQUEST",errorObject)
         }
-        //Umieszczamy obiekt w bazie maili konkretnego użytkownika
-        await db_collection("Mailboxes").updateOne({ownerId: toId}, {$push : {mails: FriendRequestObject}})
-        //Następnie sprawdzamy czy użytkownik jest obecnie online. 
-        const {isOnline} = await db_collection("Users").findOne({_id: new ObjectId(toId)}) as UserMongoDocument
 
-        if(isOnline && socketClient) {
-            // Jeżeli tak emitujemy mu wiadomosć o nowym mailu.{
-            console.log("TARGET USER IS ONLINE")
-            console.log(socketClient)
-            socket.broadcast.emit("INCOMING_FRIEND_REQUEST","NADCHODZĄCY FR OD" , FriendRequestObject)
-            
-        } else {
-            // Jeżeli nie nie robimy nic po za umieszczeniem maila w bazie. Użytkownik będzie mógł go odczytać później. 
-            console.log("TARGET USER IS OFFLINE")
-        }
+
         
 
         

@@ -82,15 +82,20 @@ export class UserDashBoardActions {
 
     static async getUserMails(req:any, res:any) {
         const {userId, newMailsOffset, endOffset}: {userId:string, newMailsOffset:number, endOffset:number} = req.body
-        console.log("GET USER MAIL HIT")
-        const foundMails = (await db_collection("Mailboxes").find({ownerId:userId}).project({mails:1, _id:0}).toArray())
-
+        console.log("GET USER MAIL HITss")
+        // zwracamy maile oraz ich ilość w dokumencie
+        const [{mails, totalMails}] = (await db_collection("Mailboxes").find({ownerId:userId}).project({mails:1, _id:0, totalMails:{$size:"$mails"}}).toArray())
+        const processedMails = mails.slice(newMailsOffset, endOffset)
+        const responseObject = {
+            mails: processedMails,
+            pageCount:Math.ceil(totalMails / 10),
+            totalMails
+            // 10 is numbert mails per page. Here we declaring number of pages based on current mails size.
+        }
         // zwracamy 10 maili w zależności od numeru strony mailboxa na której znajduje się user po stronie klienta
-        const processedMails = foundMails[0].mails.slice(newMailsOffset, endOffset)
+        
 
-        console.log(processedMails)
-        console.log(processedMails.length)
-        res.status(200).json(foundMails[0].mails)
+        res.status(200).json(responseObject)
     
     }
 }

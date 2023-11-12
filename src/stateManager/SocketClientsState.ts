@@ -32,6 +32,7 @@ class SocketClientState {
     }
 
     public static findClient(clientId:string):Client | undefined {
+
       return SocketClientState.state.filter(client => client.userId === clientId)[0]
     }
 }
