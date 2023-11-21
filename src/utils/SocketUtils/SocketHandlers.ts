@@ -133,7 +133,7 @@ export class SocketHandlers {
 
     }
 
-    static SEND_FRIEND_REQUEST = async (fromId:string, fromNickName:string, toId:string, io:IO, socket:SOCKET) => {
+    static SEND_FRIEND_REQUEST = async (fromId:string, fromNickName:string, email:string, toId:string, io:IO, socket:SOCKET) => {
         try {
             //ID socket'u do którego będziemy emitować wiadomość zwrotną o otrzymaniu nowego friendRequesta
             const socketClient = findClient(toId)
@@ -141,6 +141,7 @@ export class SocketHandlers {
             const FriendRequestObject = {
                 fromId,
                 fromNickName,
+                email,
                 system_type:"friend_request555",
                 topic:"Friend Request",
                 content: "Hello! I would like you to join my group of friends. This would make it easier gor us to establish and maintain contact. Consider my request."
@@ -155,6 +156,7 @@ export class SocketHandlers {
                 if(isOnline && socketClient) {
                     // Jeżeli tak emitujemy mu wiadomosć o nowym mailu.
                     console.log("TARGET USER IS ONLsINE")
+                    console.log(FriendRequestObject)
                     io.to(socketClient.socketId).emit("INCOMING_FRIEND_REQUEST", responseObject)
                     
                 }

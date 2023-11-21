@@ -131,7 +131,7 @@ SocketHandlers.USER_IS_ACTIVE = (active_user_id, user_friends, socket) => __awai
         _a.USER_IS_ONLINE(active_user_id, user_friends, socket);
     }
 });
-SocketHandlers.SEND_FRIEND_REQUEST = (fromId, fromNickName, toId, io, socket) => __awaiter(void 0, void 0, void 0, function* () {
+SocketHandlers.SEND_FRIEND_REQUEST = (fromId, fromNickName, email, toId, io, socket) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         //ID socket'u do którego będziemy emitować wiadomość zwrotną o otrzymaniu nowego friendRequesta
         const socketClient = (0, SocketClientsState_1.findClient)(toId);
@@ -139,6 +139,7 @@ SocketHandlers.SEND_FRIEND_REQUEST = (fromId, fromNickName, toId, io, socket) =>
         const FriendRequestObject = {
             fromId,
             fromNickName,
+            email,
             system_type: "friend_request555",
             topic: "Friend Request",
             content: "Hello! I would like you to join my group of friends. This would make it easier gor us to establish and maintain contact. Consider my request."
@@ -153,6 +154,7 @@ SocketHandlers.SEND_FRIEND_REQUEST = (fromId, fromNickName, toId, io, socket) =>
             if (isOnline && socketClient) {
                 // Jeżeli tak emitujemy mu wiadomosć o nowym mailu.
                 console.log("TARGET USER IS ONLsINE");
+                console.log(FriendRequestObject);
                 io.to(socketClient.socketId).emit("INCOMING_FRIEND_REQUEST", responseObject);
             }
             // Jeżeli warunek powyższy nie jest true to nie robimy nic po za umieszczeniem maila w bazie.

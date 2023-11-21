@@ -82,20 +82,32 @@ export class UserDashBoardActions {
 
     static async getUserMails(req:any, res:any) {
         const {userId, newMailsOffset, endOffset}: {userId:string, newMailsOffset:number, endOffset:number} = req.body
-        console.log("GET USER MAIL HITss")
         // zwracamy maile oraz ich ilość w dokumencie
-        const [{mails, totalMails}] = (await db_collection("Mailboxes").find({ownerId:userId}).project({mails:1, _id:0, totalMails:{$size:"$mails"}}).toArray())
-        const processedMails = mails.slice(newMailsOffset, endOffset)
-        const responseObject = {
-            mails: processedMails,
-            pageCount:Math.ceil(totalMails / 10),
-            totalMails
+        const mailBoxResponse = await db_collection("Mailboxes").find({ownerId:userId}).project({mails:1, _id:0, totalMails:{$size:"$mails"}}).toArray()
+        if(mailBoxResponse.length) {
+            let [{mails, totalMails}] = mailBoxResponse
+            console.log(mails)
+            const processedMails = mails.slice(newMailsOffset, endOffset)
+            const responseObject = {
+                mails: processedMails,
+                pageCount:Math.ceil(totalMails / 10),
+                totalMails
+            }
+            res.status(200).json(responseObject)
+        } else {
+            const responseObject = {
+                mails: 0,
+                pageCount:0,
+                totalMails:0
+            }
+            res.status(200).json(responseObject)
+        }
+
             // 10 is numbert mails per page. Here we declaring number of pages based on current mails size.
         }
         // zwracamy 10 maili w zależności od numeru strony mailboxa na której znajduje się user po stronie klienta
         
 
-        res.status(200).json(responseObject)
     
     }
 }

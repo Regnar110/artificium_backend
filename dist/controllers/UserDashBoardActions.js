@@ -109,18 +109,28 @@ class UserDashBoardActions {
     static getUserMails(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const { userId, newMailsOffset, endOffset } = req.body;
-            console.log("GET USER MAIL HITss");
             // zwracamy maile oraz ich ilość w dokumencie
-            const [{ mails, totalMails }] = (yield (0, ConnectMongo_1.db_collection)("Mailboxes").find({ ownerId: userId }).project({ mails: 1, _id: 0, totalMails: { $size: "$mails" } }).toArray());
-            const processedMails = mails.slice(newMailsOffset, endOffset);
-            const responseObject = {
-                mails: processedMails,
-                pageCount: Math.ceil(totalMails / 10),
-                totalMails
-                // 10 is numbert mails per page. Here we declaring number of pages based on current mails size.
-            };
-            // zwracamy 10 maili w zależności od numeru strony mailboxa na której znajduje się user po stronie klienta
-            res.status(200).json(responseObject);
+            const mailBoxResponse = yield (0, ConnectMongo_1.db_collection)("Mailboxes").find({ ownerId: userId }).project({ mails: 1, _id: 0, totalMails: { $size: "$mails" } }).toArray();
+            if (mailBoxResponse.length) {
+                let [{ mails, totalMails }] = mailBoxResponse;
+                console.log(mails);
+                const processedMails = mails.slice(newMailsOffset, endOffset);
+                const responseObject = {
+                    mails: processedMails,
+                    pageCount: Math.ceil(totalMails / 10),
+                    totalMails
+                };
+                res.status(200).json(responseObject);
+            }
+            else {
+                const responseObject = {
+                    mails: 0,
+                    pageCount: 0,
+                    totalMails: 0
+                };
+                res.status(200).json(responseObject);
+            }
+            // 10 is numbert mails per page. Here we declaring number of pages based on current mails size.
         });
     }
 }
