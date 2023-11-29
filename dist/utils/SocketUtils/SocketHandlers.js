@@ -41,6 +41,7 @@ const getCurrentActiveGroupUsers_1 = require("../Mongo/fnUtils/getCurrentActiveG
 const ConnectMongo_1 = __importStar(require("../Mongo/ConnectMongo"));
 const SocketClientsState_1 = require("../../stateManager/SocketClientsState");
 const ResponseGenerator_1 = require("../ResponseGenerator/ResponseGenerator");
+const propagateFriendship_1 = require("./fnUtils/propagateFriendship");
 class SocketHandlers {
     static SOCKET_DISCONNECT(socketId, reason) {
         (0, SocketClientsState_1.removeClient)(socketId);
@@ -171,13 +172,20 @@ SocketHandlers.SEND_FRIEND_REQUEST = (fromId, fromNickName, email, toId, io, soc
         socket.emit("INCOMING_FRIEND_REQUEST", errorObject);
     }
 });
-SocketHandlers.INCOMING_ACCEPT_FR = (mail_id, resSenderId, fromUserNick, toId) => __awaiter(void 0, void 0, void 0, function* () {
+SocketHandlers.INCOMING_ACCEPT_FR = (mail_id, fr_sender, fromUserNick, responseSender) => __awaiter(void 0, void 0, void 0, function* () {
+    const resSenderUserObject = yield (0, ConnectMongo_1.db_collection)("Users").findOne({ _id: new mongodb_1.ObjectId(responseSender) });
+    resSenderUserObject.password && delete resSenderUserObject.password;
+    const frSenderUserObject = yield (0, ConnectMongo_1.db_collection)("Users").findOne({ _id: new mongodb_1.ObjectId(fr_sender) });
+    frSenderUserObject.password && delete frSenderUserObject.password;
+    yield (0, propagateFriendship_1.propagateFriendship)(fr_sender, responseSender);
+    console.log(resSenderUserObject);
+    console.log(frSenderUserObject);
     console.log("INCOMING ACCEPT FR");
     const obj = {
         mail_id,
-        resSenderId,
+        fr_sender,
         fromUserNick,
-        toId
+        responseSender
     };
     console.log(obj);
 });

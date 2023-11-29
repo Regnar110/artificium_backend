@@ -47,8 +47,8 @@ export class SocketIO {
             socket.on("SEND_FRIEND_REQUEST", (fromId, fromNickName, email, toId) => SEND_FRIEND_REQUEST(fromId, fromNickName, email, toId, this.io, socket))
             
             // ODPOWIEDZI NA FR
-            socket.on("INCOMING_ACCEPT_FR", (mail_id, fromId, fromUserNick, toId) => INCOMING_REJECT_FR(mail_id, fromId, fromUserNick, toId))
-            socket.on("INCOMING_REJECT_FR", (mail_id, fromId, fromUserNick, toId) => INCOMING_ACCEPT_FR(mail_id, fromId, fromUserNick, toId))
+            socket.on("INCOMING_ACCEPT_FR", (mail_id, fromId, fromUserNick, toId) => INCOMING_ACCEPT_FR(mail_id, fromId, fromUserNick, toId))
+            socket.on("INCOMING_REJECT_FR", (mail_id, fromId, fromUserNick, toId) => INCOMING_REJECT_FR(mail_id, fromId, fromUserNick, toId))
         }) 
     
     

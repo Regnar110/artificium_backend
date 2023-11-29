@@ -8,6 +8,7 @@ import { getCurrentActiveGroupUsers } from "../Mongo/fnUtils/getCurrentActiveGro
 import MongoDBClient, { db_collection } from "../Mongo/ConnectMongo"
 import SocketClientState, { findClient, getState, removeClient } from "../../stateManager/SocketClientsState"
 import { ERROR_response, ResponseGenerator, SUCCESS_response } from "../ResponseGenerator/ResponseGenerator"
+import { propagateFriendship } from "./fnUtils/propagateFriendship"
 
 type SOCKET = Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>
 type IO = Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>
@@ -178,13 +179,27 @@ export class SocketHandlers {
         
     }
 
-    static INCOMING_ACCEPT_FR = async (mail_id:string, resSenderId:string, fromUserNick:string, toId:string) => {
+    static INCOMING_ACCEPT_FR = async (mail_id:string, fr_sender:string, fromUserNick:string, responseSender:string) => {
+        const resSenderUserObject = await db_collection("Users").findOne(
+            {_id:new ObjectId(responseSender)},
+        )
+        resSenderUserObject.password && delete resSenderUserObject.password
+
+        const frSenderUserObject = await db_collection("Users").findOne(
+            {_id:new ObjectId(fr_sender)},
+        )
+
+        frSenderUserObject.password && delete frSenderUserObject.password
+
+        await propagateFriendship(fr_sender, responseSender)
+        console.log(resSenderUserObject)
+        console.log(frSenderUserObject)
         console.log("INCOMING ACCEPT FR")
         const obj = {
             mail_id,
-            resSenderId,
+            fr_sender,
             fromUserNick,
-            toId
+            responseSender
         }
         console.log(obj)
     }
