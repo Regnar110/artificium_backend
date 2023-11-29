@@ -82,11 +82,10 @@ export class UserDashBoardActions {
 
     static async getUserMails(req:any, res:any) {
         const {userId, newMailsOffset, endOffset}: {userId:string, newMailsOffset:number, endOffset:number} = req.body
-        // zwracamy maile oraz ich ilość w dokumencie
+        // zwracamy maile oraz ich ilość w dokumencie - paginacja po stronie serwera
         const mailBoxResponse = await db_collection("Mailboxes").find({ownerId:userId}).project({mails:1, _id:0, totalMails:{$size:"$mails"}}).toArray()
         if(mailBoxResponse.length) {
             let [{mails, totalMails}] = mailBoxResponse
-            console.log(mails)
             const processedMails = mails.slice(newMailsOffset, endOffset)
             const responseObject = {
                 mails: processedMails,

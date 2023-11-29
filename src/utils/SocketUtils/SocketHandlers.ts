@@ -139,6 +139,7 @@ export class SocketHandlers {
             const socketClient = findClient(toId)
             //Obiekt, który będziemy umieszczali w mongoDb oraz wysyłali do klienta, który miał dostać prośbę o dołączenie do znajomych
             const FriendRequestObject = {
+                mail_id: new ObjectId,
                 fromId,
                 fromNickName,
                 email,
@@ -176,5 +177,27 @@ export class SocketHandlers {
 
         
     }
+
+    static INCOMING_ACCEPT_FR = async (mail_id:string, resSenderId:string, fromUserNick:string, toId:string) => {
+        console.log("INCOMING ACCEPT FR")
+        const obj = {
+            mail_id,
+            resSenderId,
+            fromUserNick,
+            toId
+        }
+        console.log(obj)
+    }
+
+    static INCOMING_REJECT_FR = async (mail_id:string, resSenderId:string, fromUserNick:string, toId:string) => {
+        console.log("INCOMING ACCEPT FR")
+        const obj = {
+            mail_id,
+            resSenderId,
+            fromUserNick,
+            toId
+        }
+        console.log(obj)
+    }
 }
-export const { SOCKET_DISCONNECT, JOIN_GROUP_ROOM, LEAVE_GROUP_ROOM, USER_IS_ONLINE, USER_IS_OFFLINE, USER_IS_ACTIVE, USER_IS_UNACTIVE, SEND_FRIEND_REQUEST} = SocketHandlers
+export const { SOCKET_DISCONNECT, JOIN_GROUP_ROOM, LEAVE_GROUP_ROOM, USER_IS_ONLINE, USER_IS_OFFLINE, USER_IS_ACTIVE, USER_IS_UNACTIVE, SEND_FRIEND_REQUEST, INCOMING_ACCEPT_FR, INCOMING_REJECT_FR} = SocketHandlers

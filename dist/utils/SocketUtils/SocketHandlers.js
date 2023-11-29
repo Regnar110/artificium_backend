@@ -33,7 +33,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SEND_FRIEND_REQUEST = exports.USER_IS_UNACTIVE = exports.USER_IS_ACTIVE = exports.USER_IS_OFFLINE = exports.USER_IS_ONLINE = exports.LEAVE_GROUP_ROOM = exports.JOIN_GROUP_ROOM = exports.SOCKET_DISCONNECT = exports.SocketHandlers = void 0;
+exports.INCOMING_REJECT_FR = exports.INCOMING_ACCEPT_FR = exports.SEND_FRIEND_REQUEST = exports.USER_IS_UNACTIVE = exports.USER_IS_ACTIVE = exports.USER_IS_OFFLINE = exports.USER_IS_ONLINE = exports.LEAVE_GROUP_ROOM = exports.JOIN_GROUP_ROOM = exports.SOCKET_DISCONNECT = exports.SocketHandlers = void 0;
 const mongodb_1 = require("mongodb");
 const groupActiveUsersModify_1 = require("./fnUtils/groupActiveUsersModify");
 const getUserById_1 = require("../Mongo/fnUtils/getUserById");
@@ -137,6 +137,7 @@ SocketHandlers.SEND_FRIEND_REQUEST = (fromId, fromNickName, email, toId, io, soc
         const socketClient = (0, SocketClientsState_1.findClient)(toId);
         //Obiekt, który będziemy umieszczali w mongoDb oraz wysyłali do klienta, który miał dostać prośbę o dołączenie do znajomych
         const FriendRequestObject = {
+            mail_id: new mongodb_1.ObjectId,
             fromId,
             fromNickName,
             email,
@@ -170,4 +171,24 @@ SocketHandlers.SEND_FRIEND_REQUEST = (fromId, fromNickName, email, toId, io, soc
         socket.emit("INCOMING_FRIEND_REQUEST", errorObject);
     }
 });
-exports.SOCKET_DISCONNECT = SocketHandlers.SOCKET_DISCONNECT, exports.JOIN_GROUP_ROOM = SocketHandlers.JOIN_GROUP_ROOM, exports.LEAVE_GROUP_ROOM = SocketHandlers.LEAVE_GROUP_ROOM, exports.USER_IS_ONLINE = SocketHandlers.USER_IS_ONLINE, exports.USER_IS_OFFLINE = SocketHandlers.USER_IS_OFFLINE, exports.USER_IS_ACTIVE = SocketHandlers.USER_IS_ACTIVE, exports.USER_IS_UNACTIVE = SocketHandlers.USER_IS_UNACTIVE, exports.SEND_FRIEND_REQUEST = SocketHandlers.SEND_FRIEND_REQUEST;
+SocketHandlers.INCOMING_ACCEPT_FR = (mail_id, resSenderId, fromUserNick, toId) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log("INCOMING ACCEPT FR");
+    const obj = {
+        mail_id,
+        resSenderId,
+        fromUserNick,
+        toId
+    };
+    console.log(obj);
+});
+SocketHandlers.INCOMING_REJECT_FR = (mail_id, resSenderId, fromUserNick, toId) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log("INCOMING ACCEPT FR");
+    const obj = {
+        mail_id,
+        resSenderId,
+        fromUserNick,
+        toId
+    };
+    console.log(obj);
+});
+exports.SOCKET_DISCONNECT = SocketHandlers.SOCKET_DISCONNECT, exports.JOIN_GROUP_ROOM = SocketHandlers.JOIN_GROUP_ROOM, exports.LEAVE_GROUP_ROOM = SocketHandlers.LEAVE_GROUP_ROOM, exports.USER_IS_ONLINE = SocketHandlers.USER_IS_ONLINE, exports.USER_IS_OFFLINE = SocketHandlers.USER_IS_OFFLINE, exports.USER_IS_ACTIVE = SocketHandlers.USER_IS_ACTIVE, exports.USER_IS_UNACTIVE = SocketHandlers.USER_IS_UNACTIVE, exports.SEND_FRIEND_REQUEST = SocketHandlers.SEND_FRIEND_REQUEST, exports.INCOMING_ACCEPT_FR = SocketHandlers.INCOMING_ACCEPT_FR, exports.INCOMING_REJECT_FR = SocketHandlers.INCOMING_REJECT_FR;

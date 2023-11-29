@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 import http from 'http';
 import { Server, Socket } from 'socket.io';
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';
-import { JOIN_GROUP_ROOM, LEAVE_GROUP_ROOM, SEND_FRIEND_REQUEST, SOCKET_DISCONNECT, USER_IS_ACTIVE, USER_IS_OFFLINE, USER_IS_ONLINE, USER_IS_UNACTIVE } from '../utils/SocketUtils/SocketHandlers';
+import { INCOMING_ACCEPT_FR, INCOMING_REJECT_FR, JOIN_GROUP_ROOM, LEAVE_GROUP_ROOM, SEND_FRIEND_REQUEST, SOCKET_DISCONNECT, USER_IS_ACTIVE, USER_IS_OFFLINE, USER_IS_ONLINE, USER_IS_UNACTIVE } from '../utils/SocketUtils/SocketHandlers';
 import SocketClientState from '../stateManager/SocketClientsState';
 
 export class SocketIO {
@@ -45,8 +45,12 @@ export class SocketIO {
 
             // UZYTKOWNIK WYSYŁA ZAPROSZENIE DO GRONA ZNAJOMYCH
             socket.on("SEND_FRIEND_REQUEST", (fromId, fromNickName, email, toId) => SEND_FRIEND_REQUEST(fromId, fromNickName, email, toId, this.io, socket))
+            
+            // ODPOWIEDZI NA FR
+            socket.on("INCOMING_ACCEPT_FR", (mail_id, fromId, fromUserNick, toId) => INCOMING_REJECT_FR(mail_id, fromId, fromUserNick, toId))
+            socket.on("INCOMING_REJECT_FR", (mail_id, fromId, fromUserNick, toId) => INCOMING_ACCEPT_FR(mail_id, fromId, fromUserNick, toId))
         }) 
-    }
+    
     
     
 }

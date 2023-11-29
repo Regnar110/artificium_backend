@@ -46,6 +46,9 @@ class SocketIO {
             socket.on("USER_IS_ACTIVE", (active_user_id, user_friends) => (0, SocketHandlers_1.USER_IS_ACTIVE)(active_user_id, user_friends, socket));
             // UZYTKOWNIK WYSYŁA ZAPROSZENIE DO GRONA ZNAJOMYCH
             socket.on("SEND_FRIEND_REQUEST", (fromId, fromNickName, email, toId) => (0, SocketHandlers_1.SEND_FRIEND_REQUEST)(fromId, fromNickName, email, toId, this.io, socket));
+            // ODPOWIEDZI NA FR
+            socket.on("INCOMING_ACCEPT_FR", (mail_id, fromId, fromUserNick, toId) => (0, SocketHandlers_1.INCOMING_REJECT_FR)(mail_id, fromId, fromUserNick, toId));
+            socket.on("INCOMING_REJECT_FR", (mail_id, fromId, fromUserNick, toId) => (0, SocketHandlers_1.INCOMING_ACCEPT_FR)(mail_id, fromId, fromUserNick, toId));
         });
     }
 }

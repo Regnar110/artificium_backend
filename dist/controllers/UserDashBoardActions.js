@@ -109,11 +109,10 @@ class UserDashBoardActions {
     static getUserMails(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const { userId, newMailsOffset, endOffset } = req.body;
-            // zwracamy maile oraz ich ilość w dokumencie
+            // zwracamy maile oraz ich ilość w dokumencie - paginacja po stronie serwera
             const mailBoxResponse = yield (0, ConnectMongo_1.db_collection)("Mailboxes").find({ ownerId: userId }).project({ mails: 1, _id: 0, totalMails: { $size: "$mails" } }).toArray();
             if (mailBoxResponse.length) {
                 let [{ mails, totalMails }] = mailBoxResponse;
-                console.log(mails);
                 const processedMails = mails.slice(newMailsOffset, endOffset);
                 const responseObject = {
                     mails: processedMails,
